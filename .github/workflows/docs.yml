@@ -8,11 +8,13 @@ on:
       - 'ghpages/**'
       - 'display/modes/**'
       - 'tools/docsnap/**'
+      - '.github/workflows/docs.yml'
   pull_request:
     paths:
       - 'ghpages/**'
       - 'display/modes/**'
       - 'tools/docsnap/**'
+      - '.github/workflows/docs.yml'
 
 concurrency:
   group: pages-${{ github.ref }}
@@ -41,12 +43,12 @@ jobs:
       - run: make generate-gallery
       - run: mkdocs build --strict --config-file ghpages/mkdocs.yml
       - uses: actions/upload-pages-artifact@v4
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request'
         with:
           path: ghpages/site
 
   deploy:
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     environment:

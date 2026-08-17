@@ -62,7 +62,7 @@ Builds and deploys the MkDocs documentation site to GitHub Pages.
 
 **Triggers:**
 
-- Push to `main` branch affecting `ghpages/`, `display/modes/`, or `tools/docsnap/`
+- Push to `main` branch affecting `ghpages/`, `display/modes/`, `tools/docsnap/`, or `.github/workflows/docs.yml`
 - Pull requests affecting the same paths
 - Manual dispatch
 
@@ -76,9 +76,9 @@ Builds and deploys the MkDocs documentation site to GitHub Pages.
 6. Collect snapshots into docs directory (`make collect-snapshots`)
 7. Generate gallery page (`make generate-gallery`)
 8. Build site with `mkdocs build --strict`
-9. Upload pages artifact (push only)
+9. Upload pages artifact (push and manual dispatch only)
 
-**Deployment target:** GitHub Pages (via `actions/deploy-pages`), deployed on push to `main` only
+**Deployment target:** GitHub Pages (via `actions/deploy-pages`), deployed on push to `main` and manual dispatch; pull requests build only
 
 ---
 
