@@ -1,0 +1,26 @@
+[
+  {
+    "text": "ALERTS",
+    "font": "mono-10px-bold",
+    "scroll": "pinned"
+  },
+  {
+    "text": "---",
+    "scroll": "pinned"
+  },
+  {
+    "text": "[WARN] CPU temp above threshold"
+  },
+  {
+    "text": "[INFO] Backup completed 03:00"
+  },
+  {
+    "text": "[INFO] 4 packages upgradable"
+  },
+  {
+    "text": "[WARN] Disk /dev/sda1 at 89%"
+  },
+  {
+    "text": "[INFO] Last login: 08:14 from 192.168.1.5"
+  }
+]

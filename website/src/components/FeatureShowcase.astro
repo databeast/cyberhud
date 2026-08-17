@@ -1,0 +1,76 @@
+---
+/*
+ * FeatureShowcase.astro — Grid of feature cards highlighting CyberHUD capabilities.
+ *
+ * Renders four feature cards from the static features data file in a responsive
+ * 2-column grid (desktop) / 1-column (mobile) layout.
+ *
+ */
+import {features} from '../data/features';
+import FeatureCard from './FeatureCard.astro';
+---
+
+<section id="features" class="feature-showcase" aria-label="Features">
+    <h2 class="feature-showcase__heading">What CyberHUD Does</h2>
+
+    <div class="feature-showcase__grid">
+        {features.map((feature, index) => (
+                <FeatureCard
+                        title={feature.title}
+                        description={feature.description}
+                        mediaSrc={feature.mediaSrc}
+                        mediaAlt={feature.mediaAlt}
+                        mediaWidth={feature.mediaWidth}
+                        mediaHeight={feature.mediaHeight}
+                        index={index}
+                />
+        ))}
+    </div>
+</section>
+
+<style>
+    .feature-showcase {
+        padding: var(--space-16) var(--space-6);
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .feature-showcase__heading {
+        font-family: var(--font-mono);
+        font-size: clamp(var(--text-2xl), 4vw, var(--text-3xl));
+        color: var(--color-text-primary);
+        text-align: center;
+        margin: 0 0 var(--space-12);
+        line-height: var(--leading-tight);
+    }
+
+    .feature-showcase__grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-8);
+    }
+
+    @media (min-width: 768px) {
+        .feature-showcase__grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+
+<script>
+    const observer = new IntersectionObserver(
+        (entries) => {
+            for (const entry of entries) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            }
+        },
+        {rootMargin: '0px 0px -100px 0px'}
+    );
+
+    document.querySelectorAll('.feature-card').forEach((card) => {
+        observer.observe(card);
+    });
+</script>

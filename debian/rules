@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE = 1
+
+VERSION := $(shell dpkg-parsechangelog -S Version)
+TARGET_GOARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	GOOS=linux GOARCH=$(TARGET_GOARCH) go build -trimpath -ldflags="-s -w -X github.com/databeast/cyberhud/display/modes/dashboard.Version=$(VERSION)" -o cyberhudd ./cmd/cyberhudd
+	GOOS=linux GOARCH=$(TARGET_GOARCH) go build -trimpath -ldflags="-s -w" -o cyberhudctl ./cmd/cyberhudctl
+
+override_dh_auto_install:
+	:
+
+override_dh_clean:
+	dh_clean
+	rm -f cyberhudd cyberhudctl
+

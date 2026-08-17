@@ -1,0 +1,30 @@
+{
+  "socket": "/run/cyberhudd/console.sock",
+  "i2c": "/dev/i2c-1",
+  "scan": "2s",
+  "display": {
+    "panel": "waveshare-2.23-oled-hat-i2c",
+    "disable_input": true
+  },
+  "policies": {
+    "dashboard": {
+      "style": "mono-fast-128x32"
+    },
+    "ticker": {
+      "style": "plain",
+      "font_tier": "small",
+      "line_mode": "truncate",
+      "direction": "horizontal",
+      "auto_scroll_ms": 5000,
+      "accent": "white"
+    },
+    "clock": {
+      "style": "mono-128x32",
+      "show_seconds": true,
+      "time_format": "24h",
+      "date_format": "none",
+      "show_weekday": false,
+      "blink_colon": true
+    }
+  }
+}

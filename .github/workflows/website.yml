@@ -1,0 +1,47 @@
+name: website
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'website/**'
+      - '.github/workflows/website.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: website-build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build website
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: website
+
+      - name: Build site
+        run: npm run build
+        working-directory: website
+
+      - name: Run Lighthouse CI (Desktop)
+        run: npx --yes @lhci/cli@0.15.1 autorun --config=.lighthouserc.json
+        working-directory: website
+
+      - name: Run Lighthouse CI (Mobile)
+        run: npx --yes @lhci/cli@0.15.1 autorun --config=.lighthouserc-mobile.json
+        working-directory: website

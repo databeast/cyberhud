@@ -1,0 +1,111 @@
+---
+/*
+ * HardwareSection.astro — Supported hardware section.
+ * Groups supported panels by controller chipset rather than listing every
+ * individual product, since visitors already know the specs of the panel
+ * they own — what they need to know is whether their chip is supported.
+ */
+import {supportedPanels} from '../data/hardware';
+import ChipsetCard from './ChipsetCard.astro';
+
+interface ChipsetGroup {
+    family: string;
+    controllers: string[];
+    note: string;
+}
+
+const familyNotes: Record<string, string> = {
+    'Color LCD': 'Full-color SPI TFTs — single-panel HATs or multi-screen rigs.',
+    'Monochrome OLED': 'Low-power SPI/I2C OLEDs for compact status panels and menus.',
+    'E-Ink': 'Low-power, high-contrast panels for always-on dashboards and kiosks.',
+    'LED Matrix': 'Tiny I2C LED matrices for status lights and badges.',
+};
+
+const familyOrder = ['Color LCD', 'Monochrome OLED', 'E-Ink', 'LED Matrix'];
+
+const groups: ChipsetGroup[] = familyOrder
+    .map((family) => {
+        const panels = supportedPanels.filter((p) => p.family === family);
+        const controllers = [...new Set(panels.flatMap((p) => p.controller.split(' + ')))].sort();
+        return {family, controllers, note: familyNotes[family]};
+    })
+    .filter((group) => group.controllers.length > 0);
+---
+
+<section id="hardware" class="hardware-section" aria-label="Supported hardware">
+    <div class="hardware-section__container">
+        <h2 class="hardware-section__heading">Supported Hardware</h2>
+
+        <p class="hardware-section__compat">
+            These panels do nothing on their own — CyberHUD drives them out of the box, no code required. Support is
+            driven by the controller chip, not the product listing: if your panel runs one of these chipsets, it works.
+            Set the pins and dimensions once, and cyberhudd takes it from there, with automatic fallback if the primary
+            panel fails to init.
+        </p>
+
+        <div class="hardware-section__grid">
+            {groups.map((group) => (
+                    <ChipsetCard family={group.family} controllers={group.controllers} note={group.note}/>
+            ))}
+        </div>
+
+        <p class="hardware-section__footnote">
+            Native pin and button mappings ship for common Waveshare and Adafruit HATs; anything else using the same
+            chips just needs a generic override — no code changes required.
+        </p>
+    </div>
+</section>
+
+<style>
+    .hardware-section {
+        padding: var(--space-16) var(--space-4);
+        background: var(--color-bg-base);
+        overflow-x: hidden;
+    }
+
+    .hardware-section__container {
+        max-width: 72rem;
+        margin: 0 auto;
+    }
+
+    .hardware-section__heading {
+        font-family: var(--font-body);
+        font-size: var(--text-3xl);
+        color: var(--color-text-primary);
+        text-align: center;
+        margin: 0 0 var(--space-4);
+        line-height: var(--leading-tight);
+    }
+
+    .hardware-section__compat {
+        font-family: var(--font-mono);
+        font-size: var(--text-base);
+        color: var(--color-accent-green);
+        text-align: center;
+        margin: 0 0 var(--space-12);
+    }
+
+    .hardware-section__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+        gap: var(--space-6);
+    }
+
+    .hardware-section__footnote {
+        font-family: var(--font-body);
+        font-size: var(--text-sm);
+        color: var(--color-text-secondary);
+        text-align: center;
+        margin: var(--space-8) 0 0;
+    }
+
+    @media (max-width: 768px) {
+        .hardware-section__grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hardware-section__heading {
+            font-size: var(--text-2xl);
+        }
+    }
+</style>

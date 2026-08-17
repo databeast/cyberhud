@@ -1,0 +1,30 @@
+package all
+
+import (
+	_ "github.com/databeast/cyberhud/hardware/driver/epd4in26"
+	_ "github.com/databeast/cyberhud/hardware/driver/ht16k33"
+	_ "github.com/databeast/cyberhud/hardware/driver/is31fl3731"
+	_ "github.com/databeast/cyberhud/hardware/driver/max7219"
+	_ "github.com/databeast/cyberhud/hardware/driver/sh1106"
+	_ "github.com/databeast/cyberhud/hardware/driver/ssd1305"
+	_ "github.com/databeast/cyberhud/hardware/driver/ssd1306"
+	_ "github.com/databeast/cyberhud/hardware/driver/ssd1351"
+	_ "github.com/databeast/cyberhud/hardware/driver/ssd1680"
+	_ "github.com/databeast/cyberhud/hardware/driver/st7735s"
+	_ "github.com/databeast/cyberhud/hardware/driver/st7789"
+	_ "github.com/databeast/cyberhud/hardware/driver/uc8179"
+
+	_ "github.com/databeast/cyberhud/hardware/panels/adafruit_15x7_charlieplex"
+	_ "github.com/databeast/cyberhud/hardware/panels/adafruit_2_13_ssd1680_landscape"
+	_ "github.com/databeast/cyberhud/hardware/panels/adafruit_4120_charlieplex"
+	_ "github.com/databeast/cyberhud/hardware/panels/st7789_240x135"
+	_ "github.com/databeast/cyberhud/hardware/panels/st7789_240x240"
+	_ "github.com/databeast/cyberhud/hardware/panels/st7789_320x240"
+	_ "github.com/databeast/cyberhud/hardware/panels/waveshare_1_3_oled_hat"
+	_ "github.com/databeast/cyberhud/hardware/panels/waveshare_1_3hat"
+	_ "github.com/databeast/cyberhud/hardware/panels/waveshare_1_44"
+	_ "github.com/databeast/cyberhud/hardware/panels/waveshare_2_2"
+	_ "github.com/databeast/cyberhud/hardware/panels/waveshare_2_23_oled_hat"
+	_ "github.com/databeast/cyberhud/hardware/panels/waveshare_4_26_epaper"
+	_ "github.com/databeast/cyberhud/hardware/panels/waveshare_triple_screen"
+)

@@ -1,0 +1,79 @@
+---
+/*
+ * Layout.astro — Base document layout for the CyberHUD marketing site.
+ *
+ * Provides the HTML5 document shell with semantic landmarks, meta tags (OG, Twitter Card),
+ * theme tokens, and global styles. Does NOT render an h1 — that is reserved for HeroSection.
+ *
+ */
+import {siteConfig} from '../data/navigation';
+import NavigationBar from './NavigationBar.astro';
+import Footer from './Footer.astro';
+
+import '../styles/fonts.css';
+import '../styles/global.css';
+
+interface Props {
+    /* Page title — must be ≤60 characters */
+    title?: string;
+    /* Meta description override */
+    description?: string;
+    /* Canonical URL for og:url */
+    canonicalUrl?: string;
+}
+
+const {
+    title = `${siteConfig.projectName} — The coolest solution for cyberdeck builders`,
+    description = siteConfig.metaDescription,
+    canonicalUrl = 'https://cyberhud.io',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>{title}</title>
+    <meta name="description" content={description}/>
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={title}/>
+    <meta property="og:description" content={description}/>
+    <meta property="og:image" content={siteConfig.ogImage}/>
+    <meta property="og:url" content={canonicalUrl}/>
+    <meta property="og:type" content="website"/>
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content={title}/>
+    <meta name="twitter:description" content={description}/>
+    <meta name="twitter:image" content={siteConfig.ogImage}/>
+</head>
+<body>
+<header role="banner" class="site-header" id="top">
+    <nav role="navigation" aria-label="Main navigation">
+        <NavigationBar/>
+    </nav>
+</header>
+
+<main role="main">
+    <slot/>
+</main>
+
+<footer role="contentinfo">
+    <Footer/>
+</footer>
+</body>
+</html>
+
+<style>
+    .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background-color: var(--color-bg-surface);
+        border-bottom: 1px solid hsla(180, 100%, 50%, 0.1);
+        backdrop-filter: blur(8px);
+    }
+</style>

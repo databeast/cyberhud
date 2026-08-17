@@ -1,0 +1,86 @@
+package styles
+
+import (
+	"github.com/databeast/cyberhud/display/style"
+)
+
+// USB style declarations for 32x128 panels (portrait narrow strip).
+// Width < 64 → skeleton + minimal variant only.
+
+// ── MonoSlow ──
+
+var MonoSlow32x128Style = def{
+	name: "mono-slow-32x128",
+	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.MonoSlow},
+}
+
+var MonoSlow32x128MinimalStyle = def{
+	name: "mono-slow-32x128-minimal",
+	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.MonoSlow},
+	p:    Params{BuildFn: buildMinimal},
+}
+
+// ── MonoFast ──
+
+var MonoFast32x128Style = def{
+	name: "mono-fast-32x128",
+	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.MonoFast},
+}
+
+var MonoFast32x128MinimalStyle = def{
+	name: "mono-fast-32x128-minimal",
+	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.MonoFast},
+	p:    Params{BuildFn: buildMinimal},
+}
+
+// ── GrayscaleSlow ──
+
+var GrayscaleSlow32x128Style = def{
+	name: "grayscale-slow-32x128",
+	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.GrayscaleSlow},
+}
+
+var GrayscaleSlow32x128MinimalStyle = def{
+	name: "grayscale-slow-32x128-minimal",
+	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.GrayscaleSlow},
+	p:    Params{BuildFn: buildMinimal},
+}
+
+// ── GrayscaleFast ──
+
+var GrayscaleFast32x128Style = def{
+	name: "grayscale-fast-32x128",
+	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.GrayscaleFast},
+}
+
+var GrayscaleFast32x128MinimalStyle = def{
+	name: "grayscale-fast-32x128-minimal",
+	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.GrayscaleFast},
+	p:    Params{BuildFn: buildMinimal},
+}
+
+// ── ColorSlow ──
+
+var ColorSlow32x128Style = def{
+	name: "color-slow-32x128",
+	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.ColorSlow},
+}
+
+var ColorSlow32x128MinimalStyle = def{
+	name: "color-slow-32x128-minimal",
+	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.ColorSlow},
+	p:    Params{BuildFn: buildMinimal},
+}
+
+// ── ColorFast ──
+
+var ColorFast32x128Style = def{
+	name: "color-fast-32x128",
+	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.ColorFast},
+}
+
+var ColorFast32x128MinimalStyle = def{
+	name: "color-fast-32x128-minimal",
+	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.ColorFast},
+	p:    Params{BuildFn: buildMinimal},
+}

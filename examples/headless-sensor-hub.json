@@ -1,0 +1,8 @@
+{
+  "socket": "/run/cyberhudd/console.sock",
+  "i2c": "/dev/i2c-1",
+  "scan": "1s",
+  "display": {
+    "disabled": true
+  }
+}

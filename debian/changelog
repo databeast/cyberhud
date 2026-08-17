@@ -1,0 +1,6 @@
+cyberhud (0.1.0-1) unstable; urgency=medium
+
+  * Initial Debian packaging.
+
+ -- CyberHUD Maintainers <conrad@1211.net>  Sat, 15 Aug 2026 00:00:00 +0000
+

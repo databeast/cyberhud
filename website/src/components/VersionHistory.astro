@@ -1,0 +1,86 @@
+---
+/*
+ * VersionHistory.astro — Small section listing public release versions.
+ *
+ * Renders a compact list of released versions from the static version data
+ * file, newest first.
+ *
+ */
+import {versionHistory} from '../data/versions';
+---
+
+<section id="version-history" class="version-history" aria-label="Version history">
+    <h2 class="version-history__heading">Version History</h2>
+
+    <ul class="version-history__list">
+        {versionHistory.map((entry) => (
+                <li class="version-history__item">
+                    <span class="version-history__version">v{entry.version}</span>
+                    <span class="version-history__date">{entry.date}</span>
+                    <span class="version-history__summary">{entry.summary}</span>
+                </li>
+        ))}
+    </ul>
+</section>
+
+<style>
+    .version-history {
+        padding: var(--space-16) var(--space-6);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .version-history__heading {
+        font-family: var(--font-mono);
+        font-size: clamp(var(--text-2xl), 4vw, var(--text-3xl));
+        color: var(--color-text-primary);
+        text-align: center;
+        margin: 0 0 var(--space-8);
+        line-height: var(--leading-tight);
+    }
+
+    .version-history__list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+    }
+
+    .version-history__item {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: var(--space-3);
+        padding: var(--space-3) var(--space-4);
+        border: 1px solid hsla(180, 100%, 50%, 0.1);
+        border-radius: var(--radius-md);
+    }
+
+    .version-history__version {
+        font-family: var(--font-mono);
+        font-size: var(--text-base);
+        font-weight: 600;
+        color: var(--color-accent-cyan);
+    }
+
+    .version-history__date {
+        font-family: var(--font-mono);
+        font-size: var(--text-sm);
+        color: var(--color-text-muted);
+    }
+
+    .version-history__summary {
+        font-family: var(--font-body);
+        font-size: var(--text-base);
+        color: var(--color-text-secondary);
+        flex-basis: 100%;
+    }
+
+    @media (min-width: 640px) {
+        .version-history__summary {
+            flex-basis: auto;
+        }
+    }
+</style>

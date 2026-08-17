@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+    <defs>
+        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#0d0d0d"/>
+            <stop offset="100%" style="stop-color:#1a1a2e"/>
+        </linearGradient>
+        <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#00ffff"/>
+            <stop offset="100%" style="stop-color:#ff00ff"/>
+        </linearGradient>
+    </defs>
+    <rect width="1200" height="630" fill="url(#bg)"/>
+    <rect x="50" y="580" width="1100" height="2" fill="url(#accent)" opacity="0.6"/>
+    <rect x="50" y="48" width="1100" height="2" fill="url(#accent)" opacity="0.6"/>
+    <text x="600" y="280" font-family="monospace" font-size="72" font-weight="bold" fill="#00ffff" text-anchor="middle">
+        CyberHUD
+    </text>
+    <text x="600" y="360" font-family="sans-serif" font-size="28" fill="#e0e0e0" text-anchor="middle">Cyberpunk heads-up
+        displays for Raspberry Pi SPI panels
+    </text>
+    <text x="600" y="420" font-family="monospace" font-size="18" fill="#666666" text-anchor="middle">cyberhud.io</text>
+</svg>

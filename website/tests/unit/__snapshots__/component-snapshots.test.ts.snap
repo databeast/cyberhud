@@ -1,0 +1,261 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Built HTML structure verification > snapshot of complete built HTML structure 1`] = `
+[
+  "<header role="banner" class="site-header" id="top" data-astro-cid-pgtvljfo>",
+  "<nav role="navigation" aria-label="Main navigation" data-astro-cid-pgtvljfo>",
+  "<nav class="mobile-menu-nav" aria-label="Mobile navigation" data-astro-cid-xlat7obg>",
+  "<main role="main" data-astro-cid-pgtvljfo>",
+  "<section id="hero" class="hero" aria-label="Hero" data-astro-cid-s4khibbi>",
+  "<canvas id="attract-canvas" class="hero__canvas" aria-hidden="true" data-astro-cid-s4khibbi>",
+  "<h1 class="hero__title" data-astro-cid-s4khibbi>",
+  "<section id="features" class="feature-showcase" aria-label="Features" data-astro-cid-7jxfepqs>",
+  "<h2 class="feature-showcase__heading" data-astro-cid-7jxfepqs>",
+  "<h3 class="feature-card__title" data-astro-cid-a5zxh5oa>",
+  "<h3 class="feature-card__title" data-astro-cid-a5zxh5oa>",
+  "<h3 class="feature-card__title" data-astro-cid-a5zxh5oa>",
+  "<h3 class="feature-card__title" data-astro-cid-a5zxh5oa>",
+  "<section id="hardware" class="hardware-section" aria-label="Supported hardware" data-astro-cid-g3k3ih2f>",
+  "<h2 class="hardware-section__heading" data-astro-cid-g3k3ih2f>",
+  "<h3 class="chipset-card__name" data-astro-cid-ow7xn3rr>",
+  "<h3 class="chipset-card__name" data-astro-cid-ow7xn3rr>",
+  "<h3 class="chipset-card__name" data-astro-cid-ow7xn3rr>",
+  "<h3 class="chipset-card__name" data-astro-cid-ow7xn3rr>",
+  "<section class="bottom-cta" aria-labelledby="cta-heading" data-astro-cid-esi4ugl2>",
+  "<h2 id="cta-heading" class="cta-heading" data-astro-cid-esi4ugl2>",
+  "<footer role="contentinfo" data-astro-cid-pgtvljfo>",
+  "<nav class="footer-links" aria-label="Footer navigation" data-astro-cid-jo6i4kqk>",
+]
+`;
+
+exports[`Component data snapshots > features data snapshot matches expected structure 1`] = `
+[
+  {
+    "description": "Run dashboard, GPIO/I2C monitors, system stats, clock, and more — independently on up to 3 panels.",
+    "id": "multi-display",
+    "mediaAlt": "Three SPI displays showing different HUD content driven by one Raspberry Pi",
+    "mediaHeight": 400,
+    "mediaSrc": "/images/features/multi-display.svg",
+    "mediaWidth": 600,
+    "title": "Multi-Display, Many Modes",
+  },
+  {
+    "description": "Animated bokeh, particles, plasma, and starfield modes for passive displays with no input needed.",
+    "id": "attract-modes",
+    "mediaAlt": "Animated bokeh attract mode running on a small SPI display panel",
+    "mediaHeight": 400,
+    "mediaSrc": "/images/features/attract-modes.svg",
+    "mediaWidth": 600,
+    "title": "Ambient Attract Modes",
+  },
+  {
+    "description": "Switch modes, push text, check status, and freeze the config to disk — all via cyberhudctl or a socket.",
+    "id": "runtime-control",
+    "mediaAlt": "Terminal showing cyberhudctl commands controlling display modes in real time",
+    "mediaHeight": 400,
+    "mediaSrc": "/images/features/runtime-control.svg",
+    "mediaWidth": 600,
+    "title": "Live Runtime Control",
+  },
+  {
+    "description": "Adafruit and Waveshare panels do nothing until coded. CyberHUD drives any panel on a supported chipset out of the box.",
+    "id": "hardware-compatibility",
+    "mediaAlt": "Raspberry Pi connected to multiple SPI display panels of different sizes",
+    "mediaHeight": 400,
+    "mediaSrc": "/images/features/hardware-compat.svg",
+    "mediaWidth": 600,
+    "title": "No-Code Hardware Support",
+  },
+]
+`;
+
+exports[`Component data snapshots > hardware panels data snapshot matches expected structure 1`] = `
+[
+  {
+    "controller": "ST7789",
+    "description": "240x240 ST7789 with buttons and joystick",
+    "family": "Color LCD",
+    "name": "Waveshare 1.3" LCD HAT",
+    "resolution": {
+      "height": 240,
+      "width": 240,
+    },
+  },
+  {
+    "controller": "ST7735S",
+    "description": "128x128 ST7735S with three buttons and joystick",
+    "family": "Color LCD",
+    "name": "Waveshare 1.44" LCD HAT",
+    "resolution": {
+      "height": 128,
+      "width": 128,
+    },
+  },
+  {
+    "controller": "ST7789",
+    "description": "320x240 ST7789 without onboard inputs",
+    "family": "Color LCD",
+    "name": "Waveshare 2.2" SPI Display",
+    "resolution": {
+      "height": 240,
+      "width": 320,
+    },
+  },
+  {
+    "controller": "ST7789 + ST7735S",
+    "description": "Main 1.3" ST7789 (240x240) + dual 0.96" ST7735S (160x80)",
+    "family": "Color LCD",
+    "name": "Waveshare Triple Screen HAT",
+    "resolution": {
+      "height": 240,
+      "width": 240,
+    },
+  },
+  {
+    "controller": "SH1106",
+    "description": "128x64 monochrome OLED with three buttons and D-pad",
+    "family": "Monochrome OLED",
+    "name": "Waveshare 1.3" OLED HAT",
+    "resolution": {
+      "height": 64,
+      "width": 128,
+    },
+  },
+  {
+    "controller": "SSD1305",
+    "description": "128x32 monochrome OLED via I2C",
+    "family": "Monochrome OLED",
+    "name": "Waveshare 2.23" OLED HAT (I2C)",
+    "resolution": {
+      "height": 32,
+      "width": 128,
+    },
+  },
+  {
+    "controller": "SSD1305",
+    "description": "128x32 monochrome OLED via SPI",
+    "family": "Monochrome OLED",
+    "name": "Waveshare 2.23" OLED HAT (SPI)",
+    "resolution": {
+      "height": 32,
+      "width": 128,
+    },
+  },
+  {
+    "controller": "ST7789",
+    "description": "Generic SPI panel without input controls",
+    "family": "Color LCD",
+    "name": "Generic ST7789 240x135",
+    "resolution": {
+      "height": 135,
+      "width": 240,
+    },
+  },
+  {
+    "controller": "ST7789",
+    "description": "Generic SPI panel without input controls",
+    "family": "Color LCD",
+    "name": "Generic ST7789 240x240",
+    "resolution": {
+      "height": 240,
+      "width": 240,
+    },
+  },
+  {
+    "controller": "ST7789",
+    "description": "Generic SPI panel without input controls",
+    "family": "Color LCD",
+    "name": "Generic ST7789 320x240",
+    "resolution": {
+      "height": 240,
+      "width": 320,
+    },
+  },
+  {
+    "controller": "SSD1680",
+    "description": "Monochrome E-Ink in landscape mode with two buttons",
+    "family": "E-Ink",
+    "name": "Adafruit 2.13" E-Ink Bonnet",
+    "resolution": {
+      "height": 122,
+      "width": 250,
+    },
+  },
+  {
+    "controller": "SSD1680",
+    "description": "E-Ink with two-button menu mapping",
+    "family": "E-Ink",
+    "name": "Adafruit 2.13" E-Ink Bonnet (2-btn)",
+    "resolution": {
+      "height": 122,
+      "width": 250,
+    },
+  },
+  {
+    "controller": "IS31FL3731",
+    "description": "LED matrix via I2C",
+    "family": "LED Matrix",
+    "name": "Adafruit 15x7 CharliePlex FeatherWing",
+    "resolution": {
+      "height": 7,
+      "width": 15,
+    },
+  },
+  {
+    "controller": "IS31FL3731",
+    "description": "Green LED matrix bonnet via I2C",
+    "family": "LED Matrix",
+    "name": "Adafruit 8x16 CharliePlex Bonnet",
+    "resolution": {
+      "height": 8,
+      "width": 16,
+    },
+  },
+]
+`;
+
+exports[`Component data snapshots > navigation links derived from config snapshot 1`] = `
+[
+  {
+    "anchor": true,
+    "external": false,
+    "href": "#features",
+    "label": "Features",
+  },
+  {
+    "anchor": true,
+    "external": false,
+    "href": "#hardware",
+    "label": "Hardware",
+  },
+  {
+    "anchor": false,
+    "external": true,
+    "href": "https://github.com/databeast/cyberhud",
+    "label": "GitHub",
+  },
+  {
+    "anchor": false,
+    "external": true,
+    "href": "https://databeast.github.io/cyberhud",
+    "label": "Docs",
+  },
+]
+`;
+
+exports[`Component data snapshots > site config data snapshot matches expected structure 1`] = `
+{
+  "links": {
+    "docs": "https://databeast.github.io/cyberhud",
+    "github": "https://github.com/databeast/cyberhud",
+    "install": "https://databeast.github.io/cyberhud/installation/",
+  },
+  "metaDescription": "CyberHUD turns SPI/I2C displays from Adafruit, Waveshare, Elecrow and more into working screens with no code — dashboards, monitors, and more on Linux GPIO.",
+  "ogImage": "/images/og-preview.png",
+  "projectName": "CyberHUD",
+  "tagline": "The coolest
+Heads-Up Display system
+for Small Screens
+and Cyberdecks",
+}
+`;

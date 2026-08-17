@@ -1,0 +1,18 @@
+[
+  {
+    "text": "OK",
+    "scaling": "fit"
+  },
+  {
+    "text": "ALERT",
+    "scaling": "fit"
+  },
+  {
+    "text": "Temperature: 72F",
+    "scaling": "fit"
+  },
+  {
+    "text": "This is a longer line that will use a smaller font to fit",
+    "scaling": "fit"
+  }
+]

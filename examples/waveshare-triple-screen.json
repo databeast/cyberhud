@@ -1,0 +1,37 @@
+{
+  "socket": "/run/cyberhudd/console.sock",
+  "i2c": "/dev/i2c-1",
+  "scan": "2s",
+  "display": {
+    "panel": "waveshare-triple-screen",
+    "orientation": {
+      "main": "normal",
+      "left-aux": "cw",
+      "right-aux": "ccw"
+    }
+  },
+  "policies": {
+    "dashboard": {
+      "style": "color-240x240",
+      "color_accent": "green"
+    },
+    "clock": {
+      "style": "color-240x240",
+      "show_seconds": false,
+      "time_format": "24h",
+      "date_format": "YYYY-MM-DD",
+      "fgcolor": "green",
+      "show_led": true,
+      "seconds_bar": "none",
+      "show_daybar": false
+    },
+    "ticker": {
+      "style": "plain",
+      "font_tier": "auto",
+      "line_mode": "truncate",
+      "direction": "vertical",
+      "auto_scroll_ms": 3000,
+      "accent": "green"
+    }
+  }
+}

@@ -1,0 +1,432 @@
+---
+/*
+ * MobileMenu.astro — Hamburger menu for mobile viewports (< 768px).
+ *
+ * Renders a hamburger toggle button and a slide-in overlay panel with all navigation links.
+ * Hidden on desktop via CSS. Uses client-side JS for toggling, focus trapping, and keyboard nav.
+ */
+import {siteConfig} from '../data/navigation';
+---
+
+<div class="mobile-menu-wrapper">
+    <button
+            id="mobile-menu-toggle"
+            class="mobile-menu-toggle"
+            aria-expanded="false"
+            aria-controls="mobile-menu-panel"
+            aria-label="Open navigation menu"
+            type="button"
+    >
+        <svg
+                class="hamburger-icon"
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                aria-hidden="true"
+        >
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+    </button>
+
+    <div
+            id="mobile-menu-panel"
+            class="mobile-menu-panel"
+            role="dialog"
+            aria-label="Navigation menu"
+            aria-modal="true"
+            hidden
+    >
+        <div class="mobile-menu-header">
+            <span class="mobile-menu-title">{siteConfig.projectName}</span>
+            <button
+                    id="mobile-menu-close"
+                    class="mobile-menu-close"
+                    aria-label="Close navigation menu"
+                    type="button"
+            >
+                <svg
+                        width="28"
+                        height="28"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        aria-hidden="true"
+                >
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+
+        <nav class="mobile-menu-nav" aria-label="Mobile navigation">
+            <ul class="mobile-menu-list">
+                <li>
+                    <a href="#features" class="mobile-menu-link">Features</a>
+                </li>
+                <li>
+                    <a href="#hardware" class="mobile-menu-link">Hardware</a>
+                </li>
+                <li>
+                    <a
+                            href={siteConfig.links.github}
+                            class="mobile-menu-link mobile-menu-link--external"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                    >
+                        GitHub
+                        <svg
+                                class="external-icon"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                aria-hidden="true"
+                        >
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                            <polyline points="15 3 21 3 21 9"/>
+                            <line x1="10" y1="14" x2="21" y2="3"/>
+                        </svg>
+                        <span class="visually-hidden">(opens in new tab)</span>
+                    </a>
+                </li>
+                <li>
+                    <a
+                            href={siteConfig.links.docs}
+                            class="mobile-menu-link mobile-menu-link--external"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                    >
+                        Docs
+                        <svg
+                                class="external-icon"
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                aria-hidden="true"
+                        >
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                            <polyline points="15 3 21 3 21 9"/>
+                            <line x1="10" y1="14" x2="21" y2="3"/>
+                        </svg>
+                        <span class="visually-hidden">(opens in new tab)</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="mobile-menu-backdrop" class="mobile-menu-backdrop" hidden></div>
+</div>
+
+<style>
+    /* Hidden on desktop */
+    .mobile-menu-wrapper {
+        display: none;
+    }
+
+    @media (max-width: 767px) {
+        .mobile-menu-wrapper {
+            display: block;
+        }
+    }
+
+    /* Hamburger toggle button */
+    .mobile-menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+        padding: var(--space-2);
+        background: transparent;
+        border: 1px solid var(--color-accent-cyan);
+        border-radius: var(--radius-sm);
+        color: var(--color-accent-cyan);
+        cursor: pointer;
+        transition: background-color var(--duration-fast) var(--ease-out),
+        box-shadow var(--duration-fast) var(--ease-out);
+    }
+
+    .mobile-menu-toggle:hover,
+    .mobile-menu-toggle:focus-visible {
+        background: hsla(180, 100%, 50%, 0.1);
+        box-shadow: 0 0 8px hsla(180, 100%, 50%, 0.4);
+    }
+
+    .mobile-menu-toggle:focus-visible {
+        outline: 2px solid var(--color-accent-cyan);
+        outline-offset: 2px;
+    }
+
+    /* Slide-in panel */
+    .mobile-menu-panel {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: min(300px, 80vw);
+        background: var(--color-bg-surface);
+        border-left: 1px solid var(--color-accent-cyan);
+        box-shadow: -4px 0 24px hsla(180, 100%, 50%, 0.15);
+        z-index: 1001;
+        transform: translateX(100%);
+        transition: transform var(--duration-normal) var(--ease-out);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mobile-menu-panel[hidden] {
+        display: none;
+    }
+
+    .mobile-menu-panel.is-open {
+        transform: translateX(0);
+    }
+
+    /* Panel header */
+    .mobile-menu-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-4) var(--space-4);
+        border-bottom: 1px solid hsla(180, 100%, 50%, 0.2);
+    }
+
+    .mobile-menu-title {
+        font-family: var(--font-mono);
+        font-size: var(--text-lg);
+        color: var(--color-accent-cyan);
+        font-weight: 700;
+    }
+
+    /* Close button */
+    .mobile-menu-close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+        padding: var(--space-2);
+        background: transparent;
+        border: 1px solid var(--color-accent-cyan);
+        border-radius: var(--radius-sm);
+        color: var(--color-accent-cyan);
+        cursor: pointer;
+        transition: background-color var(--duration-fast) var(--ease-out),
+        box-shadow var(--duration-fast) var(--ease-out);
+    }
+
+    .mobile-menu-close:hover,
+    .mobile-menu-close:focus-visible {
+        background: hsla(180, 100%, 50%, 0.1);
+        box-shadow: 0 0 8px hsla(180, 100%, 50%, 0.4);
+    }
+
+    .mobile-menu-close:focus-visible {
+        outline: 2px solid var(--color-accent-cyan);
+        outline-offset: 2px;
+    }
+
+    /* Navigation list */
+    .mobile-menu-nav {
+        padding: var(--space-4);
+        flex: 1;
+    }
+
+    .mobile-menu-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+
+    /* Menu links — ≥44×44px touch targets */
+    .mobile-menu-link {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        min-height: 44px;
+        padding: var(--space-3) var(--space-4);
+        font-family: var(--font-mono);
+        font-size: var(--text-base); /* 16px minimum */
+        color: var(--color-text-primary);
+        text-decoration: none;
+        border-radius: var(--radius-sm);
+        transition: background-color var(--duration-fast) var(--ease-out),
+        color var(--duration-fast) var(--ease-out);
+    }
+
+    .mobile-menu-link:hover,
+    .mobile-menu-link:focus-visible {
+        background: hsla(180, 100%, 50%, 0.08);
+        color: var(--color-accent-cyan);
+    }
+
+    .mobile-menu-link:focus-visible {
+        outline: 2px solid var(--color-accent-cyan);
+        outline-offset: 2px;
+    }
+
+    .external-icon {
+        flex-shrink: 0;
+        opacity: 0.7;
+    }
+
+    /* Backdrop overlay */
+    .mobile-menu-backdrop {
+        position: fixed;
+        inset: 0;
+        background: hsla(0, 0%, 0%, 0.6);
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity var(--duration-normal) var(--ease-out);
+    }
+
+    .mobile-menu-backdrop[hidden] {
+        display: none;
+    }
+
+    .mobile-menu-backdrop.is-visible {
+        opacity: 1;
+    }
+
+    /* Visually hidden utility for screen readers */
+    .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggle = document.getElementById('mobile-menu-toggle') as HTMLButtonElement | null;
+        const panel = document.getElementById('mobile-menu-panel') as HTMLElement | null;
+        const closeBtn = document.getElementById('mobile-menu-close') as HTMLButtonElement | null;
+        const backdrop = document.getElementById('mobile-menu-backdrop') as HTMLElement | null;
+
+        if (!toggle || !panel || !closeBtn || !backdrop) return;
+
+        const focusableSelector =
+            'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+
+        function openMenu() {
+            panel!.hidden = false;
+            backdrop!.hidden = false;
+
+            // Allow DOM to update before triggering transitions
+            requestAnimationFrame(() => {
+                panel!.classList.add('is-open');
+                backdrop!.classList.add('is-visible');
+            });
+
+            toggle!.setAttribute('aria-expanded', 'true');
+            toggle!.setAttribute('aria-label', 'Close navigation menu');
+            document.body.style.overflow = 'hidden';
+
+            // Focus the close button when menu opens
+            closeBtn!.focus();
+        }
+
+        function closeMenu() {
+            panel!.classList.remove('is-open');
+            backdrop!.classList.remove('is-visible');
+            toggle!.setAttribute('aria-expanded', 'false');
+            toggle!.setAttribute('aria-label', 'Open navigation menu');
+            document.body.style.overflow = '';
+
+            // Wait for transition to finish before hiding
+            panel!.addEventListener(
+                'transitionend',
+                () => {
+                    panel!.hidden = true;
+                    backdrop!.hidden = true;
+                },
+                {once: true}
+            );
+
+            // Return focus to toggle
+            toggle!.focus();
+        }
+
+        function trapFocus(event: KeyboardEvent) {
+            if (event.key !== 'Tab') return;
+
+            const focusableElements = panel!.querySelectorAll(focusableSelector);
+            if (focusableElements.length === 0) return;
+
+            const firstFocusable = focusableElements[0] as HTMLElement;
+            const lastFocusable = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+            if (event.shiftKey) {
+                if (document.activeElement === firstFocusable) {
+                    event.preventDefault();
+                    lastFocusable.focus();
+                }
+            } else {
+                if (document.activeElement === lastFocusable) {
+                    event.preventDefault();
+                    firstFocusable.focus();
+                }
+            }
+        }
+
+        // Toggle button opens menu
+        toggle.addEventListener('click', () => {
+            const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+            if (isExpanded) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        });
+
+        // Close button closes menu
+        closeBtn.addEventListener('click', closeMenu);
+
+        // Backdrop click closes menu
+        backdrop.addEventListener('click', closeMenu);
+
+        // Escape key closes menu
+        document.addEventListener('keydown', (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+                closeMenu();
+            }
+        });
+
+        // Focus trapping within the panel
+        panel.addEventListener('keydown', trapFocus);
+
+        // Close menu when an internal anchor link is clicked
+        const links = panel.querySelectorAll('a[href^="#"]');
+        links.forEach((link) => {
+            link.addEventListener('click', () => {
+                closeMenu();
+            });
+        });
+    });
+</script>

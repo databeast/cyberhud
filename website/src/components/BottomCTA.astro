@@ -1,0 +1,172 @@
+---
+/*
+ * BottomCTA.astro — Prominent call-to-action section with install and docs links.
+ *
+ * Renders two CTA buttons (≥44×44px touch targets) styled with the cyberpunk theme.
+ * External links open in new tabs with visual indicators and accessible labels.
+ *
+ */
+import {siteConfig} from '../data/navigation';
+---
+
+<section class="bottom-cta" aria-labelledby="cta-heading">
+    <div class="cta-container">
+        <h2 id="cta-heading" class="cta-heading">Ready to get started?</h2>
+        <p class="cta-subtitle">Install CyberHUD and put Linux GPIO displays to work.</p>
+
+        <div class="cta-buttons">
+            <a
+                    href={siteConfig.links.install}
+                    class="cta-button cta-button--primary"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Get Started — Install CyberHUD (opens in new tab)"
+            >
+                <span>Get Started</span>
+                <svg class="external-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                    <polyline points="15 3 21 3 21 9"/>
+                    <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+            </a>
+
+            <a
+                    href={siteConfig.links.docs}
+                    class="cta-button cta-button--secondary"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="View Documentation (opens in new tab)"
+            >
+                <span>View Documentation</span>
+                <svg class="external-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                    <polyline points="15 3 21 3 21 9"/>
+                    <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+    .bottom-cta {
+        padding: var(--space-16) var(--space-4);
+        background-color: var(--color-bg-base);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .bottom-cta::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60%;
+        height: 1px;
+        background: linear-gradient(
+                90deg,
+                transparent,
+                var(--color-accent-cyan),
+                transparent
+        );
+    }
+
+    .cta-container {
+        max-width: 720px;
+        margin: 0 auto;
+    }
+
+    .cta-heading {
+        font-family: var(--font-mono);
+        font-size: var(--text-3xl);
+        color: var(--color-text-primary);
+        margin: 0 0 var(--space-4);
+        line-height: var(--leading-tight);
+    }
+
+    .cta-subtitle {
+        font-family: var(--font-body);
+        font-size: var(--text-lg);
+        color: var(--color-text-secondary);
+        margin: 0 0 var(--space-8);
+        line-height: var(--leading-normal);
+    }
+
+    .cta-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-4);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .cta-button {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        min-height: 44px;
+        min-width: 44px;
+        padding: var(--space-3) var(--space-6);
+        font-family: var(--font-mono);
+        font-size: var(--text-base);
+        font-weight: 600;
+        text-decoration: none;
+        border-radius: var(--radius-md);
+        transition: box-shadow var(--duration-normal) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out),
+        background-color var(--duration-fast) var(--ease-out);
+    }
+
+    .cta-button:focus-visible {
+        outline: 2px solid var(--color-accent-cyan);
+        outline-offset: 3px;
+    }
+
+    .cta-button--primary {
+        background-color: var(--color-accent-cyan);
+        color: var(--color-bg-base);
+        box-shadow: 0 0 12px hsla(180, 100%, 50%, 0.4);
+    }
+
+    .cta-button--primary:hover {
+        box-shadow: 0 0 24px hsla(180, 100%, 50%, 0.6);
+        transform: translateY(-1px);
+    }
+
+    .cta-button--secondary {
+        background-color: transparent;
+        color: var(--color-accent-cyan);
+        border: 1px solid var(--color-accent-cyan);
+        box-shadow: 0 0 8px hsla(180, 100%, 50%, 0.2);
+    }
+
+    .cta-button--secondary:hover {
+        background-color: hsla(180, 100%, 50%, 0.08);
+        box-shadow: 0 0 16px hsla(180, 100%, 50%, 0.4);
+        transform: translateY(-1px);
+    }
+
+    .external-icon {
+        flex-shrink: 0;
+        opacity: 0.8;
+    }
+
+    @media (max-width: 480px) {
+        .cta-buttons {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .cta-button {
+            justify-content: center;
+        }
+
+        .cta-heading {
+            font-size: var(--text-2xl);
+        }
+    }
+</style>

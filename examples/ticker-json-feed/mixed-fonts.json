@@ -1,0 +1,22 @@
+[
+  {
+    "text": "SYSTEM STATUS",
+    "font": "mono-16px"
+  },
+  {
+    "text": "CPU: 45C | Load: 1.2",
+    "font": "ascii-5x7"
+  },
+  {
+    "text": "MEM: 2.1G / 4G",
+    "font": "ascii-5x7"
+  },
+  {
+    "text": "DISK: 58% used",
+    "font": "ascii-4x6"
+  },
+  {
+    "text": "NET: 12 Mbps up / 48 Mbps down",
+    "font": "ascii-4x6"
+  }
+]

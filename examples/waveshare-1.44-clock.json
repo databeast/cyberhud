@@ -1,0 +1,29 @@
+{
+  "socket": "/run/cyberhudd/console.sock",
+  "i2c": "/dev/i2c-1",
+  "scan": "2s",
+  "display": {
+    "panel": "waveshare-1.44"
+  },
+  "policies": {
+    "clock": {
+      "style": "color-128x128",
+      "show_seconds": true,
+      "time_format": "12h",
+      "date_format": "DD-MM-YYYY",
+      "timezone": "America/New_York",
+      "show_weekday": true,
+      "blink_colon": true,
+      "fgcolor": "amber",
+      "show_led": false,
+      "seconds_bar": "pie",
+      "show_daybar": true,
+      "show_border": true,
+      "border_color": "amber"
+    },
+    "dashboard": {
+      "style": "color-128x160",
+      "color_accent": "amber"
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "socket": "/run/cyberhudd/console.sock",
+  "i2c": "/dev/i2c-1",
+  "scan": "2s",
+  "display": {
+    "panel": "waveshare-1.3hat"
+  },
+  "policies": {
+    "dashboard": {
+      "style": "color-240x240",
+      "color_accent": "cyan"
+    },
+    "clock": {
+      "style": "color-240x240",
+      "show_seconds": true,
+      "time_format": "24h",
+      "date_format": "YYYY-MM-DD",
+      "timezone": "UTC",
+      "show_weekday": true,
+      "blink_colon": false,
+      "fgcolor": "cyan",
+      "show_led": true,
+      "seconds_bar": "horizontal",
+      "show_daybar": true,
+      "show_border": true,
+      "border_color": "cyan"
+    },
+    "ticker": {
+      "style": "plain",
+      "font": "auto",
+      "font_tier": "large",
+      "line_mode": "truncate",
+      "direction": "vertical",
+      "auto_scroll_ms": 4000,
+      "accent": "cyan"
+    },
+    "attract_matrix": {
+      "min_speed": 2.0,
+      "max_speed": 6.0,
+      "trail_length": 16,
+      "density": 1.0,
+      "show_background": false
+    },
+    "attract_bokeh": {
+      "speed": 1.0,
+      "density": 0.5,
+      "size_variance": 0.5,
+      "saturation": 0.7
+    }
+  }
+}

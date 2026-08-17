@@ -1,0 +1,33 @@
+[Unit]
+Description=CyberHUD hardware daemon (GPIO, STEMMA QT / QWIIC, and display)
+Documentation=https://github.com/databeast/cyberhud
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/cyberhudd
+Restart=on-failure
+RestartSec=5s
+
+# Run as the dedicated package-managed service account.
+User=cyberhud
+Group=cyberhud
+
+
+# Runtime directory for the Unix socket (/run/cyberhudd/).
+RuntimeDirectory=cyberhudd
+RuntimeDirectoryMode=0750
+
+# Logging: send stdout/stderr to the system journal.
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cyberhudd
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/run/cyberhudd /dev/spidev0.0 /dev/i2c-1 /dev/gpiomem /dev/mem /dev/gpiochip0 /dev/gpiochip1
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,27 @@
+{
+  "socket": "/run/cyberhudd/console.sock",
+  "i2c": "/dev/i2c-1,/dev/i2c-3,/dev/i2c-6",
+  "scan": "500ms",
+  "display": {
+    "panel": "st7789-240x240",
+    "disable_input": true,
+    "dc": "GPIO25",
+    "rst": "GPIO27",
+    "bl": "GPIO24"
+  },
+  "policies": {
+    "dashboard": {
+      "style": "color-240x240",
+      "color_accent": "green"
+    },
+    "stemma": {},
+    "ticker": {
+      "style": "plain",
+      "font_tier": "normal",
+      "line_mode": "truncate",
+      "direction": "vertical",
+      "auto_scroll_ms": 2000,
+      "accent": "green"
+    }
+  }
+}

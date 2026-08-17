@@ -1,0 +1,152 @@
+---
+/*
+ * Footer.astro — Site footer with links to GitHub, docs, and credits.
+ *
+ * External links open in new tabs with visual indicators and accessible labels.
+ * All interactive elements meet ≥44×44px touch target requirements.
+ *
+ */
+import {siteConfig} from '../data/navigation';
+---
+
+<div class="footer-inner">
+    <nav class="footer-links" aria-label="Footer navigation">
+        <a
+                href={siteConfig.links.github}
+                class="footer-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub repository (opens in new tab)"
+        >
+            <span>GitHub</span>
+            <svg class="external-icon" aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+        </a>
+
+        <a
+                href={siteConfig.links.docs}
+                class="footer-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Documentation (opens in new tab)"
+        >
+            <span>Docs</span>
+            <svg class="external-icon" aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+        </a>
+
+        <a
+                href={siteConfig.links.install}
+                class="footer-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Installation guide (opens in new tab)"
+        >
+            <span>Install</span>
+            <svg class="external-icon" aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+        </a>
+    </nav>
+
+    <p class="footer-credits">
+        Built with <a href="https://astro.build" target="_blank" rel="noopener noreferrer" class="footer-credit-link"
+                      aria-label="Astro (opens in new tab)">Astro</a> · {siteConfig.projectName}
+        © {new Date().getFullYear()}
+    </p>
+</div>
+
+<style>
+    .footer-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: var(--space-8) var(--space-4);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-6);
+        border-top: 1px solid hsla(180, 100%, 50%, 0.1);
+    }
+
+    .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-6);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .footer-link {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+        min-height: 44px;
+        min-width: 44px;
+        padding: var(--space-2) var(--space-3);
+        font-family: var(--font-mono);
+        font-size: var(--text-sm);
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        border-radius: var(--radius-sm);
+        transition: color var(--duration-fast) var(--ease-out),
+        text-shadow var(--duration-normal) var(--ease-out);
+    }
+
+    .footer-link:hover {
+        color: var(--color-accent-cyan);
+        text-shadow: 0 0 8px hsla(180, 100%, 50%, 0.4);
+    }
+
+    .footer-link:focus-visible {
+        outline: 2px solid var(--color-accent-cyan);
+        outline-offset: 2px;
+    }
+
+    .external-icon {
+        flex-shrink: 0;
+        opacity: 0.6;
+    }
+
+    .footer-credits {
+        font-family: var(--font-body);
+        font-size: var(--text-sm);
+        color: var(--color-text-muted);
+        margin: 0;
+    }
+
+    .footer-credit-link {
+        color: var(--color-text-secondary);
+        text-decoration: underline;
+        text-decoration-color: hsla(180, 100%, 50%, 0.3);
+        text-underline-offset: 2px;
+        padding: var(--space-1) var(--space-2);
+    }
+
+    .footer-credit-link:hover {
+        color: var(--color-accent-cyan);
+        text-decoration-color: var(--color-accent-cyan);
+    }
+
+    .footer-credit-link:focus-visible {
+        outline: 2px solid var(--color-accent-cyan);
+        outline-offset: 2px;
+        border-radius: var(--radius-sm);
+    }
+
+    @media (max-width: 480px) {
+        .footer-links {
+            gap: var(--space-4);
+        }
+    }
+</style>

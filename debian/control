@@ -1,0 +1,21 @@
+Source: cyberhud
+Section: utils
+Priority: optional
+Maintainer: CyberHUD Maintainers <conrad@1211.net>
+Build-Depends: debhelper-compat (= 13), golang-go:native | golang-any:native
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://github.com/databeast/cyberhud
+Vcs-Git: https://github.com/databeast/cyberhud.git
+Vcs-Browser: https://github.com/databeast/cyberhud
+
+Package: cyberhud
+Architecture: any
+Depends: ${misc:Depends}, adduser, systemd, debconf (>= 0.5) | debconf-2.0
+Description: CyberHUD daemon and for GPIO-driven small-form Display Devices.
+ cyberhudd provides a systemd-managed daemon (controllable via CLI and UNIX socket) to 
+ drive and direct output to a number of commonly available small-form-factor display Devices
+ (commonly referred to as PI HAT's) to allow no-code utilization of them for system monitoring,
+ information display, or just plain cool factor attract-mode sillyness.
+
+

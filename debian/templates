@@ -1,0 +1,10 @@
+Template: cyberhud/socket-users
+Type: string
+Default:
+Description: Additional users to grant cyberhud socket access
+ Enter a comma-separated list of existing local usernames to add to the
+ cyberhud group during installation. Members of this group can use
+ cyberhudctl and access /run/cyberhudd/console.sock without root.
+ .
+ Leave empty to skip this step.
+

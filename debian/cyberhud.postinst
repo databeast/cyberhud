@@ -1,0 +1,108 @@
+#!/bin/sh
+set -e
+
+SERVICE_NAME="cyberhudd.service"
+SERVICE_USER="cyberhud"
+SERVICE_GROUP="cyberhud"
+SERVICE_HOME="/var/lib/cyberhud"
+LEGACY_UNIT_PATH="/etc/systemd/system/cyberhudd.service"
+
+. /usr/share/debconf/confmodule || true
+
+ensure_service_user() {
+    if ! getent group "$SERVICE_GROUP" >/dev/null 2>&1; then
+        addgroup --system "$SERVICE_GROUP"
+    fi
+    if id -u "$SERVICE_USER" >/dev/null 2>&1; then
+        usermod -g "$SERVICE_GROUP" "$SERVICE_USER" || true
+        return 0
+    fi
+    adduser --system --ingroup "$SERVICE_GROUP" --home "$SERVICE_HOME" --no-create-home --shell /usr/sbin/nologin "$SERVICE_USER"
+}
+
+ensure_group_membership() {
+    changed="0"
+    groups="gpio spi i2c"
+    for dev in /dev/gpiochip0 /dev/gpiochip1 /dev/spidev0.0 /dev/i2c-1; do
+        if [ -e "$dev" ] && command -v stat >/dev/null 2>&1; then
+            owner_group=$(stat -c '%G' "$dev" 2>/dev/null || true)
+            if [ -n "$owner_group" ] && [ "$owner_group" != "root" ] && [ "$owner_group" != "UNKNOWN" ]; then
+                groups="$groups $owner_group"
+            fi
+        fi
+    done
+    for grp in $groups; do
+        if getent group "$grp" >/dev/null 2>&1; then
+            if adduser --quiet "$SERVICE_USER" "$grp" >/dev/null 2>&1; then
+                changed="1"
+            fi
+        fi
+    done
+    if [ "$changed" = "1" ]; then
+        touch /run/cyberhudd-needs-restart || true
+    fi
+}
+
+ensure_service_home() {
+    mkdir -p "$SERVICE_HOME"
+    chown "$SERVICE_USER:$SERVICE_GROUP" "$SERVICE_HOME"
+    chmod 0750 "$SERVICE_HOME"
+}
+
+migrate_legacy_unit() {
+    if [ ! -f "$LEGACY_UNIT_PATH" ]; then
+        return 0
+    fi
+    if grep -Eq 'User=pi|ExecStart=/usr/local/bin/cyberhudd' "$LEGACY_UNIT_PATH"; then
+        backup="${LEGACY_UNIT_PATH}.pre-cyberhud-deb"
+        cp -f "$LEGACY_UNIT_PATH" "$backup"
+        rm -f "$LEGACY_UNIT_PATH"
+    fi
+}
+
+add_configured_socket_users() {
+    users=""
+    if command -v db_get >/dev/null 2>&1; then
+        db_get cyberhud/socket-users || true
+        users="$RET"
+    fi
+    users=$(printf '%s' "$users" | tr ',' ' ')
+    for name in $users; do
+        user=$(printf '%s' "$name" | tr -d '[:space:]')
+        if [ -z "$user" ]; then
+            continue
+        fi
+        if id -u "$user" >/dev/null 2>&1; then
+            adduser --quiet "$user" "$SERVICE_GROUP" || true
+        fi
+    done
+}
+
+reload_and_start_service() {
+    if ! command -v systemctl >/dev/null 2>&1 || [ ! -d /run/systemd/system ]; then
+        return 0
+    fi
+    systemctl daemon-reload || true
+    systemctl enable "$SERVICE_NAME" >/dev/null 2>&1 || true
+    if [ -f /run/cyberhudd-needs-restart ]; then
+        rm -f /run/cyberhudd-needs-restart
+        systemctl restart "$SERVICE_NAME" >/dev/null 2>&1 || systemctl start "$SERVICE_NAME" >/dev/null 2>&1 || true
+    elif [ -n "${2:-}" ]; then
+        systemctl try-restart "$SERVICE_NAME" >/dev/null 2>&1 || systemctl start "$SERVICE_NAME" >/dev/null 2>&1 || true
+    else
+        systemctl start "$SERVICE_NAME" >/dev/null 2>&1 || true
+    fi
+}
+
+case "$1" in
+    configure)
+        ensure_service_user
+        ensure_group_membership
+        add_configured_socket_users
+        ensure_service_home
+        migrate_legacy_unit
+        reload_and_start_service "$@"
+        ;;
+esac
+
+exit 0

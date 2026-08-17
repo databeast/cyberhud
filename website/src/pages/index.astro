@@ -1,0 +1,29 @@
+---
+/*
+ * index.astro — Single marketing page for cyberhud.io.
+ *
+ * Uses the Layout component for document structure and semantic landmarks.
+ * Section components (HeroSection, FeatureShowcase, HardwareSection, BottomCTA, Footer)
+ * will be added as they are implemented in subsequent tasks.
+ */
+import Layout from '../components/Layout.astro';
+import HeroSection from '../components/HeroSection.astro';
+import FeatureShowcase from '../components/FeatureShowcase.astro';
+import HardwareSection from '../components/HardwareSection.astro';
+import BottomCTA from '../components/BottomCTA.astro';
+import VersionHistory from '../components/VersionHistory.astro';
+---
+
+<Layout>
+    <HeroSection/>
+
+    <FeatureShowcase/>
+
+    <!-- HardwareSection -->
+    <HardwareSection/>
+
+    <!-- BottomCTA -->
+    <BottomCTA/>
+
+    <VersionHistory/>
+</Layout>

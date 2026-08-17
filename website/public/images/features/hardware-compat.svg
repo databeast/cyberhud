@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400">
+    <rect width="600" height="400" fill="hsl(220, 10%, 12%)"/>
+    <rect x="20" y="20" width="560" height="360" fill="none" stroke="hsl(180, 100%, 50%)" stroke-width="2"
+          stroke-dasharray="8 4" rx="4"/>
+    <!-- Raspberry Pi board outline -->
+    <rect x="200" y="130" width="200" height="130" rx="6" fill="none" stroke="hsl(120, 60%, 40%)" stroke-width="1.5"/>
+    <!-- GPIO pins -->
+    <line x1="210" y1="130" x2="210" y2="115" stroke="hsl(45, 80%, 50%)" stroke-width="1" opacity="0.6"/>
+    <line x1="220" y1="130" x2="220" y2="115" stroke="hsl(45, 80%, 50%)" stroke-width="1" opacity="0.6"/>
+    <line x1="230" y1="130" x2="230" y2="115" stroke="hsl(45, 80%, 50%)" stroke-width="1" opacity="0.6"/>
+    <line x1="240" y1="130" x2="240" y2="115" stroke="hsl(45, 80%, 50%)" stroke-width="1" opacity="0.6"/>
+    <line x1="250" y1="130" x2="250" y2="115" stroke="hsl(45, 80%, 50%)" stroke-width="1" opacity="0.6"/>
+    <line x1="260" y1="130" x2="260" y2="115" stroke="hsl(45, 80%, 50%)" stroke-width="1" opacity="0.6"/>
+    <!-- Chip on board -->
+    <rect x="270" y="170" width="60" height="50" rx="2" fill="none" stroke="hsl(180, 100%, 50%)" stroke-width="1"
+          opacity="0.5"/>
+    <text x="300" y="200" text-anchor="middle" font-family="monospace" font-size="9" fill="hsl(180, 100%, 50%)"
+          opacity="0.6">BCM
+    </text>
+    <!-- SPI display panels connected -->
+    <rect x="80" y="170" width="70" height="50" rx="3" fill="none" stroke="hsl(180, 100%, 50%)" stroke-width="1"/>
+    <text x="115" y="200" text-anchor="middle" font-family="monospace" font-size="8" fill="hsl(180, 100%, 50%)">ST7789
+    </text>
+    <rect x="450" y="150" width="70" height="50" rx="3" fill="none" stroke="hsl(300, 100%, 55%)" stroke-width="1"/>
+    <text x="485" y="180" text-anchor="middle" font-family="monospace" font-size="8" fill="hsl(300, 100%, 55%)">
+        ILI9341
+    </text>
+    <rect x="450" y="220" width="70" height="50" rx="3" fill="none" stroke="hsl(180, 100%, 50%)" stroke-width="1"/>
+    <text x="485" y="250" text-anchor="middle" font-family="monospace" font-size="8" fill="hsl(180, 100%, 50%)">
+        SSD1351
+    </text>
+    <!-- Connection wires -->
+    <line x1="150" y1="195" x2="200" y2="195" stroke="hsl(180, 100%, 50%)" stroke-width="0.8" opacity="0.5"
+          stroke-dasharray="3 2"/>
+    <line x1="400" y1="175" x2="450" y2="175" stroke="hsl(300, 100%, 55%)" stroke-width="0.8" opacity="0.5"
+          stroke-dasharray="3 2"/>
+    <line x1="400" y1="220" x2="450" y2="245" stroke="hsl(180, 100%, 50%)" stroke-width="0.8" opacity="0.5"
+          stroke-dasharray="3 2"/>
+    <text x="300" y="350" text-anchor="middle" font-family="monospace" font-size="13" fill="hsl(0, 0%, 45%)">HARDWARE
+        COMPATIBILITY
+    </text>
+</svg>

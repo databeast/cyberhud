@@ -1,0 +1,160 @@
+---
+/*
+ * NavigationBar.astro — Sticky navigation bar for the CyberHUD marketing site.
+ *
+ * Renders desktop navigation links with proper accessibility attributes.
+ * External links open in new tabs with visual indicators and aria-labels.
+ * Internal anchor links use smooth scroll within the same browsing context.
+ * Includes MobileMenu component for mobile viewports (below 768px).
+ *
+ */
+import {siteConfig} from '../data/navigation';
+import MobileMenu from './MobileMenu.astro';
+
+interface NavLink {
+    label: string;
+    href: string;
+    external: boolean;
+    anchor: boolean;
+}
+
+const navLinks: NavLink[] = [
+    {label: 'Features', href: '#features', external: false, anchor: true},
+    {label: 'Hardware', href: '#hardware', external: false, anchor: true},
+    {label: 'GitHub', href: siteConfig.links.github, external: true, anchor: false},
+    {label: 'Docs', href: siteConfig.links.docs, external: true, anchor: false},
+];
+---
+
+<div class="navbar">
+    <a href="#top" class="navbar__logo" aria-label="CyberHUD — back to top">
+        {siteConfig.projectName}
+    </a>
+
+    <ul class="navbar__links" role="list">
+        {navLinks.map((link) => (
+                <li>
+                    {link.external ? (
+                            <a
+                                    href={link.href}
+                                    class="navbar__link navbar__link--external"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label={`${link.label} (opens in new tab)`}
+                            >
+                                {link.label}
+                                <svg
+                                        class="navbar__external-icon"
+                                        width="12"
+                                        height="12"
+                                        viewBox="0 0 12 12"
+                                        fill="none"
+                                        aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                            d="M3.5 1.5H10.5V8.5M10.5 1.5L1.5 10.5"
+                                            stroke="currentColor"
+                                            stroke-width="1.5"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                    />
+                                </svg>
+                            </a>
+                    ) : (
+                            <a href={link.href} class="navbar__link navbar__link--anchor">
+                                {link.label}
+                            </a>
+                    )}
+                </li>
+        ))}
+    </ul>
+
+    <MobileMenu/>
+</div>
+
+<style>
+    .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: var(--space-3) var(--space-6);
+    }
+
+    .navbar__logo {
+        font-family: var(--font-mono);
+        font-size: var(--text-lg);
+        font-weight: 700;
+        color: var(--color-accent-cyan);
+        text-decoration: none;
+        letter-spacing: 0.05em;
+        transition: color var(--duration-fast) var(--ease-out),
+        text-shadow var(--duration-fast) var(--ease-out);
+    }
+
+    .navbar__logo:hover {
+        color: var(--color-accent-magenta);
+        text-shadow: 0 0 8px hsla(300, 100%, 55%, 0.4);
+    }
+
+    .navbar__logo:focus-visible {
+        outline: 2px solid var(--color-accent-cyan);
+        outline-offset: 2px;
+        border-radius: var(--radius-sm);
+    }
+
+    .navbar__links {
+        display: flex;
+        align-items: center;
+        gap: var(--space-6);
+        list-style: none;
+    }
+
+    .navbar__link {
+        font-family: var(--font-mono);
+        font-size: var(--text-sm);
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-sm);
+        transition: color var(--duration-fast) var(--ease-out),
+        background-color var(--duration-fast) var(--ease-out);
+    }
+
+    .navbar__link:hover {
+        color: var(--color-accent-cyan);
+        background-color: hsla(180, 100%, 50%, 0.08);
+    }
+
+    .navbar__link:focus-visible {
+        outline: 2px solid var(--color-accent-cyan);
+        outline-offset: 2px;
+        border-radius: var(--radius-sm);
+    }
+
+    .navbar__link--external {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+    }
+
+    .navbar__external-icon {
+        flex-shrink: 0;
+        opacity: 0.7;
+        transition: opacity var(--duration-fast) var(--ease-out);
+    }
+
+    .navbar__link--external:hover .navbar__external-icon {
+        opacity: 1;
+    }
+
+    /* Hide desktop links on mobile — mobile menu handles navigation below 768px */
+    @media (max-width: 767px) {
+        .navbar__links {
+            display: none;
+        }
+    }
+</style>

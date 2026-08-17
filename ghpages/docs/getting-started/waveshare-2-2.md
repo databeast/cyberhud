@@ -1,0 +1,71 @@
+# Waveshare 2.2" LCD
+
+The Waveshare 2.2-inch LCD is a 320×240 color SPI display based on the ST7789 controller. It does not include any onboard input buttons or joystick.
+
+CyberHUD provides a single panel definition for this board.
+
+## Quick Start
+
+=== "CLI"
+
+    ```sh
+    sudo ./cyberhudd -panel waveshare-2.2
+    ```
+
+=== "JSON config"
+
+    In your `/etc/cyberhudd.json`:
+
+    ```json
+    {
+      "display": {
+        "panel": "waveshare-2.2"
+      }
+    }
+    ```
+
+## Display Characteristics
+
+| Property | Value |
+|----------|-------|
+| Resolution | 320 × 240 pixels |
+| Color format | RGB565 |
+| Controller | ST7789 |
+| Interface | SPI |
+| Input | None |
+
+## Pin Assignments
+
+| Function | GPIO Pin | Notes |
+|----------|----------|-------|
+| SPI MOSI | GPIO10 | SPI0 data out |
+| SPI SCLK | GPIO11 | SPI0 clock |
+| SPI CS | GPIO8 | SPI0 chip-select (CE0) |
+| DC (Data/Command) | GPIO25 | High = data, Low = command |
+| RST (Reset) | GPIO27 | Active-low reset |
+| Backlight | GPIO24 | PWM-capable; high = on |
+
+SPI communication uses `/dev/spidev0.0` (CE0).
+
+## Troubleshooting
+
+CyberHUD emits detailed diagnostic logs during panel initialization. Check them with:
+
+```sh
+sudo journalctl -u cyberhudd.service -n 50
+```
+
+### Common Issues
+
+| Symptom | Likely Cause | Fix |
+|---------|-------------|-----|
+| `spi device ... open=error` | SPI not enabled on the Raspberry Pi | Run `sudo raspi-config` → Interface Options → SPI → Enable, then reboot |
+| Display is white/blank but backlight is on | DC or RST pin not accessible, or wrong panel name | Verify GPIO25 and GPIO27 are not claimed by another overlay; check panel name spelling |
+| Colors appear inverted (BGR vs RGB) | MADCTL mismatch for your panel batch | Override MADCTL in JSON config to adjust color order bit |
+| Image is offset or clipped at edges | X/Y offset mismatch for your panel batch | Override `xOffset` and `yOffset` in JSON config |
+
+## Related Pages
+
+- [Hardware Identification](hardware.md) — find your panel name
+- [Pin Assignments](../reference/pin-assignments.md) — custom pin overrides
+- [JSON Config Examples](../configuration/json-config.md) — full configuration file setup

@@ -1,0 +1,122 @@
+---
+/*
+ * AttractCanvasIsland.astro — Client-side lifecycle controller for the hero
+ * canvas attract animation.
+ *
+ * This component is rendered inside HeroSection.astro and provides a <script>
+ * tag that handles:
+ * - Canvas 2D context validation (fallback on failure)
+ * - prefers-reduced-motion detection and live change tracking
+ * - IntersectionObserver for start/stop when hero enters/leaves viewport
+ * - Viewport resize handling to keep canvas dimensions in sync
+ *
+ */
+---
+
+<script>
+    import {createAttractAnimation} from '../animations/attract-canvas';
+    import type {AttractAnimation} from '../animations/attract-canvas';
+
+    function initAttractCanvas() {
+        const canvas = document.getElementById('attract-canvas') as HTMLCanvasElement | null;
+        const fallback = document.querySelector('.hero__fallback') as HTMLElement | null;
+        const hero = document.getElementById('hero') as HTMLElement | null;
+
+        if (!canvas || !hero) return;
+
+        // --- Canvas context validation ---
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            // Context unavailable: hide canvas, show fallback
+            canvas.style.display = 'none';
+            if (fallback) fallback.style.display = 'block';
+            return;
+        }
+
+        // --- Prefers-reduced-motion detection ---
+        const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        let reducedMotion = motionQuery.matches;
+
+        if (reducedMotion) {
+            // Reduced motion active on init: show fallback, hide canvas
+            canvas.style.display = 'none';
+            if (fallback) fallback.style.display = 'block';
+        }
+
+        // --- Set initial canvas dimensions ---
+        function syncCanvasDimensions() {
+            canvas!.width = window.innerWidth;
+            canvas!.height = window.innerHeight;
+        }
+
+        syncCanvasDimensions();
+
+        // --- Create animation controller ---
+        const animation: AttractAnimation = createAttractAnimation({
+            canvasId: 'attract-canvas',
+            baseParticleCount: window.innerWidth < 768 ? 30 : 80,
+            speed: 1,
+            palette: [
+                {h: 180, s: 100, l: 50},  // cyan
+                {h: 300, s: 100, l: 55},  // magenta
+                {h: 120, s: 85, l: 50},   // green
+            ],
+            reducedMode: reducedMotion,
+        });
+
+        // --- IntersectionObserver: start/stop based on viewport visibility ---
+        let isVisible = false;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                for (const entry of entries) {
+                    if (entry.isIntersecting) {
+                        isVisible = true;
+                        if (!reducedMotion) {
+                            animation.start();
+                        }
+                    } else {
+                        isVisible = false;
+                        animation.stop();
+                    }
+                }
+            },
+            {threshold: 0}
+        );
+
+        observer.observe(hero);
+
+        // --- Resize handler ---
+        function handleResize() {
+            syncCanvasDimensions();
+            animation.resize(window.innerWidth, window.innerHeight);
+        }
+
+        window.addEventListener('resize', handleResize);
+
+        // --- Reduced motion change listener ---
+        motionQuery.addEventListener('change', (event) => {
+            reducedMotion = event.matches;
+            animation.setReducedMotion(reducedMotion);
+
+            if (reducedMotion) {
+                canvas!.style.display = 'none';
+                if (fallback) fallback.style.display = 'block';
+                animation.stop();
+            } else {
+                canvas!.style.display = '';
+                if (fallback) fallback.style.display = 'none';
+                if (isVisible) {
+                    animation.start();
+                }
+            }
+        });
+    }
+
+    // Run when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAttractCanvas);
+    } else {
+        initAttractCanvas();
+    }
+</script>

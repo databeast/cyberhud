@@ -1,0 +1,32 @@
+{
+  "socket": "/run/cyberhudd/console.sock",
+  "i2c": "/dev/i2c-1",
+  "scan": "5s",
+  "display": {
+    "panel": "adafruit-2.13-ssd1680"
+  },
+  "policies": {
+    "dashboard": {
+      "style": "mono-slow-250x122"
+    },
+    "clock": {
+      "show_seconds": false,
+      "time_format": "12h",
+      "date_format": "MM-DD-YYYY",
+      "show_weekday": true,
+      "blink_colon": false,
+      "fgcolor": "none",
+      "show_led": false,
+      "seconds_bar": "none",
+      "show_daybar": true
+    },
+    "ticker": {
+      "style": "plain",
+      "font_tier": "normal",
+      "line_mode": "clip",
+      "direction": "none",
+      "auto_scroll_ms": 0,
+      "accent": "none"
+    }
+  }
+}

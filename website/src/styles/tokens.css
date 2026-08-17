@@ -1,0 +1,63 @@
+/* ==========================================================================
+   Theme Tokens — CyberHUD Marketing Website
+   All design tokens as CSS custom properties.
+   ========================================================================== */
+
+:root {
+    /* ---------- Base palette ---------- */
+    --color-bg-base: hsl(0, 0%, 5%); /* lightness ≤10% */
+    --color-bg-surface: hsl(220, 10%, 12%); /* lightness ≤20% */
+    --color-bg-elevated: hsl(220, 10%, 16%);
+
+    /* ---------- Accent palette (sat ≥80%, lightness 45-65%) ---------- */
+    --color-accent-cyan: hsl(180, 100%, 50%);
+    --color-accent-magenta: hsl(300, 100%, 55%);
+    --color-accent-green: hsl(120, 85%, 50%);
+
+    /* ---------- Text colors ---------- */
+    --color-text-primary: hsl(0, 0%, 92%);
+    --color-text-secondary: hsl(0, 0%, 68%);
+    --color-text-muted: hsl(0, 0%, 48%);
+
+    /* ---------- Typography ---------- */
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    --font-body: 'Inter', system-ui, sans-serif;
+
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 2rem;
+    --text-4xl: 2.5rem;
+    --text-5xl: 3.5rem;
+
+    --leading-tight: 1.2;
+    --leading-normal: 1.6;
+
+    /* ---------- Spacing scale (4px base) ---------- */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+
+    /* ---------- Animation ---------- */
+    --duration-fast: 150ms;
+    --duration-normal: 300ms;
+    --duration-slow: 600ms;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+    /* ---------- Borders & Radii ---------- */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+
+    /* ---------- Ambient effects ---------- */
+    --scanline-opacity: 0.03;
+    --glow-intensity: 0.6;
+}

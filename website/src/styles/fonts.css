@@ -1,0 +1,27 @@
+/* ==========================================================================
+   Font Loading — CyberHUD Marketing Website
+   Self-hosted fonts via @fontsource packages.
+   Only required weights are imported to minimize total font payload.
+   font-display: swap is used by @fontsource by default to avoid render-blocking.
+
+   Total font payload (woff2, latin subset):
+     JetBrains Mono 400: ~21KB
+     JetBrains Mono 700: ~21KB
+     Inter 400: ~23KB
+     Inter 500: ~24KB
+     Inter 700: ~24KB
+     Total: ~113KB — well within the 2MB performance budget (Req 7.4)
+
+   These fonts are referenced in tokens.css:
+     --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+     --font-body: 'Inter', system-ui, sans-serif;
+   ========================================================================== */
+
+/* JetBrains Mono — headings and code (Req 5.3: monospace/terminal-style fonts) */
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/700.css';
+
+/* Inter — body text */
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/700.css';

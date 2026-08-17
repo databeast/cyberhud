@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://cyberhud.io/sitemap-index.xml

@@ -1,0 +1,42 @@
+[
+  {
+    "text": "CYBERDECK v2.1",
+    "font": "mono-16px",
+    "line_mode": "clip",
+    "scaling": "fixed",
+    "scroll": "pinned"
+  },
+  {
+    "text": "uptime 14d 03:22:07",
+    "font": "ascii-5x7",
+    "line_mode": "truncate",
+    "scaling": "fixed",
+    "scroll": "pinned"
+  },
+  {
+    "text": "RUNNING",
+    "font": "auto",
+    "line_mode": "clip",
+    "scaling": "fit",
+    "scroll": "normal"
+  },
+  {
+    "text": "eth0: 192.168.1.42 | wlan0: 10.0.0.7",
+    "font": "ascii-4x6",
+    "line_mode": "truncate",
+    "scaling": "fixed",
+    "scroll": "normal"
+  },
+  {
+    "text": "next cron: logrotate @ 04:00",
+    "font": "cozette",
+    "line_mode": "clip",
+    "scaling": "fixed",
+    "scroll": "normal"
+  },
+  {
+    "text": "HEALTHY",
+    "scaling": "fit",
+    "scroll": "normal"
+  }
+]
