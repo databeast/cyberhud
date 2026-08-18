@@ -16,6 +16,7 @@ import (
 type ScreenPosition struct {
 	Index        int                         // zero-based ordinal used for ordering and lookup
 	Name         string                      // human-readable identifier (e.g. "left", "right")
+	Controller   string                      // controller identifier for the physical screen
 	Bounds       image.Rectangle             // position and size within Virtual Display coordinates (logical dimensions)
 	Target       driver.DrawTarget           // hardware draw target that receives flushed frames
 	HintProvider func() textlayout.TextHints // returns driver-specific text hints; nil when unavailable
@@ -28,8 +29,10 @@ type ScreenPosition struct {
 // It carries the region's identity, spatial placement, and initial display mode.
 type RegionSpec struct {
 	Name        string          // unique identifier (1-64 characters) used for lookup
+	Controller  string          // controller identifier for the region's backing screen
 	Bounds      image.Rectangle // rectangular area within the Virtual Display coordinate space
 	DefaultMode string          // display mode ID applied at allocation time; empty means no initial mode
+	Modes       []string        // allowed mode IDs in order; empty means no restriction
 }
 
 // RegionLayout is a RegionManager-layer type that holds an ordered list of
@@ -73,11 +76,14 @@ func generateSingleScreenLayout(vd *VirtualDisplay, config PanelActivationConfig
 	if err != nil {
 		return RegionLayout{}, err
 	}
+	screen := config.Screens[0]
 
 	spec := RegionSpec{
 		Name:        "default",
+		Controller:  screen.Controller,
 		Bounds:      vd.Bounds(),
 		DefaultMode: mode,
+		Modes:       resolveModes(screen.Name, config),
 	}
 
 	return RegionLayout{Specs: []RegionSpec{spec}}, nil
@@ -113,8 +119,10 @@ func generateMultiScreenLayout(vd *VirtualDisplay, config PanelActivationConfig)
 		// region writes to the same VD location that FlushPath reads from.
 		spec := RegionSpec{
 			Name:        screen.Name,
+			Controller:  screen.Controller,
 			Bounds:      screen.Bounds,
 			DefaultMode: screenMode,
+			Modes:       resolveModes(screen.Name, config),
 		}
 		specs = append(specs, spec)
 	}
@@ -162,4 +170,13 @@ func modeInList(mode string, modes []string) bool {
 		}
 	}
 	return false
+}
+
+func resolveModes(screenName string, config PanelActivationConfig) []string {
+	if config.RegionModes != nil {
+		if modes := config.RegionModes[screenName]; len(modes) > 0 {
+			return append([]string(nil), modes...)
+		}
+	}
+	return append([]string(nil), config.AvailModes...)
 }

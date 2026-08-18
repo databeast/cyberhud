@@ -90,6 +90,8 @@ type Region struct {
 	bounds       image.Rectangle
 	surface      *surface.Surface
 	mode         string
+	controller   string
+	modes        []string
 	textHints    textlayout.TextHints
 	inputFocus   bool
 	screens      []ScreenPosition
@@ -337,6 +339,18 @@ func (r *Region) Surface() *surface.Surface {
 // content (glyph metrics, scrolling support, ticker direction) for this Region.
 func (r *Region) TextHints() textlayout.TextHints {
 	return r.textHints
+}
+
+// Controller returns the logical controller identifier associated with the Region.
+func (r *Region) Controller() string {
+	return r.controller
+}
+
+// Modes returns the Region's allowed mode IDs in configured order.
+func (r *Region) Modes() []string {
+	out := make([]string, len(r.modes))
+	copy(out, r.modes)
+	return out
 }
 
 // SetModeFactory registers factory as the ModeFactory used by SetMode to construct

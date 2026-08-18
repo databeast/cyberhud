@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/databeast/cyberhud/display/catalog"
 	"github.com/databeast/cyberhud/display/surface"
 )
 
@@ -22,6 +23,24 @@ type RegionManager struct {
 	regions       []*Region
 	byName        map[string]*Region // keyed by lowercase name
 	modeValidator func(string) bool  // if nil, all modes are considered valid
+}
+
+// RegionStatus is a read-only snapshot of one region state.
+type RegionStatus struct {
+	Index      int
+	Name       string
+	Controller string
+	Current    string
+	Modes      []string
+}
+
+// RegionDefinition is a static view of one region and the modes it advertises.
+type RegionDefinition struct {
+	Index      int
+	Name       string
+	Controller string
+	Current    string
+	Modes      []catalog.Definition
 }
 
 // NewRegionManager creates a RegionManager backed by the given VirtualDisplay.
@@ -76,6 +95,8 @@ func (rm *RegionManager) Allocate(spec RegionSpec) error {
 	} else {
 		r = NewRegion(spec.Name, spec.Bounds, surf)
 	}
+	r.controller = strings.ToLower(strings.TrimSpace(spec.Controller))
+	r.modes = normalizeModeList(spec.Modes)
 
 	// Set default mode if specified.
 	if spec.DefaultMode != "" {
@@ -91,6 +112,90 @@ func (rm *RegionManager) Allocate(spec RegionSpec) error {
 	rm.byName[strings.ToLower(spec.Name)] = r
 
 	return nil
+}
+
+func normalizeModeList(modes []string) []string {
+	seen := map[string]struct{}{}
+	out := make([]string, 0, len(modes))
+	for _, mode := range modes {
+		mode = strings.ToLower(strings.TrimSpace(mode))
+		if mode == "" {
+			continue
+		}
+		if _, ok := seen[mode]; ok {
+			continue
+		}
+		seen[mode] = struct{}{}
+		out = append(out, mode)
+	}
+	return out
+}
+
+func modeAllowed(modes []string, mode string) bool {
+	mode = strings.ToLower(strings.TrimSpace(mode))
+	if mode == "" {
+		return false
+	}
+	if len(modes) == 0 {
+		return true
+	}
+	for _, allowed := range modes {
+		if allowed == mode {
+			return true
+		}
+	}
+	return false
+}
+
+func nextMode(r *Region) (string, error) {
+	modes := r.Modes()
+	if len(modes) == 0 {
+		return "", fmt.Errorf("region %q has no modes", r.Name())
+	}
+	current := strings.ToLower(strings.TrimSpace(r.CurrentMode()))
+	for i, mode := range modes {
+		if mode == current {
+			return modes[(i+1)%len(modes)], nil
+		}
+	}
+	return modes[0], nil
+}
+
+func prevMode(r *Region) (string, error) {
+	modes := r.Modes()
+	if len(modes) == 0 {
+		return "", fmt.Errorf("region %q has no modes", r.Name())
+	}
+	current := strings.ToLower(strings.TrimSpace(r.CurrentMode()))
+	for i, mode := range modes {
+		if mode == current {
+			if i == 0 {
+				return modes[len(modes)-1], nil
+			}
+			return modes[i-1], nil
+		}
+	}
+	return modes[len(modes)-1], nil
+}
+
+func regionStatus(index int, r *Region) RegionStatus {
+	return RegionStatus{
+		Index:      index,
+		Name:       r.Name(),
+		Controller: r.Controller(),
+		Current:    r.CurrentMode(),
+		Modes:      r.Modes(),
+	}
+}
+
+func regionDefinition(index int, r *Region) RegionDefinition {
+	return RegionDefinition{
+		Index:      index,
+		Name:       r.Name(),
+		Controller: r.Controller(),
+		Current:    r.CurrentMode(),
+		Modes:      catalog.DescribeMany(r.Modes()),
+	}
 }
 
 // pendingRegion tracks a region during layout validation before allocation.
@@ -180,8 +285,97 @@ func (rm *RegionManager) SetMode(target string, modeID string) error {
 	if rm.modeValidator != nil && !rm.modeValidator(modeID) {
 		return fmt.Errorf("region %q: display mode %q is not registered", r.Name(), modeID)
 	}
+	if !modeAllowed(r.modes, modeID) {
+		return fmt.Errorf("region %q: display mode %q is not allowed", r.Name(), modeID)
+	}
 
 	return r.SetMode(modeID)
+}
+
+// Set switches a region by index to the named mode and returns the selected mode.
+func (rm *RegionManager) Set(index int, modeID string) (string, error) {
+	r, ok := rm.Region(index)
+	if !ok {
+		return "", fmt.Errorf("region %d is not configured", index)
+	}
+	if err := rm.SetMode(strconv.Itoa(index), modeID); err != nil {
+		return "", err
+	}
+	return r.CurrentMode(), nil
+}
+
+// Next advances a region by index to the next allowed mode.
+func (rm *RegionManager) Next(index int) (string, error) {
+	r, ok := rm.Region(index)
+	if !ok {
+		return "", fmt.Errorf("region %d is not configured", index)
+	}
+	next, err := nextMode(r)
+	if err != nil {
+		return "", err
+	}
+	if err := r.SetMode(next); err != nil {
+		return "", err
+	}
+	return r.CurrentMode(), nil
+}
+
+// Prev moves a region by index to the previous allowed mode.
+func (rm *RegionManager) Prev(index int) (string, error) {
+	r, ok := rm.Region(index)
+	if !ok {
+		return "", fmt.Errorf("region %d is not configured", index)
+	}
+	prev, err := prevMode(r)
+	if err != nil {
+		return "", err
+	}
+	if err := r.SetMode(prev); err != nil {
+		return "", err
+	}
+	return r.CurrentMode(), nil
+}
+
+// CurrentMode returns the current mode for the region index.
+func (rm *RegionManager) CurrentMode(index int) string {
+	r, ok := rm.Region(index)
+	if !ok {
+		return ""
+	}
+	return r.CurrentMode()
+}
+
+// CurrentModeByName returns the current mode for the region matching name.
+func (rm *RegionManager) CurrentModeByName(name string) string {
+	r, ok := rm.RegionByName(name)
+	if !ok {
+		return ""
+	}
+	return r.CurrentMode()
+}
+
+// HasRegion reports whether a region index is configured.
+func (rm *RegionManager) HasRegion(index int) bool {
+	_, ok := rm.Region(index)
+	return ok
+}
+
+// Status returns region snapshots in allocation order.
+func (rm *RegionManager) Status() []RegionStatus {
+	out := make([]RegionStatus, 0, len(rm.regions))
+	for i, r := range rm.regions {
+		out = append(out, regionStatus(i, r))
+	}
+	return out
+}
+
+// Definitions returns region metadata enriched with built-in mode descriptions.
+func (rm *RegionManager) Definitions() []RegionDefinition {
+	out := make([]RegionDefinition, 0, len(rm.regions))
+	for i, r := range rm.regions {
+		out = append(out, regionDefinition(i, r))
+	}
+	return out
 }
 
 // InputActiveRegion returns the Region currently receiving input events, or nil
@@ -268,6 +462,9 @@ func (rm *RegionManager) validateSpecCore(spec RegionSpec) error {
 	// Validate mode if specified and validator is set.
 	if spec.DefaultMode != "" && rm.modeValidator != nil && !rm.modeValidator(spec.DefaultMode) {
 		return fmt.Errorf("region %q: display mode %q is not registered", spec.Name, spec.DefaultMode)
+	}
+	if spec.DefaultMode != "" && !modeAllowed(spec.Modes, spec.DefaultMode) {
+		return fmt.Errorf("region %q: display mode %q is not allowed", spec.Name, spec.DefaultMode)
 	}
 
 	return nil

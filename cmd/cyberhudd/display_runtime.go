@@ -458,17 +458,21 @@ func buildPositions(targets []indexedTarget, profile panels.Definition) ([]regio
 
 	// Build a lookup from the panel's Virtual screen definitions.
 	type screenMeta struct {
-		name     string
-		xPos     int
-		yPos     int
-		rotation int
-		mirrorX  bool
-		ppi      float64
+		name       string
+		controller string
+		xPos       int
+		yPos       int
+		rotation   int
+		mirrorX    bool
+		ppi        float64
 	}
 	metaByIndex := make(map[int]screenMeta, len(profile.Virtual))
 	hasExplicitPositions := false
 	for _, scr := range profile.Virtual {
-		meta := screenMeta{name: scr.Name, xPos: scr.XPosition, yPos: scr.YPosition, rotation: scr.Rotation, mirrorX: scr.MirrorX, ppi: scr.PPI}
+		meta := screenMeta{name: scr.Name, controller: strings.ToLower(strings.TrimSpace(scr.Controller)), xPos: scr.XPosition, yPos: scr.YPosition, rotation: scr.Rotation, mirrorX: scr.MirrorX, ppi: scr.PPI}
+		if meta.controller == "" {
+			meta.controller = strings.ToLower(strings.TrimSpace(profile.Controller))
+		}
 		metaByIndex[scr.Index] = meta
 		if scr.XPosition > 0 || scr.YPosition > 0 {
 			hasExplicitPositions = true
@@ -517,13 +521,14 @@ func buildPositions(targets []indexedTarget, profile panels.Definition) ([]regio
 		}
 
 		sp := region.ScreenPosition{
-			Index:    it.index,
-			Name:     name,
-			Bounds:   bounds,
-			Target:   it.target,
-			Rotation: meta.rotation,
-			MirrorX:  meta.mirrorX,
-			PPI:      meta.ppi,
+			Index:      it.index,
+			Name:       name,
+			Controller: meta.controller,
+			Bounds:     bounds,
+			Target:     it.target,
+			Rotation:   meta.rotation,
+			MirrorX:    meta.mirrorX,
+			PPI:        meta.ppi,
 		}
 		if hp, ok := it.target.(textlayout.TextHintProvider); ok {
 			sp.HintProvider = hp.TextHints
@@ -619,7 +624,9 @@ func runDisplayWithRegions(
 	var availModes []string
 	var defaultMode string
 	screenModes := map[string]string{}
+	regionModes := map[string][]string{}
 	for _, d := range displays {
+		regionModes[d.Name] = append([]string(nil), d.Modes...)
 		if d.Index == 0 {
 			availModes = d.Modes
 			defaultMode = d.Default
@@ -666,6 +673,7 @@ func runDisplayWithRegions(
 		DefaultMode:   defaultMode,
 		InputEnabled:  inputEnabled,
 		AvailModes:    availModes,
+		RegionModes:   regionModes,
 		ScreenModes:   screenModes,
 		ModeValidator: displaymodes.IsKnown,
 		Events:        events,
@@ -679,6 +687,10 @@ func runDisplayWithRegions(
 	if err != nil {
 		return fmt.Errorf("region activation: %w", err)
 	}
+
+	// Hand the live RegionManager to the control-plane facade so console and
+	// renderer decisions always read the daemon-owned region state.
+	modeState.Bind(activation.RegionManager)
 
 	// ── Wire ModeFactory on all allocated regions ────────────────────────
 	// This bridges the region package (which defines ModeFactory) with the
@@ -761,11 +773,8 @@ func runDisplayWithRegions(
 		region.WithTickRateResolver(tickResolver),
 	)
 
-	// Wire ModeSwitch for console mode-change commands.
-	// The catalog.State is shared with the console server and handles mode
-	// tracking. When catalog.State.Set is called by the console, the
-	// RegionRenderer.syncMode() detects the change on the next render tick
-	// and calls Region.SetMode to construct a fresh mode instance.
+	// The control-plane facade is now bound to the live RegionManager, so
+	// console commands and render-time sync both observe the same state.
 
 	// ── Run render loop (blocking until stop) ─────────────────────────────
 	go func() {
