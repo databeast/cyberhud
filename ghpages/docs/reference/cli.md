@@ -427,72 +427,37 @@ Saves every mode's current policy state (key=value fields) to the `policies` sec
 
 ## Multi-Command Syntax
 
-`cyberhudctl` supports sending multiple commands in a single invocation by separating them with standalone semicolons (` ; `). Commands are processed sequentially over a single socket connection.
+`cyberhudctl` supports sending multiple explicit commands in a single invocation by separating them with standalone semicolons (` ; `). Each command is parsed the same way it is in a single-command invocation, and the commands execute sequentially over a single socket connection.
 
 ### Syntax
 
 ```bash
-cyberhudctl [flags] <cmd1> ; <cmd2> ; <cmd3> ...
+cyberhudctl [flags] <cmd1> ';' <cmd2> ';' <cmd3> ...
 ```
 
 Each `;` must be a standalone argument — shell quoting or escaping is typically needed:
 
 ```bash
 # Using shell quoting to prevent semicolons from being interpreted by the shell
-cyberhudctl region main.0 ';' mode attract_bokeh ';' config speed=2.0
+cyberhudctl display set main.0 clock ';' status
 ```
-
-### Scoped Commands
-
-Within a multi-command invocation, the following **scoped commands** are available:
-
-| Scoped Command | Expands To | Description |
-|----------------|------------|-------------|
-| `region <id>` | *(sets context)* | Set the active region for subsequent scoped commands |
-| `mode <mode> [key=value ...]` | `display set <region> <mode> [key=value ...]` | Switch mode on the active region |
-| `config [key=value ...]` | `display config <region> [key=value ...]` | Update policy on the active region |
-| `next` | `display next <region>` | Cycle to next mode on the active region |
-| `prev` | `display prev <region>` | Cycle to previous mode on the active region |
-| `status` | `display policy <region>` | Query policy for the active region |
-
-### Region Context Requirement
-
-A `region <id>` command **must precede** any scoped command. Without an active region context, scoped commands (`mode`, `config`, `next`, `prev`, `status`) produce an error:
-
-```
-ERR no region context active; use 'region <id>' first
-```
-
-The `region` command itself does not generate a protocol command — it only sets the context for subsequent scoped commands in the same invocation.
 
 ### Examples
 
 ```bash
-# Set region, switch mode, and configure policy in one invocation
-cyberhudctl region main.0 ';' mode attract_plasma ';' config speed=1.5 density=0.8
+# Query system status, then set a mode explicitly
+cyberhudctl status ';' display set main.0 clock
 
-# Cycle to next mode on a region
-cyberhudctl region left-aux.0 ';' next
+# Advance a region and then check policy
+cyberhudctl display next main.0 ';' display policy main.0
 
-# Use bare integer addressing with region context
-cyberhudctl region 0 ';' mode clock ';' status
-
-# Mix scoped and non-scoped commands
-cyberhudctl region main.0 ';' mode ticker ';' display ticker set "Hello World"
-```
-
-### Non-Scoped Commands in Multi-Command Mode
-
-Commands that are not scoped (e.g., `status`, `freeze`, `gpio status`) can also appear in a multi-command invocation. They are routed through the standard command parser and do not require a region context:
-
-```bash
-# Query system status, then set a mode on a region
-cyberhudctl status ';' region main.0 ';' mode clock
+# Use bare integer addressing explicitly
+cyberhudctl display set 0 clock ';' display policy 0
 ```
 
 ### Execution Behavior
 
 - Commands execute sequentially over a single socket connection.
 - If any command returns an error response, execution stops immediately and the error is reported.
-- The `region` command sets context but produces no protocol traffic.
+- There is no client-side region context or command rewriting.
 - All successful responses are printed in order after execution completes.
