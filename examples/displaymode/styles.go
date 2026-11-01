@@ -37,16 +37,20 @@ var _ style.Style[Snapshot, Policy] = GrayscaleFast240x240Style{}
 var _ style.Style[Snapshot, Policy] = GrayscaleFast320x240Style{}
 var _ style.Style[Snapshot, Policy] = GrayscaleFast480x320Style{}
 var _ style.Style[Snapshot, Policy] = GrayscaleFast800x480Style{}
+var _ style.Style[Snapshot, Policy] = GraphicsExampleStyle{}
 
 // ---------------------------------------------------------------------------
 // Style registry
 // ---------------------------------------------------------------------------
 
-// templateRegistry holds all 24 styles in registration order.
-// The first style (mono-128x32) is the default.
+// templateRegistry holds all 25 styles in registration order: 24 per-resolution
+// text-only skeletons plus one graphics-example style (last). The first style
+// (mono-128x32) is the default selected by fitness when none is configured.
 //
-// Each style lives in its own file (style_<category>_<WxH>.go) so developers
-// can grab the one matching their target panel as a starting point.
+// Each per-resolution style lives in its own file (style_<category>_<WxH>.go)
+// so developers can grab the one matching their target panel as a starting
+// point. The graphics-example style (style_graphics_example.go) is the
+// reference for drawing text alongside graphics correctly.
 var templateRegistry = style.NewRegistry[Snapshot, Policy](
 	MonoSmall128x32Style{}, // default (first)
 	MonoSmall128x64Style{},
@@ -73,4 +77,9 @@ var templateRegistry = style.NewRegistry[Snapshot, Policy](
 	GrayscaleFast320x240Style{},
 	GrayscaleFast480x320Style{},
 	GrayscaleFast800x480Style{},
+	// Worked example of mixing text + graphics in one view (pixel-anchored
+	// label + bar sprites). Registered LAST and selected by explicit name
+	// (style=graphics-example) so it never displaces the text-only styles by
+	// fitness; see style_graphics_example.go for the two-plane layout lesson.
+	GraphicsExampleStyle{},
 )

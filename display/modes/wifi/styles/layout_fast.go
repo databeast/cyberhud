@@ -166,21 +166,17 @@ func buildFastWifiConnected(data source.WifiData, pol source.Policy, bridge layo
 	progressBarHeight := 4
 	detailRowH := secondaryEntry.RowHeight
 
-	// Build row heights array for FitRows:
-	// [0] SSID header, [1] signal zone, [2] progress bar,
-	// [3] frequency, [4] channel, [5] speed, [6] IP, [7] interface
+	// Row heights for the three fixed leading rows. Detail rows (all detailRowH)
+	// are appended below once the policy-driven detail list is known, then
+	// FitRows is run against the final array.
+	// [0] SSID header, [1] signal zone, [2] progress bar
 	rowHeights := []int{
 		ssidRowH,          // 0: header (icon + SSID)
 		signalRowH,        // 1: signal zone (bars + label)
 		progressBarHeight, // 2: link quality progress bar
-		detailRowH,        // 3: frequency
-		detailRowH,        // 4: channel
-		detailRowH,        // 5: speed
-		detailRowH,        // 6: IP
-		detailRowH,        // 7: interface
 	}
 
-	spacing, offsetY, visibleCount := bridge.FitRows(rowHeights)
+	var spacing, offsetY, visibleCount int
 
 	// --- Build SSID text (truncated to fit width minus icon) ---
 	iconWidth := wifiIconDst // 16
@@ -198,57 +194,66 @@ func buildFastWifiConnected(data source.WifiData, pol source.Policy, bridge layo
 		ssid = textlayout.Truncate(ssid, ssidMaxChars)
 	}
 
-	// Signal label text.
-	signalLabel := formatSignalLabel(data, pol, barLevel)
-
-	// Detail row texts.
-	freqText := fmt.Sprintf("%.2f GHz", data.Frequency)
-	chanText := fmt.Sprintf("Ch %d", data.Channel)
-	speedText := fmt.Sprintf("%d Mbps", data.LinkSpeed)
-	ipText := data.IPAddress
-	ifaceText := data.InterfaceName
-
-	// All text items in order.
-	allItems := []string{
-		ssid,        // 0: header
-		signalLabel, // 1: signal label
-		"",          // 2: progress bar (no text)
-		freqText,    // 3: frequency
-		chanText,    // 4: channel
-		speedText,   // 5: speed
-		ipText,      // 6: IP
-		ifaceText,   // 7: interface
+	// Signal label text. In "bars" mode the signal-bars sprite already conveys
+	// the level, so the redundant "Signal: N/4" string is dropped and the sprite
+	// stands alone. For percentage/dbm modes the sprite has no numeric readout,
+	// so the label is kept to give an exact value.
+	signalLabel := ""
+	if pol.SignalDisplay != "" && pol.SignalDisplay != "bars" {
+		signalLabel = formatSignalLabel(data, pol, barLevel)
 	}
 
-	// Per-row tier declarations.
-	allTiers := []tiercatalog.Tier{
-		primaryTier,   // 0: header
-		secondaryTier, // 1: signal
-		secondaryTier, // 2: progress bar
-		secondaryTier, // 3: freq
-		secondaryTier, // 4: channel
-		secondaryTier, // 5: speed
-		secondaryTier, // 6: IP
-		secondaryTier, // 7: interface
-	}
-
-	// Colors: accent for SSID, quality-mapped for signal, dimmed for details.
+	// Colors palette for the detail rows.
 	white := color.RGBA{255, 255, 255, 255}
 	dimmedWhite := sharedcolor.Dim(white)
 
+	// --- Detail rows (policy-aware, consolidated) ---
+	// Frequency and channel collapse into a single row when both are enabled,
+	// so a height-constrained panel spends one row on radio info instead of two.
+	// The show_frequency / show_channel / show_interface toggles are honored here
+	// (the shared fast engine previously ignored them). IP and link speed are
+	// always shown when present, matching the bespoke panel layouts.
+	detailItems := make([]string, 0, 5)
+
+	if radio := combinedRadioLine(data, pol); radio != "" {
+		detailItems = append(detailItems, radio)
+	}
+	if data.LinkSpeed > 0 {
+		detailItems = append(detailItems, fmt.Sprintf("%d Mbps", data.LinkSpeed))
+	}
+	if data.IPAddress != "" {
+		detailItems = append(detailItems, data.IPAddress)
+	}
+	if pol.ShowInterface && data.InterfaceName != "" {
+		detailItems = append(detailItems, data.InterfaceName)
+	}
+
+	// Assemble the full row list: fixed header/signal/progress rows followed by
+	// the dynamic detail rows. Row heights, tiers, and colors are kept in lockstep.
+	allItems := []string{
+		ssid,        // 0: header
+		signalLabel, // 1: signal label ("" in bars mode → sprite only)
+		"",          // 2: progress bar (no text)
+	}
+	allTiers := []tiercatalog.Tier{primaryTier, secondaryTier, secondaryTier}
 	var allColors []color.Color
 	if d.p.Color {
-		allColors = []color.Color{
-			accent,      // 0: SSID in accent
-			qColor,      // 1: signal in quality color
-			nil,         // 2: progress bar (no text)
-			dimmedWhite, // 3: freq
-			dimmedWhite, // 4: channel
-			dimmedWhite, // 5: speed
-			dimmedWhite, // 6: IP
-			dimmedWhite, // 7: interface
+		allColors = []color.Color{accent, qColor, nil}
+	}
+
+	for _, item := range detailItems {
+		allItems = append(allItems, item)
+		allTiers = append(allTiers, secondaryTier)
+		rowHeights = append(rowHeights, detailRowH)
+		if d.p.Color {
+			allColors = append(allColors, dimmedWhite)
 		}
 	}
+
+	// Trim the row-height scratch array to the rows we actually declared, then
+	// recompute the fit so visibleCount reflects the real (consolidated) layout.
+	rowHeights = rowHeights[:len(allItems)]
+	spacing, offsetY, visibleCount = bridge.FitRows(rowHeights)
 
 	// Trim to visible count.
 	if visibleCount > len(allItems) {
@@ -357,5 +362,26 @@ func buildFastWifiConnected(data source.WifiData, pol source.Policy, bridge layo
 		Sprites:      sprites,
 		Static:       false,
 		PaddingPct:   paddingPct,
+	}
+}
+
+// combinedRadioLine builds a single consolidated radio-info row from the
+// frequency and channel, honoring the show_frequency / show_channel policy
+// toggles. Collapsing both into one row ("Ch 36 (5.2GHz)") keeps the detail
+// stack short on height-constrained panels. Returns "" when both are disabled
+// or unavailable.
+func combinedRadioLine(data source.WifiData, pol source.Policy) string {
+	showFreq := pol.ShowFrequency && data.Frequency > 0
+	showChan := pol.ShowChannel && data.Channel > 0
+
+	switch {
+	case showFreq && showChan:
+		return fmt.Sprintf("Ch %d (%.1fGHz)", data.Channel, data.Frequency)
+	case showChan:
+		return fmt.Sprintf("Ch %d", data.Channel)
+	case showFreq:
+		return fmt.Sprintf("%.1f GHz", data.Frequency)
+	default:
+		return ""
 	}
 }

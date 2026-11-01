@@ -60,5 +60,7 @@ website/node_modules/
 ghpages/site/
 
 .astro
-.kiro
+
+# Kiro: ignore local specs, but track shared skills (and other config)
+.kiro/specs/
 

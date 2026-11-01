@@ -1,7 +1,7 @@
 // Package wifi implements a display mode for the cyberHUD system that renders
 // real-time wireless network status to TFT panels. It reads interface state from
-// the Linux kernel (/proc/net/wireless) and presents connection details through a
-// visually rich layout featuring a WiFi icon sprite, color-coded signal bars, a
+// the Linux kernel via NL80211 (netlink) and presents connection details through
+// a visually rich layout featuring a WiFi icon sprite, color-coded signal bars, a
 // link quality progress bar, and detail rows for SSID, frequency, channel, IP
 // address, and interface name.
 //

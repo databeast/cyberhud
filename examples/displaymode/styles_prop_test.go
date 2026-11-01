@@ -110,6 +110,8 @@ func TestPropertySurfaceRequirementsCorrectness(t *testing.T) {
 		"grayscale-fast-320x240": {320, 240, style.GrayscaleFast},
 		"grayscale-fast-480x320": {480, 320, style.GrayscaleFast},
 		"grayscale-fast-800x480": {800, 480, style.GrayscaleFast},
+		// Worked text+graphics example (see style_graphics_example.go).
+		"color-240x240-graphics": {240, 240, style.ColorFast},
 	}
 
 	rapid.Check(t, func(t *rapid.T) {
@@ -166,11 +168,15 @@ func TestPropertySupportsDelegatesToEvaluateFitness(t *testing.T) {
 // =============================================================================
 //
 // For any style in the template registry and for any Snapshot and TextHints
-// values, Build().Items contains at least one non-empty string.
+// values, Build() produces RENDERABLE OUTPUT: either at least one non-empty
+// text item (TTY/row plane) or at least one sprite (pixel-anchored plane). A
+// text-only style satisfies this via Items; a graphics style (e.g.
+// graphics-example) satisfies it via Sprites and legitimately leaves Items
+// empty. See the two-layout-planes note in doc.go.
 
 // =============================================================================
 
-func TestPropertyBuildProducesNonEmptyItems(t *testing.T) {
+func TestPropertyBuildProducesRenderableOutput(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
 		styles := templateRegistry.Enumerate()
 		idx := rapid.IntRange(0, len(styles)-1).Draw(t, "styleIndex")
@@ -180,19 +186,18 @@ func TestPropertyBuildProducesNonEmptyItems(t *testing.T) {
 		ctx := style.NewStyleContext(hints)
 		result := s.Build(Snapshot{}, Policy{}, ctx)
 
-		if len(result.Items) == 0 {
-			t.Fatalf("style %q: Build() returned empty Items slice", s.Name())
-		}
-
-		hasNonEmpty := false
+		hasText := false
 		for _, item := range result.Items {
 			if item != "" {
-				hasNonEmpty = true
+				hasText = true
 				break
 			}
 		}
-		if !hasNonEmpty {
-			t.Fatalf("style %q: Build() Items has no non-empty strings: %v", s.Name(), result.Items)
+		hasSprites := len(result.Sprites) > 0
+
+		if !hasText && !hasSprites {
+			t.Fatalf("style %q: Build() produced no renderable output "+
+				"(empty Items and no Sprites)", s.Name())
 		}
 	})
 }

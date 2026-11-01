@@ -37,6 +37,11 @@ func categoryFromStyle(name string, reqs style.SurfaceRequirements) testsnapshot
 	}
 }
 
+// dimensionsFromRequirements renders each style at its own declared panel
+// resolution. Post-refactor every system style is resolution-specific (its
+// MinWidth/MinHeight is the WxH encoded in its name), so the snapshot is drawn
+// at exactly the panel the style targets — matching the thermal/clock snapshot
+// pattern. Falls back to a sane default only for an unconstrained style.
 func dimensionsFromRequirements(reqs style.SurfaceRequirements) (int, int) {
 	width, height := reqs.MinWidth, reqs.MinHeight
 	if width == 0 {
@@ -86,6 +91,9 @@ func TestSystemPNGSnapshots(t *testing.T) {
 				}),
 				testsnapshot.WithPreRender(func() {
 					system.SetPolicy(system.Policy{Style: s.Name(), Font: "auto"})
+					// Seed deterministic sampler data so cores/top render
+					// representative content instead of "(no data)".
+					system.SetSamplerForTest(system.NewFakeSampler())
 				}),
 			)
 

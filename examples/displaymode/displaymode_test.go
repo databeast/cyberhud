@@ -11,8 +11,9 @@ import (
 
 func TestRegisteredStyleNamesCount(t *testing.T) {
 	names := registeredStyleNames()
-	if len(names) != 24 {
-		t.Fatalf("registeredStyleNames() returned %d entries, want 24", len(names))
+	// 24 per-resolution text-only styles + 1 text+graphics example.
+	if len(names) != 25 {
+		t.Fatalf("registeredStyleNames() returned %d entries, want 25", len(names))
 	}
 }
 

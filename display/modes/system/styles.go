@@ -1,15 +1,28 @@
 package system
 
 import (
+	"fmt"
+	"regexp"
+
 	"github.com/databeast/cyberhud/display/modes/system/source"
-	"github.com/databeast/cyberhud/display/modes/system/styles"
 	"github.com/databeast/cyberhud/display/style"
 )
 
-// systemRegistry is the per-mode StyleRegistry for the system display mode.
-var systemRegistry = style.NewRegistry[source.SystemSnapshot, source.Policy](styles.DefaultStyle, styles.CompactStyle, styles.CoresStyle, styles.TopStyle)
+// styleNamePattern is the regex that all registered system style names must
+// match. Format: <category_prefix><WxH>[-<variant>], where variant is one of
+// default|compact|cores|top. Mirrors the thermal/clock naming convention.
+var styleNamePattern = regexp.MustCompile(`^(color-|color-slow-|mono-|mono-slow-|grayscale-fast-|grayscale-slow-)\d+x\d+(-(default|compact|cores|top))?$`)
 
-// Allowed style values for the system mode.
+func init() {
+	for _, s := range systemRegistry.Enumerate() {
+		if !styleNamePattern.MatchString(s.Name()) {
+			panic(fmt.Sprintf("system: invalid style name %q does not match expected pattern %s", s.Name(), styleNamePattern.String()))
+		}
+	}
+}
+
+// Allowed style variant tokens for the system mode. The full style name is
+// <capability-prefix>-<WxH>[-<variant>]; these are the variant suffixes.
 const (
 	StyleDefault = "default"
 	StyleCompact = "compact"

@@ -2,6 +2,7 @@ package styles
 
 import (
 	"fmt"
+	"image/color"
 
 	"github.com/databeast/cyberhud/display/modes/system/source"
 	"github.com/databeast/cyberhud/display/style"
@@ -9,18 +10,12 @@ import (
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 )
 
-var TopStyle = def{
-	name: "top",
-	reqs: style.SurfaceRequirements{
-		MinHeight:       32,
-		PreferredHeight: 64,
-		MinRows:         2,
-		MinCharsPerLine: 8,
-	},
-	p: Params{BuildFn: topBuild},
-}
-
-func topBuild(snapshot source.SystemSnapshot, pol source.Policy, ctx style.StyleContext, d def) style.ViewData {
+// buildTopStyle is the shared "top" variant builder — the leaderboard of the
+// heaviest CPU-consuming processes: name left, percentage right, worst offender
+// on top. Heavy rows are accented with the green→amber→red load color so the
+// troublemaker draws the eye (the same cool-to-hot logic as the cores wall).
+// Names truncate gracefully; the percentage is always preserved.
+func buildTopStyle(snapshot source.SystemSnapshot, pol source.Policy, ctx style.StyleContext, d def) style.ViewData {
 	_ = pol
 	processes := snapshot.Processes
 	if processes == nil {
@@ -29,10 +24,9 @@ func topBuild(snapshot source.SystemSnapshot, pol source.Policy, ctx style.Style
 
 	hints := ctx.Hints()
 	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
+	isColor := isColorPanel(ctx)
 
 	visibleRows := bridge.MaxVisibleRows()
-
-	// Cap to min(len(processes), visibleRows).
 	count := len(processes)
 	if visibleRows > 0 && visibleRows < count {
 		count = visibleRows
@@ -44,13 +38,16 @@ func topBuild(snapshot source.SystemSnapshot, pol source.Policy, ctx style.Style
 	}
 
 	items := make([]string, 0, count)
+	colors := make([]color.Color, 0, count)
 	for i := 0; i < count; i++ {
 		entry := processes[i]
 		cpuStr := fmt.Sprintf("%d%%", entry.CPUPerc)
 
 		name := entry.Name
-		// Reserve space for " XX%" suffix (space + cpuStr).
-		// Truncate name so that name + " " + cpuStr fits within maxChars.
+		// Truncate the NAME so that name + " " + cpuStr fits within maxChars;
+		// the percentage must always survive. This prevents the renderer from
+		// shrinking an overflowing row to a smaller font (which breaks the
+		// leaderboard's type rhythm).
 		if maxChars > 0 {
 			nameLimit := maxChars - len(cpuStr) - 1 // -1 for the space separator
 			if nameLimit < 1 {
@@ -60,7 +57,12 @@ func topBuild(snapshot source.SystemSnapshot, pol source.Policy, ctx style.Style
 		}
 
 		items = append(items, name+" "+cpuStr)
+
+		// Accent by load: CPUPerc is 0-100 per core (can exceed 100 on
+		// multi-core), so normalize against 100 for the heat ramp.
+		load := float64(entry.CPUPerc) / 100.0
+		colors = append(colors, loadColor(load, isColor))
 	}
 
-	return style.ViewData{Items: items}
+	return style.ViewData{Items: items, Colors: colors}
 }
