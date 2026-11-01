@@ -163,15 +163,17 @@ func buildOverview(snap source.ThermalSnapshot, pol source.Policy, ctx style.Sty
 	ox, oy := bridge.ContentOrigin()
 	width := bridge.AvailableContentWidth()
 	hasBorder := pol.ShowBorder && hints.PixelWidth >= 16 && hints.PixelHeight >= 16
+	rowHeight := bridge.RowHeight()
 
 	maxRows := bridge.MaxVisibleRows()
 	zones := snap.Zones
 	if maxRows > 0 && len(zones) > maxRows {
 		zones = zones[:maxRows]
 	}
+	offsetY := bridge.CenterBlockY(uniformRowHeights(len(zones), rowHeight), 0)
 
 	vd := style.ViewData{
-		OffsetY: 0,
+		OffsetY: offsetY,
 	}
 
 	// Add borderframe sprites if applicable (panel-covering).
@@ -185,8 +187,6 @@ func buildOverview(snap source.ThermalSnapshot, pol source.Policy, ctx style.Sty
 			vd.Sprites = append(vd.Sprites, *borderSprite)
 		}
 	}
-
-	rowHeight := bridge.RowHeight()
 
 	// Derive isColor from policy accent.
 	isColor := pol.FGColor != "none"
@@ -224,7 +224,7 @@ func buildOverview(snap source.ThermalSnapshot, pol source.Policy, ctx style.Sty
 		vd.Colors = append(vd.Colors, labelColor)
 
 		// Compute Y position for this row using content origin.
-		yPos := oy + i*rowHeight
+		yPos := oy + offsetY + i*rowHeight
 
 		// Render progressbar widget for this zone using severity-driven bar fill color.
 		// Position: to the right of text area, leaving space for label+temp text.
@@ -303,6 +303,17 @@ func renderTextBar(fill float64, width int) string {
 	return b.String()
 }
 
+func uniformRowHeights(count, rowHeight int) []int {
+	if count <= 0 || rowHeight <= 0 {
+		return nil
+	}
+	heights := make([]int, count)
+	for i := range heights {
+		heights[i] = rowHeight
+	}
+	return heights
+}
+
 // buildDetail renders the "detail" style: focused view of the hottest zone.
 // Shows: label, current temp, min/max observed, sparkline history data, trip points.
 // Primary zone: highest temp; lowest zone ID on tie.
@@ -352,9 +363,7 @@ func buildDetail(snap source.ThermalSnapshot, pol source.Policy, ctx style.Style
 	minTemp, maxTemp := computeMinMax(history)
 
 	// Build Items.
-	vd := style.ViewData{
-		OffsetY: 0,
-	}
+	vd := style.ViewData{OffsetY: 0}
 
 	// Add borderframe sprites if applicable (panel-covering).
 	if hasBorder {
@@ -394,9 +403,11 @@ func buildDetail(snap source.ThermalSnapshot, pol source.Policy, ctx style.Style
 
 	// Sparkline and trip points: suppressed when panel is too short.
 	var sparkData []float64
+	sparkRowIndex := -1
 	if !suppressSparkAndTrips {
 		// Row 4: sparkline placeholder (rendered as widget below)
 		sparkData = normalizeSparkline(history, ec)
+		sparkRowIndex = len(vd.Items)
 		vd.Items = append(vd.Items, "───────") // sparkline placeholder row
 		vd.Colors = append(vd.Colors, tempColor)
 
@@ -414,10 +425,11 @@ func buildDetail(snap source.ThermalSnapshot, pol source.Policy, ctx style.Style
 		vd.Items = vd.Items[:maxRows]
 		vd.Colors = vd.Colors[:maxRows]
 	}
+	vd.OffsetY = bridge.CenterBlockY(uniformRowHeights(len(vd.Items), rowHeight), 0)
 
 	// Render sparkline widget for temperature history.
-	if !suppressSparkAndTrips {
-		sparkY := oy + len(vd.Items)*rowHeight
+	if !suppressSparkAndTrips && sparkRowIndex >= 0 && sparkRowIndex < len(vd.Items) {
+		sparkY := oy + vd.OffsetY + sparkRowIndex*rowHeight
 		sparkWidth := width
 		if sparkWidth < 1 {
 			sparkWidth = hints.PixelWidth
@@ -515,10 +527,6 @@ func computeMinMax(history []float64) (min, max float64) {
 //
 // Sparkline widgets are suppressed when effective width < 64px (text-only fallback).
 func buildGraph(snap source.ThermalSnapshot, pol source.Policy, ctx style.StyleContext) style.ViewData {
-	vd := style.ViewData{
-		OffsetY: 0,
-	}
-
 	// Determine color panel status and native foreground for monochrome.
 	isColor := pol.FGColor != "none"
 	nativeFG := color.RGBA{R: 255, G: 255, B: 255, A: 255}
@@ -531,6 +539,13 @@ func buildGraph(snap source.ThermalSnapshot, pol source.Policy, ctx style.StyleC
 
 	rowHeight := bridge.RowHeight()
 	glyphAdvance := bridge.GlyphAdvance()
+	maxRows := bridge.MaxVisibleRows()
+	zones := snap.Zones
+	if maxRows > 0 && len(zones) > maxRows {
+		zones = zones[:maxRows]
+	}
+	offsetY := bridge.CenterBlockY(uniformRowHeights(len(zones), rowHeight), 0)
+	vd := style.ViewData{OffsetY: offsetY}
 
 	hasBorder := pol.ShowBorder && hints.PixelWidth >= 16 && hints.PixelHeight >= 16
 
@@ -546,7 +561,7 @@ func buildGraph(snap source.ThermalSnapshot, pol source.Policy, ctx style.StyleC
 		}
 	}
 
-	for i, z := range snap.Zones {
+	for i, z := range zones {
 		ec := effectiveCritical(z, float64(pol.CritThreshold))
 		sev := severity(z.TempC, float64(pol.WarnThreshold), ec)
 		sevColor := severityColor(sev)
@@ -585,7 +600,7 @@ func buildGraph(snap source.ThermalSnapshot, pol source.Policy, ctx style.StyleC
 		vd.Colors = append(vd.Colors, sevColor)
 
 		// Compute Y position and prefix width for sparkline widget placement.
-		yPos := oy + i*rowHeight
+		yPos := oy + offsetY + i*rowHeight
 		prefixPixelWidth := prefixLen * glyphAdvance
 
 		// Suppress sparkline widgets when panel is too narrow (show text only).
@@ -611,13 +626,6 @@ func buildGraph(snap source.ThermalSnapshot, pol source.Policy, ctx style.StyleC
 				vd.Sprites = append(vd.Sprites, *sparkResult)
 			}
 		}
-	}
-
-	// Truncate to visible rows.
-	maxRows := bridge.MaxVisibleRows()
-	if maxRows > 0 && len(vd.Items) > maxRows {
-		vd.Items = vd.Items[:maxRows]
-		vd.Colors = vd.Colors[:maxRows]
 	}
 
 	return vd
@@ -914,6 +922,19 @@ func buildMonoOLEDCompact(snap source.ThermalSnapshot, pol source.Policy, ctx st
 		}); barResult != nil {
 			barResult.Label = fmt.Sprintf("thermal-compact-zone-%d", i)
 			vd.Sprites = append(vd.Sprites, *barResult)
+		}
+	}
+
+	offsetY := bridge.CenterBlockY(uniformRowHeights(len(vd.Items), rowHeight), 0)
+	vd.OffsetY = offsetY
+	if offsetY > 0 {
+		for i := range vd.Sprites {
+			if strings.HasPrefix(vd.Sprites[i].Label, "thermal-compact-") {
+				vd.Sprites[i].Position.Y += offsetY
+				if vd.Sprites[i].Bounds != (image.Rectangle{}) {
+					vd.Sprites[i].Bounds = vd.Sprites[i].Bounds.Add(image.Pt(0, offsetY))
+				}
+			}
 		}
 	}
 

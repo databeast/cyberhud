@@ -53,21 +53,7 @@ func buildPortraitLEDsStyle(snapshot source.ThermalSnapshot, pol source.Policy, 
 		sev := severity(z.TempC, float64(pol.WarnThreshold), ec)
 		sevColor := severityColorRGBA(sev)
 
-		// LED diameter: min(width, perLEDSpacing) - 4, minimum 8.
-		// Additionally cap to ~77% of width so that the glow halo
-		// (which adds ~30% of body radius on each side) stays within bounds.
-		maxForGlow := width * 10 / 13
-		diameter := width
-		if perLEDSpacing < diameter {
-			diameter = perLEDSpacing
-		}
-		diameter -= 4
-		if diameter > maxForGlow {
-			diameter = maxForGlow
-		}
-		if diameter < 8 {
-			diameter = 8
-		}
+		diameter := portraitLEDDiameter(width, perLEDSpacing)
 
 		// Center LED horizontally within the content area.
 		ledX := ox + (width-diameter)/2
@@ -98,4 +84,45 @@ func buildPortraitLEDsStyle(snapshot source.ThermalSnapshot, pol source.Policy, 
 	}
 
 	return vd
+}
+
+func portraitLEDDiameter(width, slotSpacing int) int {
+	maxBodyWidth := width
+	if slotSpacing < maxBodyWidth {
+		maxBodyWidth = slotSpacing
+	}
+	if maxBodyWidth <= 0 {
+		return 3
+	}
+
+	// The LED's glow expands roughly 30% beyond the body radius on each side,
+	// so the body diameter must stay under roughly 77% of the available slot.
+	maxForGlow := maxBodyWidth * 10 / 13
+	if maxForGlow < 3 {
+		maxForGlow = maxBodyWidth
+	}
+
+	diameter := maxBodyWidth - 4
+	if diameter > maxForGlow {
+		diameter = maxForGlow
+	}
+	if diameter < 3 {
+		diameter = 3
+	}
+
+	// Preserve the original readability preference when the slot is large enough
+	// to accommodate 8px LEDs without exceeding the glow-safe footprint.
+	if maxBodyWidth >= 8 && maxForGlow >= 8 && diameter < 8 {
+		diameter = 8
+	}
+	if diameter > maxForGlow {
+		diameter = maxForGlow
+	}
+	if diameter > maxBodyWidth {
+		diameter = maxBodyWidth
+	}
+	if diameter < 3 {
+		diameter = 3
+	}
+	return diameter
 }

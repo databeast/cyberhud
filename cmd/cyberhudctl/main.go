@@ -74,8 +74,9 @@ func containsSemicolon(args []string) bool {
 	return false
 }
 
-// runMultiCommand handles the multi-command invocation path.
-// It splits args by semicolons, resolves commands through RegionContext, and sends them.
+// runMultiCommand handles a multi-command invocation by passing each command
+// through the same explicit protocol parser as a single command. There is no
+// client-side region context or command rewriting.
 func runMultiCommand(args []string, sockPath string, timeout time.Duration, out io.Writer, errOut io.Writer) int {
 	cmdGroups := SplitCommands(args)
 	if len(cmdGroups) == 0 {
@@ -83,51 +84,29 @@ func runMultiCommand(args []string, sockPath string, timeout time.Duration, out 
 		return 2
 	}
 
-	ctx := &RegionContext{}
 	var protoCmds []string
-
 	for _, group := range cmdGroups {
 		if len(group) == 0 {
 			continue
 		}
 
-		verb := strings.ToLower(group[0])
-
-		// Check if it's a scoped command or region context setter
-		switch verb {
-		case "region", "mode", "config", "next", "prev", "status":
-			resolved, err := ctx.ResolveCommand(group)
-			if err != nil {
-				fmt.Fprintf(errOut, "ERR %v\n", err)
-				return 2
-			}
-			// "region" sets context but doesn't generate a protocol command
-			if resolved != "" {
-				protoCmds = append(protoCmds, resolved)
-			}
-		default:
-			// Non-scoped command — route through protocolCommand
-			cmd, local, err := protocolCommand(group)
-			if err != nil {
-				fmt.Fprintf(errOut, "ERR %v\n", err)
-				return 2
-			}
-			if local {
-				// Local commands don't get sent over the wire
-				continue
-			}
-			protoCmds = append(protoCmds, cmd)
+		cmd, local, err := protocolCommand(group)
+		if err != nil {
+			fmt.Fprintf(errOut, "ERR %v\n", err)
+			return 2
 		}
+		if local {
+			continue
+		}
+		protoCmds = append(protoCmds, cmd)
 	}
 
 	if len(protoCmds) == 0 {
-		// All commands were context-setting or local
 		return 0
 	}
 
 	responses, err := sendMultipleCommands(sockPath, protoCmds, timeout)
 	if err != nil {
-		// Print all successful responses before the error
 		for _, r := range responses {
 			if !isErrorResponse(r) {
 				fmt.Fprintln(out, r)
@@ -185,9 +164,9 @@ func printUsage(w io.Writer) {
 	fmt.Fprintln(w, "  cyberhudctl [flags] display image set base64 <data>")
 	fmt.Fprintln(w, "  cyberhudctl [flags] display image clear")
 	fmt.Fprintln(w)
-	fmt.Fprintln(w, "Multi-command (region-scoped):")
-	fmt.Fprintln(w, "  cyberhudctl [flags] region <id> ';' mode <mode> ';' config key=value ...")
-	fmt.Fprintln(w, "  Scoped commands: mode, config, next, prev, status")
+	fmt.Fprintln(w, "Multi-command:")
+	fmt.Fprintln(w, "  cyberhudctl [flags] display set main.0 clock ';' status")
+	fmt.Fprintln(w, "  Each command is explicit; there is no client-side region context.")
 	fmt.Fprintln(w)
 	fmt.Fprintln(w, "Advanced:")
 	fmt.Fprintln(w, "  cyberhudctl [flags] raw <line...>                    # send raw protocol line")

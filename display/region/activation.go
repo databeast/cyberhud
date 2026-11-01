@@ -25,6 +25,7 @@ import (
 //     dispatched through the RenderLoop.
 //   - AvailModes: the list of mode IDs that are valid for this panel. Used by
 //     [GenerateDefaultLayout] to populate layout defaults.
+//   - RegionModes: per-region ordered mode lists keyed by screen name.
 //   - ScreenModes: per-screen default mode overrides keyed by screen Name.
 //     Screens not present in this map fall back to DefaultMode.
 //   - ModeValidator: an optional validation function that returns true when a
@@ -40,6 +41,7 @@ type PanelActivationConfig struct {
 	DefaultMode   string
 	InputEnabled  bool
 	AvailModes    []string
+	RegionModes   map[string][]string
 	ScreenModes   map[string]string
 	ModeValidator func(string) bool
 	Events        <-chan input.Event

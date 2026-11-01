@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/databeast/cyberhud/display/catalog"
+	"github.com/databeast/cyberhud/display/region"
 )
 
 // Region describes a logical display region and its advertised modes.
@@ -46,6 +47,7 @@ type regionState struct {
 // State stores per-region display mode state and supports remote control.
 type State struct {
 	mu      sync.RWMutex
+	rm      *region.RegionManager
 	regions map[int]regionState
 }
 
@@ -54,6 +56,16 @@ func NewState(regions ...Region) *State {
 	s := &State{}
 	s.Reset(regions)
 	return s
+}
+
+// Bind attaches the live region manager owned by the daemon.
+//
+// Once bound, read/write operations delegate to the region manager instead of
+// the local compatibility snapshot.
+func (s *State) Bind(rm *region.RegionManager) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.rm = rm
 }
 
 // Reset replaces all known regions and mode state.
@@ -67,6 +79,7 @@ func (s *State) Reset(regions []Region) {
 func (s *State) ResetWithFallback(regions []Region, fallbackMode string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	s.rm = nil
 
 	next := make(map[int]regionState, len(regions))
 	for _, p := range regions {
@@ -93,6 +106,9 @@ func (s *State) ResetWithFallback(regions []Region, fallbackMode string) {
 
 // CurrentMode returns the current mode for region index.
 func (s *State) CurrentMode(index int) string {
+	if rm := s.manager(); rm != nil {
+		return rm.CurrentMode(index)
+	}
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	p, ok := s.regions[index]
@@ -112,6 +128,9 @@ func (s *State) CurrentModeByName(name string) string {
 	if name == "" {
 		return ""
 	}
+	if rm := s.manager(); rm != nil {
+		return rm.CurrentModeByName(name)
+	}
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	for _, p := range s.regions {
@@ -127,6 +146,19 @@ func (s *State) CurrentModeByName(name string) string {
 
 // Region returns a snapshot for a single region.
 func (s *State) Region(index int) (RegionStatus, bool) {
+	if rm := s.manager(); rm != nil {
+		reg, ok := rm.Region(index)
+		if !ok {
+			return RegionStatus{}, false
+		}
+		return RegionStatus{
+			Index:      index,
+			Name:       reg.Name(),
+			Controller: reg.Controller(),
+			Current:    reg.CurrentMode(),
+			Modes:      reg.Modes(),
+		}, true
+	}
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	p, ok := s.regions[index]
@@ -138,12 +170,18 @@ func (s *State) Region(index int) (RegionStatus, bool) {
 
 // HasRegion reports whether a region index is configured.
 func (s *State) HasRegion(index int) bool {
+	if rm := s.manager(); rm != nil {
+		return rm.HasRegion(index)
+	}
 	_, ok := s.Region(index)
 	return ok
 }
 
 // Set changes region mode by name and returns the selected mode.
 func (s *State) Set(index int, mode string) (string, error) {
+	if rm := s.manager(); rm != nil {
+		return rm.Set(index, mode)
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	p, ok := s.regions[index]
@@ -161,6 +199,9 @@ func (s *State) Set(index int, mode string) (string, error) {
 
 // Next advances to the next mode and wraps around.
 func (s *State) Next(index int) (string, error) {
+	if rm := s.manager(); rm != nil {
+		return rm.Next(index)
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	p, ok := s.regions[index]
@@ -177,6 +218,9 @@ func (s *State) Next(index int) (string, error) {
 
 // Prev moves to the previous mode and wraps around.
 func (s *State) Prev(index int) (string, error) {
+	if rm := s.manager(); rm != nil {
+		return rm.Prev(index)
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	p, ok := s.regions[index]
@@ -196,6 +240,20 @@ func (s *State) Prev(index int) (string, error) {
 
 // Status returns region snapshots in ascending index order.
 func (s *State) Status() []RegionStatus {
+	if rm := s.manager(); rm != nil {
+		live := rm.Status()
+		out := make([]RegionStatus, 0, len(live))
+		for _, st := range live {
+			out = append(out, RegionStatus{
+				Index:      st.Index,
+				Name:       st.Name,
+				Controller: st.Controller,
+				Current:    st.Current,
+				Modes:      append([]string(nil), st.Modes...),
+			})
+		}
+		return out
+	}
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	idxs := make([]int, 0, len(s.regions))
@@ -212,6 +270,20 @@ func (s *State) Status() []RegionStatus {
 
 // Definitions returns region metadata enriched with built-in mode descriptions.
 func (s *State) Definitions() []RegionDefinition {
+	if rm := s.manager(); rm != nil {
+		live := rm.Definitions()
+		out := make([]RegionDefinition, 0, len(live))
+		for _, def := range live {
+			out = append(out, RegionDefinition{
+				Index:      def.Index,
+				Name:       def.Name,
+				Controller: def.Controller,
+				Current:    def.Current,
+				Modes:      append([]catalog.Definition(nil), def.Modes...),
+			})
+		}
+		return out
+	}
 	statuses := s.Status()
 	out := make([]RegionDefinition, 0, len(statuses))
 	for _, st := range statuses {
@@ -224,4 +296,10 @@ func (s *State) Definitions() []RegionDefinition {
 		})
 	}
 	return out
+}
+
+func (s *State) manager() *region.RegionManager {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.rm
 }
