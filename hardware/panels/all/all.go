@@ -3,6 +3,7 @@ package all
 import (
 	_ "github.com/databeast/cyberhud/hardware/driver/epd4in26"
 	_ "github.com/databeast/cyberhud/hardware/driver/ht16k33"
+	_ "github.com/databeast/cyberhud/hardware/driver/ili9486"
 	_ "github.com/databeast/cyberhud/hardware/driver/is31fl3731"
 	_ "github.com/databeast/cyberhud/hardware/driver/max7219"
 	_ "github.com/databeast/cyberhud/hardware/driver/sh1106"
@@ -25,6 +26,7 @@ import (
 	_ "github.com/databeast/cyberhud/hardware/panels/waveshare_1_44"
 	_ "github.com/databeast/cyberhud/hardware/panels/waveshare_2_2"
 	_ "github.com/databeast/cyberhud/hardware/panels/waveshare_2_23_oled_hat"
+	_ "github.com/databeast/cyberhud/hardware/panels/waveshare_3_5_lcd_a"
 	_ "github.com/databeast/cyberhud/hardware/panels/waveshare_4_26_epaper"
 	_ "github.com/databeast/cyberhud/hardware/panels/waveshare_triple_screen"
 )
