@@ -26,7 +26,10 @@ func TestBuildViewWithHints_UsesMonoFast128x64OnWaveshare13OLEDHat(t *testing.T)
 	if vd.Cursor != -1 {
 		t.Fatalf("Cursor = %d, want -1 for non-navigable WiFi view", vd.Cursor)
 	}
-	if len(vd.Items) == 0 {
-		t.Fatal("expected at least one rendered row")
+	// The signal-forward layout composites everything as sprites and emits no
+	// renderer text rows, so a populated Sprites slice (not Items) is the
+	// evidence that the view rendered content.
+	if len(vd.Sprites) == 0 {
+		t.Fatal("expected at least one rendered sprite")
 	}
 }

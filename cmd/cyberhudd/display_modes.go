@@ -15,6 +15,7 @@ import (
 	_ "github.com/databeast/cyberhud/display/modes/attract_matrix"
 	_ "github.com/databeast/cyberhud/display/modes/attract_particles"
 	_ "github.com/databeast/cyberhud/display/modes/attract_plasma"
+	_ "github.com/databeast/cyberhud/display/modes/attract_popsquares"
 	_ "github.com/databeast/cyberhud/display/modes/attract_shapes"
 	_ "github.com/databeast/cyberhud/display/modes/attract_starfield"
 	_ "github.com/databeast/cyberhud/display/modes/attract_waveform"
@@ -42,7 +43,7 @@ import (
 	"github.com/databeast/cyberhud/hardware/panels"
 )
 
-// expectedModeIDs lists all 28 mode IDs that must be registered after init().
+// expectedModeIDs lists all mode IDs that must be registered after init().
 var expectedModeIDs = []string{
 	"menu",
 	"dashboard",
@@ -68,6 +69,7 @@ var expectedModeIDs = []string{
 	"attract_waveform",
 	"attract_particles",
 	"attract_plasma",
+	"attract_popsquares",
 	"attract_starfield",
 	"attract_bokeh",
 	"attract_shapes",

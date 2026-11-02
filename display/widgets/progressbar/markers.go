@@ -145,7 +145,7 @@ func drawArcRadialMarker(img *image.RGBA, cfg Config, val float64, c color.RGBA)
 	// Sweep angle in radians.
 	sweepRad := cfg.SweepAngle * math.Pi / 180.0
 
-	// geom.StartAngle for Arc:
+	// geom.StartAngle for Arc (shared standard-math convention):
 	//   Horizontal → -π/2 (12-o'clock)
 	//   Vertical   → π   (9-o'clock)
 	var geomStartAngle float64
@@ -155,9 +155,14 @@ func drawArcRadialMarker(img *image.RGBA, cfg Config, val float64, c color.RGBA)
 		geomStartAngle = -math.Pi / 2.0
 	}
 
-	// arcStart is the beginning of the arc (the "left endpoint"),
-	// centered about the orientation reference angle.
-	arcStart := geomStartAngle - sweepRad/2.0
+	// Convert into the atan2(dx, -dy) clockwise-from-12 convention the drawing
+	// below uses, with the same +π/2 shift render_arc.go applies. This must match
+	// the arc fill exactly, or threshold markers would sit off the filled track.
+	startOffset := geomStartAngle + math.Pi/2.0
+
+	// arcStart is the clockwise beginning of the arc track, centered about the
+	// reference angle so a 270° sweep leaves its gap at the bottom.
+	arcStart := startOffset - sweepRad/2.0
 
 	// The marker is at val fraction along the arc sweep.
 	// markerAngle is in the same coordinate system as atan2(dx, -dy) [-π, π].

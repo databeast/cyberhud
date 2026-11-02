@@ -114,9 +114,81 @@ var (
 	lastTick     time.Time
 )
 
-// animPhase tracks the cumulative animation phase in seconds, used to morph
-// waveform shapes continuously.
+// animPhase tracks the cumulative animation phase in seconds, used to drive the
+// signal generators continuously.
 var animPhase float64
+
+// phosphor holds the cross-frame persistence buffer. Each frame fades the
+// accumulated glow and composites the new beam on top, so the written frame
+// carries the ghost of recent sweeps — the phosphor-persistence trail. The
+// buffer is keyed by panel size and trace count so a dimension or policy change
+// rebuilds it cleanly rather than smearing stale geometry.
+var phosphor phosphorBuffer
+
+type phosphorBuffer struct {
+	w, h   int
+	traces int
+	// intensity per pixel in [0,1], row-major (y*w + x). This is the grayscale
+	// "charge" of the phosphor; color is applied per trace at composite time.
+	r []float64
+	g []float64
+	b []float64
+}
+
+func (pb *phosphorBuffer) reset(w, h, traces int) {
+	pb.w, pb.h, pb.traces = w, h, traces
+	n := w * h
+	pb.r = make([]float64, n)
+	pb.g = make([]float64, n)
+	pb.b = make([]float64, n)
+}
+
+// ensure (re)allocates the buffer when geometry or trace count changes.
+func (pb *phosphorBuffer) ensure(w, h, traces int) {
+	if pb.w != w || pb.h != h || pb.traces != traces || pb.r == nil {
+		pb.reset(w, h, traces)
+	}
+}
+
+// fade multiplies every pixel's charge by decay (<1), dimming the trail.
+func (pb *phosphorBuffer) fade(decay float64) {
+	for i := range pb.r {
+		pb.r[i] *= decay
+		pb.g[i] *= decay
+		pb.b[i] *= decay
+	}
+}
+
+// deposit adds charge at (x,y) in the given color, saturating at 1.0.
+func (pb *phosphorBuffer) deposit(x, y int, cr, cg, cb, intensity float64) {
+	if x < 0 || x >= pb.w || y < 0 || y >= pb.h {
+		return
+	}
+	i := y*pb.w + x
+	pb.r[i] = math.Min(1.0, pb.r[i]+cr*intensity)
+	pb.g[i] = math.Min(1.0, pb.g[i]+cg*intensity)
+	pb.b[i] = math.Min(1.0, pb.b[i]+cb*intensity)
+}
+
+// compose renders the current phosphor charge into an RGBA image on black.
+func (pb *phosphorBuffer) compose() *image.RGBA {
+	img := image.NewRGBA(image.Rect(0, 0, pb.w, pb.h))
+	for y := 0; y < pb.h; y++ {
+		for x := 0; x < pb.w; x++ {
+			i := y*pb.w + x
+			r := clamp01(pb.r[i])
+			g := clamp01(pb.g[i])
+			b := clamp01(pb.b[i])
+			img.SetRGBA(x, y, color.RGBA{
+				R: uint8(r * 255),
+				G: uint8(g * 255),
+				B: uint8(b * 255),
+				A: 255,
+			})
+		}
+	}
+	return img
+}
 
 // BuildView produces a complete waveform frame as style.ViewData.
 // It is called by the display runtime each render cycle with the panel's text hints.
@@ -183,25 +255,117 @@ func advance(elapsed time.Duration, speed float64) {
 	animPhase += elapsed.Seconds() * speed
 }
 
-// buildSprites renders oscilloscope-style waveform traces into an RGBA sprite.
+// ─── Signal model ───────────────────────────────────────────────────────────
 //
-// Each trace is an independent signal with its own frequency, scroll speed, shape,
-// and amplitude. All three parameters drift slowly over time via sinusoidal modulation
-// so that traces visibly differ from one another and continuously change character.
+// The core aesthetic goal: the trace must read as a *live signal from an unknown
+// source* — never visibly repeating, within a frame or across time. A pure sine
+// (or any single periodic function) tiled across the panel fails this instantly:
+// the eye sees the pattern and the illusion of "something out there" collapses
+// into "a computer drew a wave."
 //
-// Line rendering: for each sweep column the waveform is sampled, then every y-value
-// the function passes through between the previous column and the current one is filled.
-// This is the correct approach for rendering a continuous function on a pixel grid —
-// the waveform is present at all intermediate y-values between consecutive samples.
-//
-// Direction is determined by policy: "horizontal" sweeps left-to-right, "vertical"
-// sweeps top-to-bottom, "auto" picks based on aspect ratio (portrait → vertical).
+// So each trace is NOT a periodic function. It is the sum of several sine
+// partials whose frequencies are mutually incommensurate (irrational ratios):
+// such a sum is quasi-periodic — its true period is astronomically long, so it
+// never visibly repeats across the panel. Each partial also drifts in phase and
+// amplitude over time at its own slow rate, and a wandering macro-envelope plus
+// sparse "events" (transient bursts) give the signal dynamics: surges, lulls,
+// the odd jolt. The result behaves like a real instrument watching a real,
+// unknown process.
+
+// signalPartials describes one trace's additive-synthesis stack.
+type signalPartials struct {
+	freqs  []float64 // spatial frequency (cycles across sweep) per partial — irrational ratios
+	phases []float64 // per-partial phase drift rate
+	gains  []float64 // per-partial amplitude weight
+}
+
+// irrationalBase supplies incommensurate frequency ratios so partial sums never
+// line up into a short period. These are deliberately non-integer and mutually
+// irrational (√2, φ, √5, e/2, π/2 ...).
+var irrationalRatios = []float64{
+	1.0,
+	math.Sqrt2,       // 1.4142…
+	1.6180339887,     // golden ratio φ
+	math.Sqrt(5),     // 2.2360…
+	math.E / 2.0,     // 1.3591…
+	math.Pi/2 + 0.37, // 1.9408…
+}
+
+// buildPartials constructs a trace's partial stack. baseFreq sets how many broad
+// undulations span the sweep (kept near 1 so one macro-shape fills the panel,
+// never a row of identical humps); the higher partials ride on top at
+// irrational multiples to add non-repeating fine structure.
+func buildPartials(trace int, baseFreq float64) signalPartials {
+	ft := float64(trace)
+	// Each trace is seeded differently so traces never look alike.
+	seed := 0.73*ft + 0.19
+	n := len(irrationalRatios)
+	sp := signalPartials{
+		freqs:  make([]float64, n),
+		phases: make([]float64, n),
+		gains:  make([]float64, n),
+	}
+	for i := 0; i < n; i++ {
+		ratio := irrationalRatios[i]
+		sp.freqs[i] = baseFreq * ratio
+		// Each partial drifts at its own slow, irrational rate so the composite
+		// shape is always reorganising — the signal is never the same twice.
+		sp.phases[i] = 0.11 + 0.043*float64(i) + 0.017*math.Sin(seed+ft)
+		// Higher partials carry progressively less energy (1/f-ish) for a
+		// natural, non-buzzy shape, with a per-trace tilt.
+		sp.gains[i] = (1.0 / (1.0 + 1.6*float64(i))) * (0.85 + 0.3*math.Sin(seed*1.7+float64(i)))
+	}
+	return sp
+}
+
+// sample evaluates the trace's normalised value in [-1,1] at sweep position
+// u ∈ [0,1] and time t. The sum of irrational-ratio partials is quasi-periodic,
+// so scanning u across the panel never produces a repeating pattern, and
+// advancing t never reproduces a past frame.
+func (sp signalPartials) sample(u, t float64) float64 {
+	var sum, norm float64
+	for i := range sp.freqs {
+		phase := t * sp.phases[i] * 2.0 * math.Pi
+		sum += sp.gains[i] * math.Sin((u*sp.freqs[i]*2.0*math.Pi)+phase)
+		norm += sp.gains[i]
+	}
+	if norm == 0 {
+		return 0
+	}
+	return sum / norm
+}
+
+// macroEnvelope returns a slow-wandering amplitude multiplier in roughly
+// [0.35, 1.0] plus sparse transient "events" (bursts) so the signal surges and
+// calms instead of droning at one level. Driven by incommensurate low
+// frequencies so the dynamics themselves never repeat.
+func macroEnvelope(u, t, traceSeed float64) float64 {
+	// Slow breathing swell across the whole trace.
+	breath := 0.68 + 0.32*math.Sin(t*0.37+traceSeed*2.1)
+	// A travelling swell that moves along the sweep over time, so different
+	// regions of the trace are "hot" at different moments.
+	travel := 0.5 + 0.5*math.Sin((u*2.3-t*0.21+traceSeed)*2.0*math.Pi*0.18)
+	env := breath * (0.6 + 0.4*travel)
+
+	// Sparse transient bursts: a narrow Gaussian bump that sweeps a random-ish
+	// position, giving the occasional sharp jolt an unknown signal would show.
+	burstPos := math.Mod(t*0.13+traceSeed*0.61, 1.0)
+	d := u - burstPos
+	burst := 0.9 * math.Exp(-(d*d)/(2*0.015*0.015))
+	// Gate bursts so they come and go rather than being always present.
+	gate := math.Max(0, math.Sin(t*0.29+traceSeed*3.3))
+	env += burst * gate
+
+	return clampf(env, 0.25, 1.6)
+}
+
+// buildSprites renders the living-signal traces into the phosphor buffer and
+// composes the result. Each frame fades the accumulated charge (the persistence
+// trail) and deposits the new sweep on top, the sweep head brightest.
 func buildSprites(p source.Policy, panelWidth, panelHeight int, mono bool) []widgets.Sprite {
 	if panelWidth <= 0 || panelHeight <= 0 {
 		return []widgets.Sprite{{Image: image.NewRGBA(image.Rect(0, 0, 1, 1)), Position: image.Point{}}}
 	}
-
-	img := image.NewRGBA(image.Rect(0, 0, panelWidth, panelHeight))
 
 	vertical := resolveVertical(p.Direction, panelWidth, panelHeight)
 
@@ -212,67 +376,188 @@ func buildSprites(p source.Policy, panelWidth, panelHeight int, mono bool) []wid
 		ampLen = panelWidth
 	}
 
-	halfAmp := float64(ampLen) / 2.0
-	baseAmplitude := p.Amplitude * halfAmp
 	traceCount := p.Traces
 	if traceCount < 2 {
 		traceCount = 2
 	}
-	if traceCount > 3 {
-		traceCount = 3
+	if traceCount > 4 {
+		traceCount = 4
 	}
 
-	// Map Density [0.1, 1.0] → a tiled cycle count across the sweep axis.
-	baseCycles := 3.0 + p.Density*2.5
+	phosphor.ensure(panelWidth, panelHeight, traceCount)
+
+	// Persistence → per-frame decay. Higher persistence = slower fade = longer
+	// trail. Map [0.1,1.0] → decay [0.55, 0.92]. Below ~0.6 the trail is a short
+	// comet; near 0.92 it lingers as a long ghost.
+	decay := 0.55 + 0.37*clamp01((p.Persistence-0.1)/0.9)
+	phosphor.fade(decay)
+
+	// baseFreq near 1: one broad macro-undulation spans the sweep so the trace
+	// never shows a row of identical humps. density nudges the fine-structure
+	// richness slightly without ever tiling.
+	baseFreq := 0.8 + 0.6*clamp01(p.Density)
+
+	halfAmp := float64(ampLen) / 2.0
+	baseAmplitude := clamp01(p.Amplitude) * halfAmp * 0.92
+
+	thickness := 2
+	if ampLen < 96 {
+		thickness = 1
+	}
+
+	denom := sweepLen - 1
+	if denom < 1 {
+		denom = 1
+	}
 
 	for t := 0; t < traceCount; t++ {
 		ft := float64(t)
+		seed := 0.73*ft + 0.19
+		sp := buildPartials(t, baseFreq)
 
-		// Each trace gets a slightly different integer cycle count so the left and
-		// right edges line up cleanly instead of tearing at the frame boundary.
-		traceCycles := math.Round(baseCycles + ft*0.75)
-		if traceCycles < 2 {
-			traceCycles = 2
-		}
-		if traceCycles > 8 {
-			traceCycles = 8
-		}
-
-		// Keep the waveform exactly tileable: integer cycles ensure both edges line up.
-		cycles := traceCycles
-
-		// Each trace scrolls at its own speed. The scroll phase is the product of
-		// animPhase and a per-trace multiplier, so traces visibly move at different rates.
-		scrollSpeed := p.Speed * (1.0 + ft*0.15)
-		tracePhase := animPhase*scrollSpeed*2.0*math.Pi + ft*1.9
-
-		// Shape morphs through sine → sawtooth → harmonic on a per-trace timeline.
-		// Rate is slow enough to keep the waveform legible while still moving.
-		shapeMix := math.Mod(animPhase*0.12+ft*0.37, 1.0)
-
-		// Amplitude now swings across a much wider envelope so the sweep reads as
-		// a living oscilloscope trace instead of a mostly-flat curve.
-		ampBreath := 0.7 + 0.5*math.Sin(animPhase*0.13+ft*1.8)
-		traceGain := 0.9 + 0.18*ft
-		traceAmplitude := baseAmplitude * traceGain * ampBreath
-		thickness := 2
-		if ampLen < 64 {
-			thickness = 1
-		}
-
-		var traceColor color.RGBA
+		var cr, cg, cb float64
 		if mono {
-			traceColor = color.RGBA{255, 255, 255, 255}
+			cr, cg, cb = 1, 1, 1
 		} else {
-			traceColor = waveformTraceColor(cycles, traceAmplitude, tracePhase, baseAmplitude)
+			cr, cg, cb = traceColor(t, animPhase)
 		}
 
-		drawOscilloscopeTrace(img, sweepLen, ampLen, vertical, cycles, tracePhase, traceAmplitude, shapeMix, traceColor, thickness)
+		// Sweep head position: the "live" end of the beam, travelling along the
+		// sweep axis over time. Pixels near the head are drawn brightest; the
+		// phosphor fade then turns the rest into the fading tail.
+		headU := math.Mod(animPhase*0.45+ft*0.27, 1.0)
+
+		prevX, prevY := -1, -1
+		for s := 0; s <= denom; s++ {
+			u := float64(s) / float64(denom)
+			env := macroEnvelope(u, animPhase, seed)
+			v := sp.sample(u, animPhase) * env
+			amp := v * baseAmplitude
+			ay := int(math.Round(float64(ampLen-1)/2.0 + amp))
+			if ay < 0 {
+				ay = 0
+			}
+			if ay >= ampLen {
+				ay = ampLen - 1
+			}
+			x, y := sweepToXY(s, ay, vertical)
+
+			// Head brightness: brightest at the live head, tapering with sweep
+			// distance so the beam reads as "moving right now". Base level is
+			// kept moderate so overlapping passes and cross-frame accumulation
+			// build graduated mid-tones (the phosphor glow) rather than slamming
+			// every pixel to blown-out white.
+			dist := math.Abs(u - headU)
+			if dist > 0.5 {
+				dist = 1.0 - dist // wrap distance around the sweep
+			}
+			headGlow := 0.32 + 0.5*math.Exp(-(dist*dist)/(2*0.08*0.08))
+
+			depositTrace(x, y, cr, cg, cb, headGlow, thickness)
+			if prevX >= 0 {
+				depositLine(prevX, prevY, x, y, cr, cg, cb, headGlow, thickness)
+			}
+			prevX, prevY = x, y
+		}
 	}
 
+	img := phosphor.compose()
 	return []widgets.Sprite{
 		{Image: img, Position: image.Point{X: 0, Y: 0}, Label: "waveform-traces"},
 	}
+}
+
+// depositTrace lays down a glowing dab of phosphor charge: a bright core
+// surrounded by a wide, soft bloom halo so the beam reads as a lit CRT trace
+// rather than a hard vector line. The halo extends well beyond the core and
+// falls off gently, so a rendered frame carries noticeably more soft glow than
+// hard core — the visual signature of phosphor.
+func depositTrace(x, y int, cr, cg, cb, intensity float64, thickness int) {
+	if thickness < 1 {
+		thickness = 1
+	}
+	core := thickness / 2
+	// The bloom halo reaches two pixels past the core, giving a soft glowing
+	// edge. sigma controls the falloff; a larger sigma spreads the glow wider.
+	halo := core + 3
+	sigma := float64(core) + 1.6
+	twoSigmaSq := 2.0 * sigma * sigma
+	for dy := -halo; dy <= halo; dy++ {
+		for dx := -halo; dx <= halo; dx++ {
+			px, py := x+dx, y+dy
+			dd := float64(dx*dx + dy*dy)
+			var falloff float64
+			if dd <= float64(core*core) {
+				// Core: full strength.
+				falloff = 1.0
+			} else {
+				// Halo: gentle Gaussian bloom. Scaled down so the halo is
+				// clearly dimmer than the core but still deposits real glow.
+				falloff = 0.5 * math.Exp(-dd/twoSigmaSq)
+			}
+			if falloff < 0.02 {
+				continue
+			}
+			phosphor.deposit(px, py, cr, cg, cb, intensity*falloff)
+		}
+	}
+}
+
+// depositLine fills phosphor charge along the segment between two samples so the
+// trace is continuous (Bresenham).
+func depositLine(x0, y0, x1, y1 int, cr, cg, cb, intensity float64, thickness int) {
+	dx := int(math.Abs(float64(x1 - x0)))
+	dy := -int(math.Abs(float64(y1 - y0)))
+	sx := -1
+	if x0 < x1 {
+		sx = 1
+	}
+	sy := -1
+	if y0 < y1 {
+		sy = 1
+	}
+	err := dx + dy
+	for {
+		depositTrace(x0, y0, cr, cg, cb, intensity, thickness)
+		if x0 == x1 && y0 == y1 {
+			break
+		}
+		e2 := 2 * err
+		if e2 >= dy {
+			err += dy
+			x0 += sx
+		}
+		if e2 <= dx {
+			err += dx
+			y0 += sy
+		}
+	}
+}
+
+// traceColor assigns each trace a punchy phosphor hue — the classic scope
+// palette (green / cyan / amber / magenta) that reads as a glowing CRT rather
+// than the dull olive a narrow warm band produced before. Hue breathes slowly
+// over time so the colour is alive without ever becoming muddy.
+func traceColor(trace int, t float64) (float64, float64, float64) {
+	// Anchor hues spaced around the phosphor-friendly part of the wheel.
+	anchors := []float64{
+		0.33, // green
+		0.50, // cyan
+		0.12, // amber
+		0.85, // magenta
+	}
+	h := anchors[trace%len(anchors)]
+	// Gentle hue drift keeps it living but stays near the anchor so it never
+	// drifts into muddy territory.
+	h = math.Mod(h+0.015*math.Sin(t*0.21+float64(trace)), 1.0)
+	if h < 0 {
+		h += 1
+	}
+	// High saturation and value for that bright-phosphor pop.
+	s := 0.9
+	v := 1.0
+	r, g, b := hsvToRGBf(h, s, v)
+	return r, g, b
 }
 
 // sweepToXY converts a (sweep-axis, amplitude-axis) coordinate pair to image (x, y).
@@ -296,133 +581,8 @@ func resolveVertical(direction string, w, h int) bool {
 	}
 }
 
-// waveformValue computes the waveform amplitude at a given position.
-// It morphs between sine, sawtooth, and complex harmonics based on shapeMix.
-func waveformValue(x, shapeMix float64) float64 {
-	sine := math.Sin(x)
-	sawtooth := 2.0*(math.Mod(x/(2.0*math.Pi)+0.5, 1.0)) - 1.0
-	harmonic := math.Sin(x) + 0.5*math.Sin(2.0*x) + 0.25*math.Sin(3.0*x)
-	harmonic /= 1.75
-
-	// Morph: 0.0-0.33 = sine→sawtooth, 0.33-0.66 = sawtooth→harmonic, 0.66-1.0 = harmonic→sine
-	if shapeMix < 0.333 {
-		t := shapeMix / 0.333
-		return sine*(1.0-t) + sawtooth*t
-	} else if shapeMix < 0.666 {
-		t := (shapeMix - 0.333) / 0.333
-		return sawtooth*(1.0-t) + harmonic*t
-	}
-
-	t := (shapeMix - 0.666) / 0.334
-	return harmonic*(1.0-t) + sine*t
-}
-
-// drawOscilloscopeTrace renders one phase-shifted trace as connected line segments
-// so the waveform reads as a continuous oscilloscope sweep.
-func drawOscilloscopeTrace(img *image.RGBA, sweepLen, ampLen int, vertical bool, cycles, phase, amplitude, shapeMix float64, traceColor color.RGBA, thickness int) {
-	if sweepLen <= 0 || ampLen <= 0 {
-		return
-	}
-
-	denom := sweepLen - 1
-	if denom < 1 {
-		denom = 1
-	}
-
-	type pt struct{ x, y int }
-	points := make([]pt, sweepLen)
-	for s := 0; s < sweepLen; s++ {
-		sNorm := float64(s) / float64(denom) * cycles * 2.0 * math.Pi
-		wv := waveformValue(sNorm+phase, shapeMix) * amplitude
-		py := int(math.Round(float64(ampLen-1)/2.0 + wv))
-		if py < 0 {
-			py = 0
-		}
-		if py >= ampLen {
-			py = ampLen - 1
-		}
-		px, py := sweepToXY(s, py, vertical)
-		points[s] = pt{x: px, y: py}
-	}
-
-	for i := 0; i < len(points); i++ {
-		curr := points[i]
-		drawTraceDot(img, curr.x, curr.y, traceColor, thickness)
-		if i > 0 {
-			prev := points[i-1]
-			drawTraceLine(img, prev.x, prev.y, curr.x, curr.y, traceColor, thickness)
-		}
-	}
-}
-
-func drawTraceDot(img *image.RGBA, x, y int, c color.RGBA, thickness int) {
-	if thickness < 1 {
-		thickness = 1
-	}
-	radius := thickness / 2
-	bounds := img.Bounds()
-	for dy := -radius; dy <= radius; dy++ {
-		for dx := -radius; dx <= radius; dx++ {
-			px := x + dx
-			py := y + dy
-			if px < bounds.Min.X || px >= bounds.Max.X || py < bounds.Min.Y || py >= bounds.Max.Y {
-				continue
-			}
-			img.SetRGBA(px, py, c)
-		}
-	}
-}
-
-func drawTraceLine(img *image.RGBA, x0, y0, x1, y1 int, c color.RGBA, thickness int) {
-	dx := int(math.Abs(float64(x1 - x0)))
-	dy := -int(math.Abs(float64(y1 - y0)))
-	sx := -1
-	if x0 < x1 {
-		sx = 1
-	}
-	sy := -1
-	if y0 < y1 {
-		sy = 1
-	}
-	err := dx + dy
-	for {
-		drawTraceDot(img, x0, y0, c, thickness)
-		if x0 == x1 && y0 == y1 {
-			break
-		}
-		e2 := 2 * err
-		if e2 >= dy {
-			err += dy
-			x0 += sx
-		}
-		if e2 <= dx {
-			err += dx
-			y0 += sy
-		}
-	}
-}
-
-// waveformTraceColor maps a trace's live frequency, amplitude, and phase to color.
-func waveformTraceColor(cycles, traceAmplitude, tracePhase, baseAmplitude float64) color.RGBA {
-	freq := clamp01((cycles - 2.0) / 6.0)
-	phase := math.Mod(tracePhase/(2.0*math.Pi), 1.0)
-	if phase < 0 {
-		phase += 1.0
-	}
-	amp := 0.0
-	if baseAmplitude > 0 {
-		amp = clamp01(traceAmplitude / baseAmplitude)
-	}
-
-	hue := math.Mod(0.06+0.58*freq+0.27*phase+0.09*amp, 1.0)
-	sat := clamp01(0.42 + 0.42*amp + 0.16*math.Sin(tracePhase*0.5+cycles))
-	val := clamp01(0.68 + 0.22*amp)
-
-	r, g, b := hsvToRGB(hue, sat, val)
-	return color.RGBA{R: r, G: g, B: b, A: 255}
-}
-
-func hsvToRGB(h, s, v float64) (uint8, uint8, uint8) {
+// hsvToRGBf converts HSV in [0,1] to RGB in [0,1].
+func hsvToRGBf(h, s, v float64) (float64, float64, float64) {
 	h = math.Mod(h, 1.0)
 	if h < 0 {
 		h += 1.0
@@ -432,25 +592,22 @@ func hsvToRGB(h, s, v float64) (uint8, uint8, uint8) {
 	f := h - float64(i)
 	p := v * (1 - s)
 	q := v * (1 - s*f)
-	t := v * (1 - s*(1-f))
+	tt := v * (1 - s*(1-f))
 
-	var r, g, b float64
 	switch i % 6 {
 	case 0:
-		r, g, b = v, t, p
+		return v, tt, p
 	case 1:
-		r, g, b = q, v, p
+		return q, v, p
 	case 2:
-		r, g, b = p, v, t
+		return p, v, tt
 	case 3:
-		r, g, b = p, q, v
+		return p, q, v
 	case 4:
-		r, g, b = t, p, v
+		return tt, p, v
 	default:
-		r, g, b = v, p, q
+		return v, p, q
 	}
-
-	return uint8(r * 255), uint8(g * 255), uint8(b * 255)
 }
 
 func clamp01(v float64) float64 {
@@ -459,6 +616,16 @@ func clamp01(v float64) float64 {
 	}
 	if v > 1 {
 		return 1
+	}
+	return v
+}
+
+func clampf(v, lo, hi float64) float64 {
+	if v < lo {
+		return lo
+	}
+	if v > hi {
+		return hi
 	}
 	return v
 }

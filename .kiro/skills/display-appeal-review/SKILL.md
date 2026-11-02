@@ -22,6 +22,35 @@ capsule that does not track heat passes `display-ux-review` and gets dinged
 here. Run this when the user wants the product/desirability judgment, not the
 QA judgment.
 
+## MANDATORY: the paid look runs in a sub-agent, never in the main session
+
+The image-analysis step costs the user money AND pollutes context: a loaded PNG
+and its analysis sit in the transcript for the rest of the session, bloating
+every subsequent turn. Both costs are unacceptable in the main session, and for
+an appeal review the sub-agent also buys the independence this skill needs —
+judging your own render with code knowledge grades on a curve. So this is a hard
+rule, not a suggestion:
+
+- **The main agent MUST NOT load or analyze any snapshot PNG itself.** You may do
+  all the free work in the main session (build, render, read the Promise +
+  Class), but the moment a `.png` is to be *looked at*, you stop and delegate.
+- **Delegate the look to a sub-agent** via `invoke_sub_agent`
+  (`general-task-execution`). The sub-agent's prompt MUST instruct it to
+  activate this skill (`display-appeal-review`) and hands it: the target mode,
+  the exact snapshot path(s), and the mode's Promise + Class — and nothing about
+  the implementation, so it stays the code-blind user. The image is loaded
+  *inside the sub-agent's* context, analyzed there, and only the written appeal
+  review comes back. The raw PNG never enters the main transcript.
+- **The main agent consumes only the returned review text** and acts on it from
+  the main session.
+- **Reuse across looks:** if a second look is needed after edits, dispatch a
+  fresh sub-agent. Never pull the image into the main session.
+
+If you are *already running as that sub-agent* (you were invoked with this skill
+and handed a snapshot path and promise), this clause is satisfied: load the
+image, do the appeal pass, return the review. Do not recurse into another
+sub-agent.
+
 ## THE LOUDEST RULE: no faked aesthetics
 
 You do not have aesthetic feelings. You do not experience "wow." If you claim
@@ -82,8 +111,9 @@ and you turned it on expecting that feeling. Your whole question here is: *did
 it give me the experience the pitch sold?*
 
 Reviewing your own render with code knowledge makes you grade on a curve. Stay
-the user. For true independence, run this as a sub-agent that activates this
-skill and is handed only the promise.
+the user. This independence is exactly why the paid look is MANDATORY to run in
+a sub-agent (see the MANDATORY section above) — handed only the promise, not the
+implementation.
 
 ## Appeal is relative to the promise
 
@@ -217,6 +247,9 @@ which code path each snapshot exercises so coverage and cost are explicit.
 For appeal specifically, bias the sample toward where the mode is TRYING to look
 good — the large color panels for an attract mode, the signature metaphor
 variant (e.g. thermometer, heatmap) rather than the plain fallback.
+
+Hand the chosen sample (the exact PNG paths) to the sub-agent that does the paid
+look; the main agent renders them for free but never opens them.
 
 ## Output format
 

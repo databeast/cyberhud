@@ -3,18 +3,13 @@ package styles
 import (
 	"fmt"
 	"image"
-	"image/color"
 	"strings"
 	"unicode/utf8"
 
 	"github.com/databeast/cyberhud/display/modes/usb/source"
 	"github.com/databeast/cyberhud/display/style"
-	"github.com/databeast/cyberhud/display/style/layout"
-	font "github.com/databeast/cyberhud/display/surface/fonts"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/display/surface/tiercatalog"
-	"github.com/databeast/cyberhud/display/widgets"
-	"github.com/databeast/cyberhud/display/widgets/textlabel"
 )
 
 // IconGetter retrieves a named icon image for USB status sprites.
@@ -99,174 +94,12 @@ func adaptiveBuild(snapshot source.Snapshot, pol source.Policy, ctx style.StyleC
 // ──────────────────────────────────────────────────────────────────────────────
 
 func buildFull(snapshot source.Snapshot, pol source.Policy, ctx style.StyleContext) style.ViewData {
-	hints := ctx.Hints()
-	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 5})
-
-	largeEntry := ctx.Entry(tiercatalog.TierLarge)
-	smallEntry := ctx.Entry(tiercatalog.TierSmall)
-
-	// Determine orientation: landscape = width > height, portrait = height > width.
-	landscape := hints.PixelWidth > hints.PixelHeight
-
-	// Build rows with tier assignments.
-	type row struct {
-		text  string
-		tier  tiercatalog.Tier
-		entry tiercatalog.Entry
-	}
-
-	var rows []row
-
-	if !snapshot.HasLast {
-		rows = []row{{text: "Waiting for USB...", tier: tiercatalog.TierLarge, entry: largeEntry}}
-	} else {
-		// Row 0: device name
-		name := coreDisplayName(snapshot.Device)
-		rows = append(rows, row{text: name, tier: tiercatalog.TierLarge, entry: largeEntry})
-
-		// Row 1: VID:PID
-		rows = append(rows, row{
-			text: fmt.Sprintf("VID:PID %s:%s", snapshot.Device.VendorID, snapshot.Device.ProductID),
-			tier:  tiercatalog.TierSmall,
-			entry: smallEntry,
-		})
-
-		// Row 2: Bus/Dev
-		if snapshot.Device.BusNum != "" || snapshot.Device.DevNum != "" {
-			rows = append(rows, row{
-				text: fmt.Sprintf("Bus %s Dev %s", coreSafeValue(snapshot.Device.BusNum, "?"), coreSafeValue(snapshot.Device.DevNum, "?")),
-				tier:  tiercatalog.TierSmall,
-				entry: smallEntry,
-			})
-		}
-
-		// Row 3: Serial (if present)
-		if snapshot.Device.Serial != "" {
-			rows = append(rows, row{
-				text:  "SN " + snapshot.Device.Serial,
-				tier:  tiercatalog.TierSmall,
-				entry: smallEntry,
-			})
-		}
-
-		// Row 4: Status
-		status := "connected"
-		if !snapshot.Connected {
-			status = "unplugged"
-		}
-		rows = append(rows, row{text: "Status " + status, tier: tiercatalog.TierSmall, entry: smallEntry})
-	}
-
-	// Clamp to MaxVisibleRows.
-	maxRows := bridge.MaxVisibleRows()
-	if maxRows > 0 && len(rows) > maxRows {
-		rows = rows[:maxRows]
-	}
-
-	// Truncate text per tier and compute offsets.
-	items := make([]string, len(rows))
-	tiers := make([]tiercatalog.Tier, len(rows))
-	offsets := make([]int, len(rows))
-	ox, _ := bridge.ContentOrigin()
-
-	for i, r := range rows {
-		ga := r.entry.GlyphAdvance
-		if ga <= 0 {
-			ga = bridge.GlyphAdvance()
-		}
-
-		// Truncate to available character width for this tier.
-		maxChars := 0
-		if ga > 0 {
-			maxChars = bridge.AvailableContentWidth() / ga
-		}
-		text := r.text
-		if maxChars > 0 {
-			text = textlayout.Truncate(text, maxChars)
-		}
-		items[i] = text
-		tiers[i] = r.tier
-
-		// Alignment based on orientation.
-		if landscape {
-			offsets[i] = bridge.CenterXWith(utf8.RuneCountInString(text), ga)
-		} else {
-			offsets[i] = ox
-		}
-	}
-
-	// Compute vertical offset using FitRows for centering.
-	rowHeights := make([]int, len(rows))
-	for i, r := range rows {
-		rh := r.entry.RowHeight
-		if rh <= 0 {
-			rh = bridge.RowHeight()
-		}
-		rowHeights[i] = rh
-	}
-	_, offsetY, _ := bridge.FitRows(rowHeights)
-
-	// Determine if icon will be rendered (decides layout adjustments).
-	const iconSize = 24
-	const iconGap = 4
-	const iconShift = iconSize + iconGap // 28px total displacement
-
-	var iconSprite *widgets.Sprite
-	// Defensive guard: only render icon when panel meets full-layout threshold
-	// and a device is actually connected. The threshold check is normally
-	// guaranteed by adaptiveBuild routing, but we guard here as well.
-	if snapshot.HasLast && hints.PixelWidth >= 240 && hints.PixelHeight >= 240 {
-		iconRune := ClassIcon(snapshot.Device.DeviceClass)
-		iconFace, ok := font.Get("material-icons-24")
-		if ok {
-			var iconX, iconY int
-			if landscape {
-				// Landscape: icon to the left of first row at content origin X.
-				iconX = ox
-				iconY = offsetY
-			} else {
-				// Portrait: icon above first row, centered horizontally.
-				iconX = (hints.PixelWidth - iconSize) / 2
-				iconY = offsetY
-			}
-			iconSprite = textlabel.Render(textlabel.Config{
-				Text:       string(iconRune),
-				Bounds:     image.Rect(iconX, iconY, iconX+iconSize, iconY+iconSize),
-				Font:       iconFace,
-				Foreground: color.RGBA{R: 255, G: 255, B: 255, A: 255},
-			})
-			if iconSprite != nil {
-				iconSprite.Label = "usb-class-icon"
-			}
-		}
-	}
-
-	// Adjust text offsets to account for icon displacement.
-	if iconSprite != nil {
-		if landscape {
-			// Shift all text rows right by iconShift.
-			for i := range offsets {
-				offsets[i] += iconShift
-			}
-		} else {
-			// Shift text rows down by iconShift.
-			offsetY += iconShift
-		}
-	}
-
-	result := style.ViewData{
-		Items:       items,
-		Tiers:       tiers,
-		LineOffsets: offsets,
-		OffsetY:     offsetY,
-		Static:      true,
-	}
-
-	if iconSprite != nil {
-		result.Sprites = append(result.Sprites, *iconSprite)
-	}
-
-	return result
+	// buildFull now delegates to the sprite-plane hero layout (hero.go): a large,
+	// class-colored device-class glyph as the focal point, the device name as a
+	// big title, a class accent bar, and quiet supporting detail rows. Everything
+	// is composited as absolute-positioned sprites with empty ViewData.Items, so
+	// the two-plane (row-text vs pixel-sprite) alignment hazard cannot occur.
+	return buildHero(snapshot, pol, ctx)
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -276,49 +109,17 @@ func buildFull(snapshot source.Snapshot, pol source.Policy, ctx style.StyleConte
 // ──────────────────────────────────────────────────────────────────────────────
 
 func buildCompact(snapshot source.Snapshot, pol source.Policy, ctx style.StyleContext) style.ViewData {
-	hints := ctx.Hints()
-	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 5})
-
-	entry := ctx.Entry(tiercatalog.TierSmall)
-	ga := entry.GlyphAdvance
-	if ga <= 0 {
-		ga = bridge.GlyphAdvance()
-	}
-
-	var text string
+	// Compact panels get the badge treatment: a class glyph above the name with
+	// the VID:PID as a quiet sub-line, vertically centered. On short landscape
+	// strips without vertical room, buildCompactBadge drops the glyph and falls
+	// back to name + sub-line. This replaces the old lone condensed text line,
+	// which rode in the Items plane and looked bare.
 	if !snapshot.HasLast {
-		text = "Waiting for USB..."
-	} else {
-		name := coreDisplayName(snapshot.Device)
-		text = fmt.Sprintf("%s %s:%s", name, snapshot.Device.VendorID, snapshot.Device.ProductID)
+		return buildCompactBadge(snapshot, ctx, "Waiting for USB...", "")
 	}
-
-	// Truncate to available character width.
-	maxChars := 0
-	if ga > 0 {
-		maxChars = bridge.AvailableContentWidth() / ga
-	}
-	if maxChars > 0 {
-		text = textlayout.Truncate(text, maxChars)
-	}
-
-	// Clamp to MaxVisibleRows (always 1 item, but respect the contract).
-	maxRows := bridge.MaxVisibleRows()
-	items := []string{text}
-	if maxRows > 0 && len(items) > maxRows {
-		items = items[:maxRows]
-	}
-
-	// Centered horizontally.
-	offset := bridge.CenterXWith(utf8.RuneCountInString(text), ga)
-
-	return style.ViewData{
-		Items:       items,
-		Tiers:       []tiercatalog.Tier{tiercatalog.TierSmall},
-		LineOffsets: []int{offset},
-		OffsetY:     0,
-		Static:      true,
-	}
+	name := coreDisplayName(snapshot.Device)
+	sub := fmt.Sprintf("%s:%s", snapshot.Device.VendorID, snapshot.Device.ProductID)
+	return buildCompactBadge(snapshot, ctx, name, sub)
 }
 
 // buildMinimal is the BuildFn-compatible wrapper for buildMinimalLayout.
@@ -334,48 +135,15 @@ func buildMinimal(snapshot source.Snapshot, pol source.Policy, ctx style.StyleCo
 // ──────────────────────────────────────────────────────────────────────────────
 
 func buildMinimalLayout(snapshot source.Snapshot, pol source.Policy, ctx style.StyleContext) style.ViewData {
-	hints := ctx.Hints()
-	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 5})
-
-	entry := ctx.Entry(tiercatalog.TierLarge)
-	ga := entry.GlyphAdvance
-	if ga <= 0 {
-		ga = bridge.GlyphAdvance()
-	}
-
-	var text string
+	// Minimal panels are narrow but TALL (width < 128, height ≥ 128): a lone
+	// centered name floated in a mostly-empty strip and read as "failed to load".
+	// Give them the class glyph stacked above the name — it fills the vertical
+	// void and still delivers device-type recognition. buildCompactBadge drops
+	// the glyph automatically if a given panel lacks the vertical room.
 	if !snapshot.HasLast {
-		text = "Waiting for USB..."
-	} else {
-		text = coreDisplayName(snapshot.Device)
+		return buildCompactBadge(snapshot, ctx, "Waiting for USB...", "")
 	}
-
-	// Truncate to available character width.
-	maxChars := 0
-	if ga > 0 {
-		maxChars = bridge.AvailableContentWidth() / ga
-	}
-	if maxChars > 0 {
-		text = textlayout.Truncate(text, maxChars)
-	}
-
-	// Clamp to MaxVisibleRows.
-	maxRows := bridge.MaxVisibleRows()
-	items := []string{text}
-	if maxRows > 0 && len(items) > maxRows {
-		items = items[:maxRows]
-	}
-
-	// Left-aligned at content origin X.
-	ox, _ := bridge.ContentOrigin()
-
-	return style.ViewData{
-		Items:       items,
-		Tiers:       []tiercatalog.Tier{tiercatalog.TierLarge},
-		LineOffsets: []int{ox},
-		OffsetY:     0,
-		Static:      true,
-	}
+	return buildCompactBadge(snapshot, ctx, coreDisplayName(snapshot.Device), "")
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -403,4 +171,58 @@ func coreSafeValue(v, fallback string) string {
 		return fallback
 	}
 	return v
+}
+
+// nameTierLadder is the descending list of tiers fitName tries for the device
+// name — largest first. The name is the hero of the USB bench screen, so it gets
+// the biggest font whose whole string fits the width.
+var nameTierLadder = []tiercatalog.Tier{
+	tiercatalog.TierLarge,
+	tiercatalog.TierNormal,
+	tiercatalog.TierSmall,
+}
+
+// fitName returns the device name sized to the largest tier in nameTierLadder
+// whose full string fits within availW pixels, along with that tier. It never
+// appends an ellipsis: the bitmap fonts have no U+2026 glyph, so Truncate's
+// ellipsis renders as a tofu box (the exact defect this replaces). If the name
+// does not fit even at the smallest tier, it is hard-truncated with no indicator
+// — a plain clipped word reads as "cut", a trailing tofu box reads as "broken".
+func fitName(name string, ctx style.StyleContext, availW int) (string, tiercatalog.Tier) {
+	name = strings.TrimSpace(name)
+	if availW <= 0 {
+		return name, tiercatalog.TierSmall
+	}
+	n := utf8.RuneCountInString(name)
+	for _, tier := range nameTierLadder {
+		ga := ctx.Entry(tier).GlyphAdvance
+		if ga <= 0 {
+			continue
+		}
+		if n*ga <= availW {
+			return name, tier
+		}
+	}
+	// Does not fit at any tier: use the smallest tier and plain-truncate to width.
+	small := tiercatalog.TierSmall
+	ga := ctx.Entry(small).GlyphAdvance
+	if ga <= 0 {
+		return name, small
+	}
+	return truncatePlain(name, availW/ga), small
+}
+
+// truncatePlain returns s trimmed to at most max runes, WITHOUT appending an
+// ellipsis. Used in place of textlayout.Truncate wherever the rendered font is a
+// bitmap face that lacks the U+2026 ellipsis glyph (all the panel fonts), so the
+// indicator would otherwise render as a tofu box.
+func truncatePlain(s string, max int) string {
+	s = strings.TrimSpace(s)
+	if max <= 0 {
+		return ""
+	}
+	if utf8.RuneCountInString(s) <= max {
+		return s
+	}
+	return string([]rune(s)[:max])
 }

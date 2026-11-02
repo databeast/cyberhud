@@ -110,6 +110,7 @@ nav:
           - Matrix: display-modes/attract_matrix.md
           - Particles: display-modes/attract_particles.md
           - Plasma: display-modes/attract_plasma.md
+          - Pop Squares: display-modes/attract_popsquares.md
           - Shapes: display-modes/attract_shapes.md
           - Starfield: display-modes/attract_starfield.md
           - Waveform: display-modes/attract_waveform.md

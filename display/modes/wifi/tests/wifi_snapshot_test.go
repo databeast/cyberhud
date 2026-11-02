@@ -32,6 +32,26 @@ func categoryFromStyleName(name string) testsnapshot.DisplayCategory {
 	}
 }
 
+// cleanDirContents removes every entry inside dir without removing dir itself.
+// This avoids the Windows "device or resource busy" failure that os.RemoveAll
+// hits when an external process (e.g. an IDE file watcher) holds an open handle
+// on the directory, while still leaving the directory empty for a fresh run.
+func cleanDirContents(dir string) error {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+	for _, e := range entries {
+		if err := os.RemoveAll(filepath.Join(dir, e.Name())); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // TestWifiPNGSnapshots enumerates all registered wifi styles and generates
 // a snapshot PNG for each via the full production render pipeline using the
 // snapshottest framework.
@@ -45,12 +65,17 @@ func TestWifiPNGSnapshots(t *testing.T) {
 		t.Fatal("wifiRegistry contains zero styles")
 	}
 
-	// Ensure the output directory exists and is clean.
-	if err := os.RemoveAll(snapshotOutputDir); err != nil {
-		t.Fatalf("failed to clean snapshot output directory: %v", err)
-	}
+	// Ensure the output directory exists and is clean. Clear the directory's
+	// CONTENTS rather than removing the directory itself: on Windows an IDE file
+	// watcher commonly holds an open handle on the dir, which makes RemoveAll on
+	// the directory fail with "device or resource busy" even though every file
+	// inside can be deleted. Clearing contents preserves the "start clean" intent
+	// while staying resilient to that watcher lock.
 	if err := os.MkdirAll(snapshotOutputDir, 0o755); err != nil {
 		t.Fatalf("failed to create snapshot output directory: %v", err)
+	}
+	if err := cleanDirContents(snapshotOutputDir); err != nil {
+		t.Fatalf("failed to clean snapshot output directory: %v", err)
 	}
 
 	for _, s := range styles {

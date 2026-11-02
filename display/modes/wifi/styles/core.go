@@ -57,8 +57,15 @@ func (d def) Build(data source.WifiData, pol source.Policy, ctx style.StyleConte
 		return d.p.BuildFn(data, pol, ctx, d)
 	}
 	if d.p.Fast {
-		return buildFastWifi(data, pol, ctx, d)
+		// Fast-refresh panels (color/grayscale/mono OLED, TFT) get the
+		// signal-forward layout: an arc gauge hero, SSID, IP footer, trivia
+		// off by default. The engine degrades internally on panels too small
+		// for the gauge.
+		return buildSignalForwardWifi(data, pol, ctx, d)
 	}
-	// MonoSlow flag or zero-value Params both dispatch to Slow engine.
-	return buildSlowWifi(data, ctx, d.reqs)
+	// MonoSlow flag or zero-value Params both dispatch to the static e-paper
+	// engine. An anti-aliased arc gauge is wrong for 1-bit no-refresh displays,
+	// so these keep a static, signal-first layout rendered with e-paper-safe
+	// widgets (segmented bar instead of the arc) rather than the gauge.
+	return buildSlowWifi(data, pol, ctx, d)
 }

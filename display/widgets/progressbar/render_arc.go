@@ -37,10 +37,24 @@ func renderArc(cfg Config, geom RenderGeometry) *image.RGBA {
 	// Sweep angle in radians.
 	sweepRad := cfg.SweepAngle * math.Pi / 180.0
 
-	// The arc is centered symmetrically about the orientation reference angle.
-	// arcStart is the angular beginning of the arc track (the "left endpoint").
-	// geom.StartAngle is -π/2 for horizontal (12-o'clock) or π for vertical (9-o'clock).
-	arcStart := geom.StartAngle - sweepRad/2.0
+	// Convert geom.StartAngle into this renderer's angle convention.
+	//
+	// The pixel test below measures angle with atan2(dx, -dy), which is clockwise
+	// from 12-o'clock: top = 0, right = +π/2, bottom = ±π, left = -π/2. But
+	// geom.StartAngle is expressed in the shared standard-math convention used by
+	// the Ring and Pie renderers (-π/2 = 12-o'clock, π = 9-o'clock). The two are
+	// offset by 90°, so StartAngle must be converted with the same +π/2 shift that
+	// render_pie.go and render_ring.go apply before use. Omitting this conversion
+	// (the previous behavior) centered the arc on 9-o'clock instead of 12-o'clock,
+	// which put the 270° gauge's gap on the wrong side and made the fill grow the
+	// wrong way — the arc appeared rotated/flipped from the configured orientation.
+	startOffset := geom.StartAngle + math.Pi/2.0
+
+	// The arc track is centered symmetrically about the reference angle (12-o'clock
+	// for horizontal), so for a 270° sweep the 90° gap sits at the bottom — the
+	// familiar car-speedometer layout. arcStart is the clockwise beginning of the
+	// track (its lower-left endpoint), from which the fill grows clockwise.
+	arcStart := startOffset - sweepRad/2.0
 
 	// Fill extent based on value.
 	fillExtent := cfg.Value * sweepRad

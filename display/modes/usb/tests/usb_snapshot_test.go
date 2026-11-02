@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -16,12 +17,44 @@ import (
 // snapshotOutputDir is the persistent directory where usb snapshot PNGs are written.
 var snapshotOutputDir = filepath.Join("..", "snapshots")
 
-// defaultTestWidth is the standard test width used for usb styles
-// (which have unconstrained dimensions). 128px is a common OLED panel width.
-const defaultTestWidth = 128
+// categoryFromStyleName derives the testsnapshot.DisplayCategory from a usb
+// style's name prefix. USB styles follow the capability naming convention:
+// mono-slow-*, mono-fast-*, grayscale-slow-*, grayscale-fast-*, color-slow-*,
+// color-fast-*.
+func categoryFromStyleName(name string) testsnapshot.DisplayCategory {
+	switch {
+	case strings.HasPrefix(name, "color-"):
+		return testsnapshot.CategoryColor
+	case strings.HasPrefix(name, "grayscale-"):
+		return testsnapshot.CategoryGrayscale
+	case strings.HasPrefix(name, "mono-"):
+		return testsnapshot.CategoryMono
+	case strings.HasPrefix(name, "eink-"):
+		return testsnapshot.CategoryEink
+	default:
+		return testsnapshot.CategoryMono
+	}
+}
 
-// defaultTestHeight is the standard test height used for usb styles.
-const defaultTestHeight = 128
+// cleanDirContents removes every entry inside dir without removing dir itself.
+// This avoids the Windows "device or resource busy" failure that os.RemoveAll
+// hits when an external process (e.g. an IDE file watcher) holds an open handle
+// on the directory, while still leaving the directory empty for a fresh run.
+func cleanDirContents(dir string) error {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+	for _, e := range entries {
+		if err := os.RemoveAll(filepath.Join(dir, e.Name())); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
 // testUSBSnapshot returns a deterministic USB Snapshot for snapshot rendering.
 func testUSBSnapshot() usb.Snapshot {
@@ -60,24 +93,29 @@ func stubIconGetter(name string) (image.Image, bool) {
 // a snapshot PNG for each through the full production pipeline via the
 // snapshottest framework.
 //
-// USB styles have unconstrained dimensions (MinWidth=0, MinHeight=0), so we
-// use fixed standard test dimensions. The WithIconGetter option provides USB
-// device status icons, and WithPreRender seeds the monitor state with a
-// deterministic USB device snapshot.
-//
-
+// Each style is rendered at its OWN declared panel size (reqs.MinWidth ×
+// reqs.MinHeight) with the display category derived from its name prefix, so
+// the full / compact / minimal layout branches and every aspect ratio are
+// actually exercised. The WithIconGetter option provides USB device status
+// icons, and WithPreRender seeds the monitor state with a deterministic USB
+// device snapshot.
 func TestUSBPNGSnapshots(t *testing.T) {
 	styles := usb.UsbRegistryEnumerate()
 	if len(styles) == 0 {
 		t.Fatal("usbRegistry contains zero styles")
 	}
 
-	// Ensure the output directory exists and is clean.
-	if err := os.RemoveAll(snapshotOutputDir); err != nil {
-		t.Fatalf("failed to clean snapshot output directory: %v", err)
-	}
+	// Ensure the output directory exists and is clean. Clear the directory's
+	// CONTENTS rather than removing the directory itself: on Windows an IDE file
+	// watcher commonly holds an open handle on the dir, which makes RemoveAll on
+	// the directory fail with "device or resource busy" even though every file
+	// inside can be deleted. Clearing contents preserves the "start clean" intent
+	// while staying resilient to that watcher lock.
 	if err := os.MkdirAll(snapshotOutputDir, 0o755); err != nil {
 		t.Fatalf("failed to create snapshot output directory: %v", err)
+	}
+	if err := cleanDirContents(snapshotOutputDir); err != nil {
+		t.Fatalf("failed to clean snapshot output directory: %v", err)
 	}
 
 	// Prepare deterministic USB device state.
@@ -86,15 +124,23 @@ func TestUSBPNGSnapshots(t *testing.T) {
 	for _, s := range styles {
 		s := s
 		t.Run(s.Name(), func(t *testing.T) {
+			reqs := s.Requirements()
+			if reqs.MinWidth == 0 || reqs.MinHeight == 0 {
+				t.Skip("skipping: style has unconstrained dimensions")
+			}
+
+			// Derive display category from the style name prefix.
+			category := categoryFromStyleName(s.Name())
+
 			// Build a policy that targets the current style.
 			p := usb.DefaultPolicy()
 			p.Style = s.Name()
 
 			pngPath := testsnapshot.RenderSnapshot(t,
-				testsnapshot.WithDimensions(defaultTestWidth, defaultTestHeight),
+				testsnapshot.WithDimensions(reqs.MinWidth, reqs.MinHeight),
 				testsnapshot.WithMode("usb"),
 				testsnapshot.WithOutputDir(snapshotOutputDir),
-				testsnapshot.WithDisplayCategory(testsnapshot.CategoryMono),
+				testsnapshot.WithDisplayCategory(category),
 				testsnapshot.WithIconGetter(stubIconGetter),
 				testsnapshot.WithBasename(s.Name()),
 				testsnapshot.WithPreRender(func() {
@@ -102,7 +148,7 @@ func TestUSBPNGSnapshots(t *testing.T) {
 				}),
 			)
 
-			testsnapshot.VerifyAll(t, pngPath, defaultTestWidth, defaultTestHeight)
+			testsnapshot.VerifyAll(t, pngPath, reqs.MinWidth, reqs.MinHeight)
 		})
 	}
 }

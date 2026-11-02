@@ -10,6 +10,36 @@ person holding the device would. This skill exists to beat the "blindness
 problem": left to guess, an LLM invents a plausible layout, calls it done, and
 the human later finds it looks wrong. Here you render the real pixels and look.
 
+## MANDATORY: the paid look runs in a sub-agent, never in the main session
+
+The image-analysis step costs the user money AND pollutes context: a loaded PNG
+and its analysis sit in the transcript for the rest of the session, bloating
+every subsequent turn. Both costs are unacceptable in the main session. So this
+is a hard rule, not a suggestion:
+
+- **The main agent MUST NOT load or analyze any snapshot PNG itself.** You may do
+  all the free work in the main session (build, render, measure, read the spec
+  and layout math), but the moment a `.png` is to be *looked at*, you stop and
+  delegate.
+- **Delegate the look to a sub-agent** via `invoke_sub_agent`
+  (`general-task-execution`). The sub-agent's prompt MUST instruct it to
+  activate this skill (`display-ux-review`) and hands it: the target mode, the
+  exact snapshot path(s), and the mode's Promise + Class. The image is loaded
+  *inside the sub-agent's* context, analyzed there, and only the written review
+  (observations, severity, verdict) comes back. The raw PNG never enters the
+  main transcript.
+- **The main agent consumes only the returned review text.** Treat the
+  sub-agent's report as your reviewer pass; do the developer pass (triage, fix,
+  spec update) in the main session from that text.
+- **Reuse across looks:** if a second look is needed after edits, dispatch a
+  fresh sub-agent. Never pull the image into the main session to "save a
+  round-trip" — that defeats the entire purpose.
+
+If you are *already running as that sub-agent* (you were invoked with this skill
+and handed a snapshot path and promise), this clause is satisfied: load the
+image, do the reviewer pass, return the review. Do not recurse into another
+sub-agent.
+
 ## COST GOVERNANCE — read this first, it overrides everything else
 
 Loading a PNG for visual analysis spends the **user's** real money on every
@@ -129,11 +159,18 @@ is what tells them apart.
    (substitute the mode's snapshot test name and the style, e.g. the subtest
    name is the style name like `color-240x240`). Run the free pixel-measurement
    script when geometry is in question (see below). Read the layout math.
-5. **Paid look — user-triggered only.** When the user asks, load the PNG at
-   `display/modes/<mode>/snapshots/<style>_0001.png` and actually look.
-6. **Reviewer pass.** As the code-blind user holding the device: does the render
-   deliver the promise? Report observation + how-it-feels + severity.
-7. **Developer pass.** Triage the report, fix, update the spec if intent shifted.
+5. **Paid look — user-triggered only, and ALWAYS in a sub-agent.** When the user
+   asks, dispatch a `general-task-execution` sub-agent (see the MANDATORY
+   section above). Its prompt names the target, the exact PNG path(s)
+   `display/modes/<mode>/snapshots/<style>_0001.png`, and the mode's Promise +
+   Class, and tells it to activate `display-ux-review`. The main agent does not
+   load the PNG.
+6. **Reviewer pass (inside the sub-agent).** As the code-blind user holding the
+   device: does the render deliver the promise? Report observation +
+   how-it-feels + severity. The sub-agent returns this text; the raw image
+   stays in the sub-agent's context.
+7. **Developer pass (back in the main session).** From the returned review,
+   triage the report, fix, update the spec if intent shifted.
 8. Iterate 3–7, batching free work between paid looks. When done, regenerate
    the full set with `go test .` (no `-run` filter).
 

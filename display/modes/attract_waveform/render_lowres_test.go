@@ -2,6 +2,7 @@ package attract_waveform
 
 import (
 	"image/color"
+	"math"
 	"testing"
 
 	"github.com/databeast/cyberhud/display/modes/attract_waveform/source"
@@ -47,6 +48,7 @@ func TestBuildEinkSpritesFillsThePanel(t *testing.T) {
 }
 
 func TestBuildSpritesTouchesBothEdges(t *testing.T) {
+	ResetSnapshotState()
 	p := source.DefaultPolicy()
 	p.Traces = 3
 	p.Amplitude = 0.75
@@ -75,15 +77,60 @@ func TestBuildSpritesTouchesBothEdges(t *testing.T) {
 	}
 }
 
-func TestWaveformTraceColorVariesWithTraceState(t *testing.T) {
-	a := waveformTraceColor(3, 4.0, 0.25, 10.0)
-	b := waveformTraceColor(6, 8.0, 3.25, 10.0)
-	if a == b {
-		t.Fatalf("expected color to vary with frequency/amplitude/phase, got identical colors: %+v", a)
+func TestTraceColorsAreDistinctPerTrace(t *testing.T) {
+	// Each trace must get a visibly different phosphor hue so the traces read as
+	// separate signals rather than one tangle of the same colour.
+	r0, g0, b0 := traceColor(0, 1.0)
+	r1, g1, b1 := traceColor(1, 1.0)
+	r2, g2, b2 := traceColor(2, 1.0)
+	if r0 == r1 && g0 == g1 && b0 == b1 {
+		t.Fatalf("traces 0 and 1 share a colour: (%v,%v,%v)", r0, g0, b0)
+	}
+	if r1 == r2 && g1 == g2 && b1 == b2 {
+		t.Fatalf("traces 1 and 2 share a colour: (%v,%v,%v)", r1, g1, b1)
+	}
+}
+
+// TestSignalDoesNotRepeatAcrossSweep guards the core aesthetic promise: within a
+// single frame the trace must not be a short periodic tile (the old bug was ~5
+// identical humps). We sample the first half and second half of the sweep and
+// require they differ substantially — a repeating tile would make them match.
+func TestSignalDoesNotRepeatAcrossSweep(t *testing.T) {
+	sp := buildPartials(0, 0.8+0.6*0.5)
+	const tFixed = 2.0
+	var diff float64
+	const n = 200
+	for i := 0; i < n; i++ {
+		u1 := 0.25 * float64(i) / float64(n) // first quarter
+		u2 := u1 + 0.5                        // mirrored into third quarter
+		d := sp.sample(u1, tFixed) - sp.sample(u2, tFixed)
+		diff += math.Abs(d)
+	}
+	avg := diff / float64(n)
+	if avg < 0.05 {
+		t.Fatalf("signal looks periodic across the sweep (avg half-period diff %.4f) — it is repeating within the frame", avg)
+	}
+}
+
+// TestSignalEvolvesOverTime guards that successive frames are not identical —
+// the signal must never look twice-the-same.
+func TestSignalEvolvesOverTime(t *testing.T) {
+	sp := buildPartials(0, 0.8+0.6*0.5)
+	var diff float64
+	const n = 200
+	for i := 0; i < n; i++ {
+		u := float64(i) / float64(n)
+		d := sp.sample(u, 1.0) - sp.sample(u, 2.5)
+		diff += math.Abs(d)
+	}
+	avg := diff / float64(n)
+	if avg < 0.02 {
+		t.Fatalf("signal barely changes over time (avg diff %.4f) — it looks static/repeating", avg)
 	}
 }
 
 func TestBuildSpritesUsesLargeVerticalRange(t *testing.T) {
+	ResetSnapshotState()
 	p := source.DefaultPolicy()
 	p.Traces = 3
 	p.Amplitude = 1.0
