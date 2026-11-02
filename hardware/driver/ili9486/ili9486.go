@@ -3,13 +3,11 @@
 // which pair an ILI9486 display controller with an XPT2046 resistive touch
 // controller on SPI.
 //
-// IMPORTANT — pixel format. Unlike the ST7789 (which this driver otherwise
-// resembles), the ILI9486 on these SPI boards is driven in 18-bit colour
-// (RGB666), THREE bytes per pixel, with each channel's 6 significant bits in
-// the high bits of its byte. These boards use an onboard SPI-to-parallel bridge
-// and do not reliably accept the 16-bit RGB565 path; sending 2 bytes/pixel is
-// the classic cause of garbage or wrong colours. We therefore set COLMOD=0x66
-// and emit 3 bytes/pixel.
+// Pixel format. These Waveshare 3.5" SPI boards consume 16-bit colour (RGB565),
+// two bytes per pixel, like the ST7789. We set COLMOD=0x55 and emit 2
+// bytes/pixel. (Sending 18-bit/3-byte RGB666 instead overruns each row — the
+// right-hand columns go unaddressed — and desyncs the row pointer so alternate
+// scanlines are skipped.)
 //
 // Orientation (MADCTL) and RGB/BGR order on these panels vary by board
 // revision; the defaults here target 480x320 landscape with BGR order, which is
@@ -50,8 +48,11 @@ const (
 	cmdPGAMMA  = 0xE0
 	cmdNGAMMA  = 0xE1
 
-	// COLMOD value selecting 18-bit/pixel (RGB666), 3 bytes per pixel over SPI.
-	colmod18bit = 0x66
+	// COLMOD value selecting 16-bit/pixel (RGB565), 2 bytes per pixel over SPI.
+	// These Waveshare SPI boards consume 16-bit pixels; sending 18-bit/3-byte
+	// overruns each row (right-hand columns go unaddressed) and desyncs the row
+	// pointer (alternate scanlines skipped).
+	colmod16bit = 0x55
 )
 
 func init() {
@@ -153,17 +154,17 @@ func (d *Dev) Draw(r image.Rectangle, src image.Image, sp image.Point) error {
 	if err := d.setWindow(r.Min.X, r.Min.Y, r.Max.X-1, r.Max.Y-1); err != nil {
 		return err
 	}
-	buf := make([]byte, r.Dx()*r.Dy()*3)
+	buf := make([]byte, r.Dx()*r.Dy()*2)
 	i := 0
 	for y := r.Min.Y; y < r.Max.Y; y++ {
 		for x := r.Min.X; x < r.Max.X; x++ {
 			c := src.At(x+sp.X-r.Min.X, y+sp.Y-r.Min.Y)
 			r16, g16, b16, _ := c.RGBA()
-			// Top 6 bits of each 8-bit channel, left-aligned in the byte.
-			buf[i] = byte(r16>>8) & 0xFC
-			buf[i+1] = byte(g16>>8) & 0xFC
-			buf[i+2] = byte(b16>>8) & 0xFC
-			i += 3
+			// RGB565: 5 bits red, 6 bits green, 5 bits blue, 2 bytes/pixel.
+			rgb := (r16>>11)<<11 | (g16>>10)<<5 | (b16 >> 11)
+			buf[i] = byte(rgb >> 8)
+			buf[i+1] = byte(rgb)
+			i += 2
 		}
 	}
 	return d.data(buf)
@@ -212,8 +213,8 @@ func (d *Dev) init() error {
 	}{
 		{cmdSWRESET, nil, 150 * time.Millisecond},
 		{cmdSLPOUT, nil, 150 * time.Millisecond},
-		// 18-bit colour (RGB666), 3 bytes/pixel.
-		{cmdCOLMOD, []byte{colmod18bit}, 0},
+		// 16-bit colour (RGB565), 2 bytes/pixel.
+		{cmdCOLMOD, []byte{colmod16bit}, 0},
 		// Power control — standard ILI9486 values (as used by fbtft fb_ili9486).
 		{cmdPWCTRL1, []byte{0x0E, 0x0E}, 0},
 		{cmdPWCTRL2, []byte{0x41, 0x00}, 0},
