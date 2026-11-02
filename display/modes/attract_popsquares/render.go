@@ -153,11 +153,23 @@ func cellColor(gx, gy, cols, rows int, t float64, p source.Policy, mono bool) co
 		uy = float64(gy) / float64(rows-1)
 	}
 
-	// Base field: a gentle 2D gradient that drifts slowly, so neighbours are
-	// related and the whole grid reads as one cohesive, breathing system.
+	// Base field: a slow drifting 2D wave so the grid reads as one cohesive,
+	// breathing system. The two sines travel across the panel as a gentle swell.
 	grad := 0.5 + 0.5*math.Sin(ux*1.7+uy*1.3+t*0.15)
 	grad2 := 0.5 + 0.5*math.Sin(uy*2.1-ux*0.9-t*0.11)
-	field := 0.5*grad + 0.5*grad2 // [0,1]
+	wave := 0.5*grad + 0.5*grad2 // [0,1] the travelling swell
+
+	// Per-cell static offset: a stable per-cell brightness jitter so neighbours
+	// always differ from each other, even at the wave's crest or trough. Without
+	// this the wave saturates every cell to the same value and the whole panel
+	// washes flat; with it there is always local cell-to-cell variance riding
+	// under the swell. Centred on 0 so it nudges each cell up or down.
+	cellJitter := cellHash(gx*2+1, gy*2+1) - 0.5 // [-0.5, 0.5]
+
+	// field combines the swell with the per-cell jitter. The wave is damped to a
+	// modulation band rather than a full 0..1 swing so it never bottoms/tops out
+	// the whole grid: it rides as variance, not a washout.
+	field := clamp01(0.5 + 0.35*(wave-0.5) + 0.30*cellJitter)
 
 	// Pulse: each cell has its own phase (from a stable hash) and an
 	// irrational-period cycle, so pulses are scattered and never repeat.
@@ -172,7 +184,9 @@ func cellColor(gx, gy, cols, rows int, t float64, p source.Policy, mono bool) co
 	pulse := 0.0
 	if pulseRaw > threshold {
 		pulse = (pulseRaw - threshold) / (1.0 - threshold) // [0,1] ease-in
-		pulse = pulse * pulse                              // soften toward the low end
+		// Gentle ease (smoothstep) so a cell swells into its glow and eases back
+		// rather than snapping bright — the twinkle reads as a soft wave.
+		pulse = pulse * pulse * (3.0 - 2.0*pulse)
 	}
 
 	if mono {
@@ -183,18 +197,20 @@ func cellColor(gx, gy, cols, rows int, t float64, p source.Policy, mono bool) co
 		return color.RGBA{R: v, G: v, B: v, A: 255}
 	}
 
-	// Colour: a cool "nominal/idle" palette by default (deep blue → teal →
-	// green), nudged warmer by Warmth. Hue varies gently with the field so the
-	// bank is cohesive, not a rainbow.
-	hueCool := 0.52 + 0.12*field // ~teal/cyan band
-	hueWarm := 0.08 + 0.10*field // ~amber/orange band
-	hue := hueCool + (hueWarm-hueCool)*p.Warmth
+	// Colour: a vibrant cobalt-blue field — the signature popsquares look. The
+	// hue stays locked around cobalt (HSV ~0.62) with only a hair of drift from
+	// the field so the grid is cohesive, never a rainbow. Warmth nudges slightly
+	// toward a warmer blue-violet if the user wants it, but the base is cobalt.
+	hue := 0.62 - 0.03*field + 0.04*p.Warmth
 
-	// Base cells are dim and fairly saturated (deep colour); a pulse lifts value
-	// toward full and desaturates slightly toward a hot white core.
-	baseVal := 0.22 + 0.20*field
+	// Base cells sit at a clearly visible cobalt (mid value, strong saturation)
+	// so the resting field reads as solid blue, not near-black. The slow field
+	// gradient gives a gentle brightness wave across neighbours. A pulse lifts a
+	// cell toward a bright, lightly-desaturated blue — a swell, never a white
+	// spike — so lit cells blend into the wave instead of popping as hard dots.
+	baseVal := 0.50 + 0.22*field
 	val := baseVal + (0.95-baseVal)*pulse
-	sat := 0.85 - 0.55*pulse
+	sat := 0.95 - 0.35*pulse
 
 	r, g, b := hsvToRGB(hue, clamp01(sat), clamp01(val))
 	return color.RGBA{R: r, G: g, B: b, A: 255}
