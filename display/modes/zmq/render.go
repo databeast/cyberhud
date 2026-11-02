@@ -21,22 +21,23 @@ func RenderCacheKey() uint32 {
 }
 
 // BuildView returns the ZMQ mode view data for the display runtime.
-// It populates a style.ViewData with the current buffer snapshot, font
-// resolution, and cursor/topRow clamping based on visible row count.
+//
+// It assembles the mode snapshot (buffer lines plus the stream identity from
+// the active policy), resolves the best-fit style for the panel, and delegates
+// layout entirely to that style. Empty-buffer handling is the style's job, so
+// each panel profile can present its own waiting state.
 func BuildView(hints textlayout.TextHints) style.ViewData {
-	items := content.SnapshotLines()
-
-	// When the buffer is empty, show a placeholder item.
-	if len(items) == 0 {
-		items = []string{"Waiting for messages..."}
-	}
-
 	p := GetPolicy()
 
 	s, reason := style.ResolveStyle(zmqRegistry, hints, "zmq", p.Style)
 
 	// Build the snapshot for style dispatch.
-	snap := content.ZMQData{Lines: items}
+	snap := content.ZMQData{
+		Lines:      content.SnapshotLines(),
+		Endpoint:   p.Endpoint,
+		SocketType: p.SocketType,
+		Topic:      p.Topic,
+	}
 
 	// Construct StyleContext boundary and invoke the style's Build method.
 	ctx := style.NewStyleContext(hints)
