@@ -31,6 +31,8 @@ type PagerSnapshot struct {
 	// It reflects the panel the frame was resolved against, which BuildView
 	// decides from the hardware's refresh class.
 	IsSlow bool
+	// IsTyper selects left-aligned typewriter placement on fast surfaces.
+	IsTyper bool
 
 	// Phase is the page-transition phase for slow frames (idle | fadeOut |
 	// fadeIn). Unused by scroll frames.

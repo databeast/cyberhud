@@ -9,6 +9,7 @@ Each attract mode runs independently of system data feeds and requires no networ
 | Mode ID | Title | Description |
 |---------|-------|-------------|
 | [attract_bokeh](attract_bokeh.md) | Bokeh | Soft out-of-focus light circles drifting with radial gradients |
+| [attract_cube](attract_cube.md) | Cube | A translucent tumbling cube with configurable accent color |
 | [attract_geometric](attract_geometric.md) | Geometric | Pulsing and rotating geometric patterns with neon edges |
 | [attract_hacking](attract_hacking.md) | Hacking | Dramatic cyberpunk intrusion sequence with faux terminal output |
 | [attract_matrix](attract_matrix.md) | Matrix | Cascading character rain effect inspired by the Matrix |

@@ -26,6 +26,7 @@ type PageState struct {
 	fadeAlpha   float64       // 0.0–1.0 opacity during transition
 	cadence     time.Duration // computed from visible rows × per_line_time
 	waitTimer   time.Duration // tracks time waiting for a full page
+	nextLine    uint64        // absolute position of the first unread line
 }
 
 // newPageState creates a pageState with the given cadence.
@@ -57,14 +58,15 @@ func computePageCadence(visibleRows int, perLineTimeMS int) time.Duration {
 // Parameters:
 //   - delta: elapsed time since last tick
 //   - bufferLines: current snapshot of lines available in the buffer
+//   - firstLine: absolute position of the first line in bufferLines
 //   - visibleRows: number of rows that fit on the display surface
 //   - fadeOutMS: configured fade-out duration in milliseconds
 //   - fadeInMS: configured fade-in duration in milliseconds
 //   - maxWaitS: maximum wait for full page in seconds
-func (ps *PageState) Tick(delta time.Duration, bufferLines []string, visibleRows int, fadeOutMS int, fadeInMS int, maxWaitS int) {
+func (ps *PageState) Tick(delta time.Duration, bufferLines []string, firstLine uint64, visibleRows int, fadeOutMS int, fadeInMS int, maxWaitS int) {
 	switch ps.phase {
 	case PhaseIdle:
-		ps.tickIdle(delta, bufferLines, visibleRows, fadeOutMS, maxWaitS)
+		ps.tickIdle(delta, bufferLines, firstLine, visibleRows, maxWaitS)
 	case PhaseFadeOut:
 		ps.tickFadeOut(delta, fadeOutMS)
 	case PhaseFadeIn:
@@ -79,18 +81,25 @@ func (ps *PageState) FadeAlpha() float64    { return ps.fadeAlpha }
 
 // tickIdle handles the idle phase where the current page is displayed and we
 // are waiting for enough content to schedule a transition.
-func (ps *PageState) tickIdle(delta time.Duration, bufferLines []string, visibleRows int, fadeOutMS int, maxWaitS int) {
-	available := len(bufferLines)
+func (ps *PageState) tickIdle(delta time.Duration, bufferLines []string, firstLine uint64, visibleRows int, maxWaitS int) {
+	if ps.nextLine < firstLine {
+		ps.nextLine = firstLine
+	}
+	offset := ps.nextLine - firstLine
+	if offset >= uint64(len(bufferLines)) || visibleRows <= 0 {
+		ps.waitTimer = 0
+		return
+	}
+	unread := bufferLines[int(offset):]
+	available := len(unread)
 
-	// Determine how many new lines are available beyond what's currently displayed.
-	// The buffer holds all lines; lines already shown on currentPage are consumed.
-	// For the page strategy, we look at what's in the buffer as the next content.
 	if available >= visibleRows {
 		// Full page available — accumulate cadence time.
 		ps.waitTimer += delta
 		if ps.waitTimer >= ps.cadence {
 			// Schedule transition: prepare next page from buffer.
-			ps.nextPage = extractPage(bufferLines, visibleRows)
+			ps.nextPage = extractPage(unread, visibleRows)
+			ps.nextLine += uint64(visibleRows)
 			ps.phase = PhaseFadeOut
 			ps.fadeAlpha = 1.0
 			ps.waitTimer = 0
@@ -101,18 +110,10 @@ func (ps *PageState) tickIdle(delta time.Duration, bufferLines []string, visible
 		maxWait := time.Duration(maxWaitS) * time.Second
 		if ps.waitTimer >= maxWait {
 			// Timeout with partial content: pad with blank lines.
-			ps.nextPage = padPage(bufferLines, visibleRows)
+			ps.nextPage = padPage(unread, visibleRows)
+			ps.nextLine += uint64(available)
 			ps.phase = PhaseFadeOut
 			ps.fadeAlpha = 1.0
-			ps.waitTimer = 0
-		}
-	} else {
-		// No new text available — retain current page, no transition.
-		// Accumulate wait time but do not transition.
-		ps.waitTimer += delta
-		maxWait := time.Duration(maxWaitS) * time.Second
-		if ps.waitTimer >= maxWait {
-			// Max wait expired with no text: retain current page, reset timer.
 			ps.waitTimer = 0
 		}
 	}

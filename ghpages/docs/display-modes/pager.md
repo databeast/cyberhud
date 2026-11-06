@@ -13,8 +13,8 @@ cyberhudctl display pager source=/var/log/syslog
 
 The pager mode manages a background reader goroutine that tails the configured source path, splitting incoming data on newlines into a thread-safe ring buffer. The rendering strategy is selected automatically based on the panel's surface classification:
 
-- **Fast displays** (OLED, TFT): Smooth scroll renders lines flowing upward at `scroll_speed` pixels per second. When buffered lines exceed visible capacity, scroll velocity adapts automatically to prevent unbounded lag.
-- **Slow displays** (e-ink, grayscale slow): Page transitions display one screenful of lines at a time, advancing with a fade-out/fade-in animation. Reading cadence is derived from visible row count and `line_time_ms`, with `max_wait_s` as an upper bound before partial pages are shown.
+- **Fast displays** (OLED, TFT): The default `scroll` mode renders lines flowing upward at `scroll_speed` pixels per second, speeding up when the buffer exceeds visible capacity. The optional `typer` mode reveals incoming text at `type_speed` characters per second, including incomplete lines, wrapping long lines and scrolling up a row when the screen fills. Unread input can be discarded if it exceeds the buffer capacity.
+- **Slow displays** (e-ink, grayscale slow): Page transitions display one screenful of new lines at a time, advancing with a fade-out/fade-in animation. The current page stays visible when there are no unread lines. Reading cadence is derived from visible row count and `line_time_ms`, with `max_wait_s` as an upper bound before partial pages are shown. If unread lines exceed the buffer capacity, the oldest are discarded.
 
 When the source is empty or unset, the mode displays a neutral status message indicating no data source is configured.
 
@@ -23,7 +23,9 @@ When the source is empty or unset, the mode displays a neutral status message in
 | Key | Type | Description | Default | Allowed Values |
 |-----|------|-------------|---------|----------------|
 | `source` | string | Absolute path to file, pipe, or Unix domain socket to tail for incoming text data | | any valid string (absolute filesystem path) |
+| `mode` | string | Presentation strategy for fast displays; slow displays always use page transitions | scroll | scroll, typer |
 | `scroll_speed` | int | Pixels per second for smooth scroll on fast displays controlling upward text flow velocity | 60 | any valid int (1–1000) |
+| `type_speed` | int | Characters per second revealed by typer on fast displays | 30 | any valid int (1–1000) |
 | `max_lines` | int | Maximum buffered lines in the ring buffer limiting how much scrollback the mode retains | 24 | any valid int (1–1000) |
 | `scan_ms` | int | Reconnect interval in milliseconds controlling how often the mode retries a missing data source | 500 | any valid int (100–30000) |
 | `font` | string | Font family identifier for text rendering, or empty string for automatic panel-fitted selection | | any valid string (font ID or empty for auto) |
@@ -38,7 +40,9 @@ When the source is empty or unset, the mode displays a neutral status message in
 | Field | Type | Range | Default | Description |
 |-------|------|-------|---------|-------------|
 | source | string | absolute path or empty | (empty) | Absolute path to file, pipe, or socket to tail |
+| mode | string | scroll, typer | scroll | Fast-display presentation strategy |
 | scroll_speed | int | [1, 1000] | 60 | Pixels per second for smooth scroll |
+| type_speed | int | [1, 1000] | 30 | Characters per second for typer |
 | max_lines | int | [1, 1000] | 24 | Maximum buffered lines in the ring buffer |
 | scan_ms | int | [100, 30000] | 500 | Reconnect/retry interval in milliseconds |
 | font | string | any | (empty) | Font family identifier; empty for auto-selection |
@@ -74,6 +78,12 @@ Configure scroll speed and buffer size:
 cyberhudctl display pager scroll_speed=120 max_lines=48
 ```
 
+Use the typewriter presentation on a fast display:
+
+```sh
+cyberhudctl display pager mode=typer type_speed=30
+```
+
 Adjust page transition timing for slow displays:
 
 ```sh
@@ -88,15 +98,15 @@ cyberhudctl display pager source=/tmp/mydata.pipe scan_ms=200
 
 ## Panel Compatibility
 
-The pager mode adapts its rendering strategy based on the panel's capability class, selecting between smooth animated scrolling and static page transitions depending on refresh rate.
+The pager mode adapts its rendering strategy based on the panel's capability class. Fast displays use the configured scroll or typer mode; slow displays use page transitions.
 
 | Capability | Description | Behavior |
 |---|---|---|
-| MonoFast | Fast-refresh monochrome OLED (128×32, 128×64, 128×128) | Fully supported — smooth pixel-by-pixel upward scroll at configurable speed, automatic font fitting |
+| MonoFast | Fast-refresh monochrome OLED (128×32, 128×64, 128×128) | Fully supported — scroll or typer, automatic font fitting |
 | MonoSlow | Slow-refresh monochrome e-ink (122×250, 176×264, 200×200, 296×128, 400×300) | Fully supported — page-transition mode with fade-out/fade-in animation timed to reading cadence |
-| GrayscaleFast | Fast-refresh grayscale (160×80, 240×135, 240×240, 320×240, 480×320) | Fully supported — smooth scroll with grayscale text rendering |
+| GrayscaleFast | Fast-refresh grayscale (160×80, 240×135, 240×240, 320×240, 480×320) | Fully supported — scroll or typer with grayscale text rendering |
 | GrayscaleSlow | Slow-refresh grayscale e-ink (122×250, 176×264, 200×200, 400×300) | Fully supported — page-transition mode, static rendering between transitions to avoid artifacts |
-| ColorFast | Fast-refresh color TFT (128×128, 160×80, 240×135, 240×240, 240×320, 320×240, 320×480, 480×320) | Fully supported — smooth scroll with monochrome text on color surface |
+| ColorFast | Fast-refresh color TFT (128×128, 160×80, 240×135, 240×240, 240×320, 320×240, 320×480, 480×320) | Fully supported — scroll or typer with monochrome text on color surface |
 | ColorSlow | Slow-refresh color e-ink (122×250, 176×264, 200×200, 400×300) | Fully supported — page-transition mode with static frames between updates |
 
 The pager is non-interactive and does not require buttons or joystick input. All panels are supported regardless of input controls or resolution — the font is automatically fitted to the available display area.

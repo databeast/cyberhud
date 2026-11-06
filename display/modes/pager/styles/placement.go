@@ -8,7 +8,8 @@ package styles
 //
 // The pager shows text and nothing else: no border, no decorative chrome. A
 // frame is committed to exactly one plane. Fast (smooth-scroll) frames use the
-// renderer's row plane: Items plus a sub-line OffsetY. Slow (page-transition)
+// renderer's row plane: Items plus a sub-line OffsetY. Typer uses that plane
+// without an offset and with left-aligned text. Slow (page-transition)
 // frames rasterize the page to a single sprite so the fade alpha can be baked in,
 // which the row plane cannot express. The two are never emitted together.
 
@@ -29,14 +30,13 @@ import (
 // margin that keeps text off the panel edge. It is passed both to ctx.Layout (so
 // the style centres against the inset content width) and to ViewData.PaddingPct
 // (so the renderer draws into the same content origin).
-const pagerPaddingPct = 2
+const pagerPaddingPct = source.PagerPaddingPct
 
 // placeScroll places a smooth-scroll frame on the row plane.
 //
 // The lines are already the visible window, already truncated to the frame's
-// column budget by BuildView. Placement centres each line horizontally and hands
-// the renderer the resolved sub-line OffsetY so the block scrolls with sub-pixel
-// vertical motion. Output is non-static: the scroll offset changes every frame.
+// column budget by BuildView. Scrolling text is centered; typer text is
+// left-aligned. The resolved offset is passed through to the renderer.
 func placeScroll(snap source.PagerSnapshot, _ source.Policy, ctx style.StyleContext, _ def) style.ViewData {
 	bridge := ctx.Layout(pagerPaddingPct)
 	if bridge.AvailableContentWidth() <= 0 || bridge.AvailableContentHeight() <= 0 {
@@ -53,7 +53,9 @@ func placeScroll(snap source.PagerSnapshot, _ source.Policy, ctx style.StyleCont
 	offsets := make([]style.TTYX, len(lines))
 	tiers := make([]tiercatalog.Tier, len(lines))
 	for i, line := range lines {
-		offsets[i] = bridge.CenterX(runeLen(line), m)
+		if !snap.IsTyper {
+			offsets[i] = bridge.CenterX(runeLen(line), m)
+		}
 		tiers[i] = tiercatalog.TierNormal
 	}
 

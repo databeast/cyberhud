@@ -10,6 +10,8 @@ import (
 // panel's catalog rather than per-row.
 const pagerFontTier = tiercatalog.TierNormal
 
+const PagerPaddingPct = 2
+
 // ComputeLayout resolves the visible row/column budget and text metrics for a
 // panel. This is mode logic: BuildView uses it to size the visible window and to
 // derive the scroll/page cadence before handing a resolved frame to a style.

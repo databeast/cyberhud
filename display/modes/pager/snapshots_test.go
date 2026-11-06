@@ -124,10 +124,8 @@ func TestPagerPNGSnapshots(t *testing.T) {
 				// accumulate a visible offset. The page-transition path needs
 				// far longer, and is handled by the readiness predicate below.
 				testsnapshot.WithFrameCount(4),
-				// BuildView caps per-frame delta at 80ms, so stepping the clock
-				// by exactly that much advances the most simulated time per
-				// pass without any of it being discarded. That matters for the
-				// page path, which must cover a multi-second cadence.
+				// The fast scroll path caps per-frame delta at 80ms. The page
+				// path must also cover a multi-second cadence before capture.
 				testsnapshot.WithFrameInterval(80*time.Millisecond),
 				testsnapshot.WithReset(func() {
 					SetPolicy(DefaultPolicy())

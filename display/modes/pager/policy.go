@@ -57,7 +57,9 @@ func (pagerSnapshotter) SnapshotPolicy() map[string]interface{} {
 	p := GetPolicy()
 	return map[string]interface{}{
 		"source":       p.Source,
+		"mode":         p.Mode,
 		"scroll_speed": p.ScrollSpeed,
+		"type_speed":   p.TypeSpeed,
 		"max_lines":    p.MaxLines,
 		"scan_ms":      p.ScanMS,
 		"font":         p.Font,
@@ -77,6 +79,16 @@ func (pagerSnapshotter) RestorePolicy(data map[string]interface{}) error {
 	if v, ok := data["source"]; ok {
 		if s, ok := v.(string); ok {
 			p.Source = s
+		}
+	}
+	if v, ok := data["mode"]; ok {
+		if s, ok := v.(string); ok {
+			p.Mode = s
+		}
+	}
+	if v, ok := data["type_speed"]; ok {
+		if n, ok := cmdutil.ToInt(v); ok {
+			p.TypeSpeed = n
 		}
 	}
 	if v, ok := data["scroll_speed"]; ok {

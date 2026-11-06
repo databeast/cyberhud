@@ -3,11 +3,11 @@ package source
 import (
 	"bytes"
 	"sync"
+	"unicode/utf8"
 )
 
-// maxLineBytes is the maximum number of bytes allowed in a single line
-// without a newline terminator. Lines exceeding this limit are truncated
-// at this boundary and the truncation point is treated as a line boundary.
+// maxLineBytes bounds buffered segments without a newline terminator.
+// Synthetic segment boundaries are adjusted to preserve UTF-8 characters.
 const maxLineBytes = 4096
 
 const MaxLineBytes = maxLineBytes
@@ -16,11 +16,13 @@ const MaxLineBytes = maxLineBytes
 // It splits incoming byte data on newline boundaries, retains trailing partial
 // bytes, and discards the oldest lines when the configured capacity is exceeded.
 type LineBuffer struct {
-	mu       sync.RWMutex
-	lines    []string
-	partial  []byte // incomplete line (no trailing newline yet)
-	seq      uint64 // monotonic mutation counter
-	maxLines int    // configurable capacity [1..1000]
+	mu         sync.RWMutex
+	lines      []string
+	lineBreaks []bool
+	partial    []byte // incomplete line (no trailing newline yet)
+	seq        uint64 // monotonic mutation counter
+	lineCount  uint64 // total number of complete lines ingested
+	maxLines   int    // configurable capacity [1..1000]
 }
 
 // newLineBuffer creates a lineBuffer with the given capacity.
@@ -36,8 +38,7 @@ func NewLineBuffer(maxLines int) *LineBuffer {
 // Ingest processes raw bytes from the data source. It prepends any existing
 // partial bytes, splits on '\n' boundaries, stores complete lines in the ring
 // buffer, and retains trailing bytes without '\n' as partial. If a contiguous
-// run exceeds maxLineBytes without a newline, it is truncated at that limit
-// and treated as a line boundary.
+// run exceeds maxLineBytes without a newline, it is split into bounded segments.
 func (b *LineBuffer) Ingest(data []byte) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -54,17 +55,26 @@ func (b *LineBuffer) Ingest(data []byte) {
 	}
 
 	var newLines []string
+	var newBreaks []bool
 
 	for len(buf) > 0 {
 		idx := bytes.IndexByte(buf, '\n')
 		if idx >= 0 {
 			// Found a newline — everything up to it is a complete line.
 			newLines = append(newLines, string(buf[:idx]))
+			newBreaks = append(newBreaks, true)
 			buf = buf[idx+1:]
 		} else if len(buf) > maxLineBytes {
-			// No newline found and exceeds max line length — truncate.
-			newLines = append(newLines, string(buf[:maxLineBytes]))
-			buf = buf[maxLineBytes:]
+			end := maxLineBytes
+			for end > 0 && !utf8.RuneStart(buf[end]) {
+				end--
+			}
+			if end == 0 {
+				end = maxLineBytes
+			}
+			newLines = append(newLines, string(buf[:end]))
+			newBreaks = append(newBreaks, false)
+			buf = buf[end:]
 		} else {
 			// No newline and within limit — retain as partial.
 			b.partial = make([]byte, len(buf))
@@ -75,7 +85,9 @@ func (b *LineBuffer) Ingest(data []byte) {
 
 	// Append complete lines to the ring buffer.
 	if len(newLines) > 0 {
+		b.lineCount += uint64(len(newLines))
 		b.lines = append(b.lines, newLines...)
+		b.lineBreaks = append(b.lineBreaks, newBreaks...)
 		// Discard oldest lines if exceeding capacity.
 		if len(b.lines) > b.maxLines {
 			discard := len(b.lines) - b.maxLines
@@ -84,6 +96,7 @@ func (b *LineBuffer) Ingest(data []byte) {
 				b.lines[i] = ""
 			}
 			b.lines = b.lines[discard:]
+			b.lineBreaks = b.lineBreaks[discard:]
 		}
 	}
 
@@ -94,12 +107,29 @@ func (b *LineBuffer) Ingest(data []byte) {
 // Snapshot returns a copy of the current buffered lines. The returned slice
 // is safe for the caller to use without holding any lock.
 func (b *LineBuffer) Snapshot() []string {
+	lines, _ := b.SnapshotWithPosition()
+	return lines
+}
+
+// SnapshotWithPosition also returns the absolute position of the first line.
+func (b *LineBuffer) SnapshotWithPosition() ([]string, uint64) {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
 
 	out := make([]string, len(b.lines))
 	copy(out, b.lines)
-	return out
+	return out, b.lineCount - uint64(len(b.lines))
+}
+
+// SnapshotForTyper includes the incomplete last line and records which segments
+// ended with a newline, all in the same atomic snapshot.
+func (b *LineBuffer) SnapshotForTyper() ([]string, []bool, string, uint64) {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	lines := make([]string, len(b.lines))
+	copy(lines, b.lines)
+	breaks := append([]bool(nil), b.lineBreaks...)
+	return lines, breaks, string(b.partial), b.lineCount - uint64(len(b.lines))
 }
 
 // Len returns the current number of complete lines in the buffer.
@@ -133,6 +163,7 @@ func (b *LineBuffer) SetMaxLines(n int) {
 			b.lines[i] = ""
 		}
 		b.lines = b.lines[discard:]
+		b.lineBreaks = b.lineBreaks[discard:]
 	}
 }
 

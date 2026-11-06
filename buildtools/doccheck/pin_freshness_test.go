@@ -149,6 +149,15 @@ func extractDocPins(t *testing.T, docPath string) map[string]bool {
 		}
 	}
 
+	// Input GPIOs may be documented in a separate Buttons & Joystick section.
+	for _, row := range extractTableRows(docPath, "Buttons & Joystick") {
+		for _, cell := range row {
+			if m := gpioRe.FindString(cell); m != "" {
+				pinSet[m] = true
+			}
+		}
+	}
+
 	// For docs with H3 subsections (e.g., waveshare-triple-screen with separate
 	// screen sections, or waveshare-2-23-oled-hat with SPI/I2C modes), we need
 	// to also scan tables under H3 headings within the Pin Assignments area.

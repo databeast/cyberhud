@@ -9,6 +9,7 @@ import (
 
 // attractModeIDs lists attract mode IDs that must be registered.
 var attractModeIDs = []string{
+	"attract_cube",
 	"attract_waveform",
 	"attract_particles",
 	"attract_plasma",

@@ -21,14 +21,13 @@ func init() {
 		Title:    "Pager",
 		Category: "Data",
 		Scope:    "any",
-		Summary:  "Tails a file, pipe, or socket and presents text with smooth scroll or page transitions.",
+		Summary:  "Tails a file, pipe, or socket with scrolling, typing, or page transitions.",
 		Order:    90,
 		Options:  append(source.Policy{}.Options(), catalog.OptionDefinition{Key: "style", Type: "string", Summary: "Visual style name or empty for default.", Default: "", Allowed: pagerRegistry.RegisteredNames()}),
 	})
 }
 
-// maxTickElapsed caps per-frame advancement so a long pause (debugger, suspend)
-// does not jump the scroll or page animation forward in one step.
+// maxTickElapsed caps smooth-scroll advancement after a long pause.
 const maxTickElapsed = 80 * time.Millisecond
 
 // instance implements displaymodes.ModeInstance for the pager mode.
@@ -41,7 +40,9 @@ type instance struct {
 	displaymodes.PanelHints
 
 	lastSurface source.SurfaceClass
+	lastMode    string
 	lastTick    time.Time
+	typer       *source.TyperState
 }
 
 func newInstance() displaymodes.ModeInstance {
@@ -62,6 +63,8 @@ func (i *instance) Activate() {
 	hints, _ := i.Hints()
 	sc := source.ClassifySurface(hints)
 	i.lastSurface = sc
+	i.lastMode = pol.Mode
+	i.lastTick = time.Time{}
 
 	source.SetActiveReader(reader, buf)
 	i.installStrategy(sc, hints, pol)
@@ -93,37 +96,46 @@ func (i *instance) BuildView() style.ViewData {
 	// Swap animation strategy if the panel's classification changed since the
 	// last pass, without discarding buffered content.
 	sc := source.ClassifySurface(hints)
-	if sc != i.lastSurface {
+	pol := GetPolicy()
+	if sc != i.lastSurface || (!sc.IsSlow() && pol.Mode != i.lastMode) {
 		i.lastSurface = sc
-		i.installStrategy(sc, hints, GetPolicy())
+		i.lastMode = pol.Mode
+		i.installStrategy(sc, hints, pol)
 	}
 
-	// Compute capped elapsed time for this pass.
+	// Slow pages and typer need wall-clock time for their configured rates.
+	// Smooth scrolling remains capped to avoid jumping after a long pause.
 	var elapsed time.Duration
 	now := frameclock.Now()
 	if !i.lastTick.IsZero() {
 		elapsed = now.Sub(i.lastTick)
-		if elapsed > maxTickElapsed {
+		if !sc.IsSlow() && pol.Mode == "scroll" && elapsed > maxTickElapsed {
 			elapsed = maxTickElapsed
 		}
 	}
 	i.lastTick = now
 
-	return buildView(hints, elapsed)
+	return buildView(hints, elapsed, i.typer)
 }
 
 func (i *instance) RenderCacheKey() uint32 {
-	return renderCacheKey()
+	return renderCacheKey(i.typer)
 }
 
 // installStrategy sets up the animation state for a surface class, clearing the
 // other strategy's state. The shared buffer is left intact — only the animation
 // changes.
 func (i *instance) installStrategy(sc source.SurfaceClass, hints textlayout.TextHints, pol source.Policy) {
+	i.typer = nil
 	switch sc {
 	case source.SurfaceFast:
 		source.SetActivePage(nil)
-		source.SetActiveScroll(source.NewScrollState(pol.ScrollSpeed))
+		if pol.Mode == "typer" {
+			source.SetActiveScroll(nil)
+			i.typer = source.NewTyperState()
+		} else {
+			source.SetActiveScroll(source.NewScrollState(pol.ScrollSpeed))
+		}
 		region.RegisterTickRate("pager", tickProvider{})
 	case source.SurfaceSlow:
 		source.SetActiveScroll(nil)

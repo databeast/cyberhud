@@ -81,7 +81,9 @@ var cmdHandler = &cmdutil.CmdHandler{
 	Verb: "pager",
 	Keys: []cmdutil.KeyDef{
 		{Name: "source", Validate: sourceValidator()},
+		{Name: "mode", Validate: cmdutil.AllowedValidator([]string{"scroll", "typer"})},
 		{Name: "scroll_speed", Validate: intAcceptValidator()},
+		{Name: "type_speed", Validate: intRangeValidator(1, 1000)},
 		{Name: "max_lines", Validate: intRangeValidator(1, 1000)},
 		{Name: "scan_ms", Validate: intRangeValidator(100, 30000)},
 		{Name: "font", Validate: stringValidator()},
@@ -102,8 +104,12 @@ func getPolicyValue(key string) string {
 	switch key {
 	case "source":
 		return p.Source
+	case "mode":
+		return p.Mode
 	case "scroll_speed":
 		return strconv.Itoa(p.ScrollSpeed)
+	case "type_speed":
+		return strconv.Itoa(p.TypeSpeed)
 	case "max_lines":
 		return strconv.Itoa(p.MaxLines)
 	case "scan_ms":
@@ -134,9 +140,15 @@ func applyPolicyValue(key, value string) {
 	switch key {
 	case "source":
 		p.Source = v
+	case "mode":
+		p.Mode = v
 	case "scroll_speed":
 		if n, err := strconv.Atoi(v); err == nil {
 			p.ScrollSpeed = n
+		}
+	case "type_speed":
+		if n, err := strconv.Atoi(v); err == nil {
+			p.TypeSpeed = n
 		}
 	case "max_lines":
 		if n, err := strconv.Atoi(v); err == nil {
@@ -206,7 +218,7 @@ func init() {
 	catalog.RegisterCommand(catalog.CommandDefinition{
 		Verb:    "pager",
 		Summary: "Query or set pager display mode options.",
-		Usage:   "pager [source=<path>] [scroll_speed=<1-1000>] [max_lines=<1-1000>] [scan_ms=<100-30000>] [font=<name>] [style=<name>] [fade_out_ms=<int>] [fade_in_ms=<int>] [line_time_ms=<int>] [max_wait_s=<int>]",
+		Usage:   "pager [source=<path>] [mode=<scroll|typer>] [scroll_speed=<1-1000>] [type_speed=<1-1000>] [max_lines=<1-1000>] [scan_ms=<100-30000>] [font=<name>] [style=<name>] [fade_out_ms=<int>] [fade_in_ms=<int>] [line_time_ms=<int>] [max_wait_s=<int>]",
 		Handle:  HandleCommand,
 	})
 }
