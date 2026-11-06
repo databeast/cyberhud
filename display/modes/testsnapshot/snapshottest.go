@@ -45,6 +45,12 @@ const (
 	// CategoryGrayscale maps to ColorModeGrayscale with monochrome=false.
 	// Used for grayscale displays.
 	CategoryGrayscale
+
+	// CategoryGrayscaleSlow maps to grayscale output with slow-refresh hints.
+	CategoryGrayscaleSlow
+
+	// CategoryColorSlow maps to color output with slow-refresh hints.
+	CategoryColorSlow
 )
 
 // Frame clock bounds and the fixed instant every snapshot starts from.
@@ -333,7 +339,7 @@ func validate(t *testing.T, cfg *snapshotConfig) {
 func resolveColorMode(cfg *snapshotConfig) {
 	if cfg.displayCategory != nil {
 		switch *cfg.displayCategory {
-		case CategoryColor:
+		case CategoryColor, CategoryColorSlow:
 			cfg.colorMode = pngpanel.ColorModeFullColor
 			cfg.monochrome = false
 		case CategoryMono:
@@ -342,7 +348,7 @@ func resolveColorMode(cfg *snapshotConfig) {
 		case CategoryEink:
 			cfg.colorMode = pngpanel.ColorModeMonochrome
 			cfg.monochrome = true
-		case CategoryGrayscale:
+		case CategoryGrayscale, CategoryGrayscaleSlow:
 			cfg.colorMode = pngpanel.ColorModeGrayscale
 			cfg.monochrome = false
 		default:

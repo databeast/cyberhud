@@ -47,9 +47,37 @@ func RenderSnapshot(t *testing.T, opts ...SnapshotOption) string {
 	surf := surface.New(bounds)
 
 	// 3. Create Region with PNGPanel's TextHints via ScreenPosition.
+	hintProvider := panel.TextHints
+	if cfg.displayCategory != nil && *cfg.displayCategory == CategoryMono {
+		hintProvider = func() textlayout.TextHints {
+			hints := panel.TextHints()
+			hints.Capability = textlayout.CapMonoFast
+			hints.PreferEventRefresh = false
+			hints.SupportsVerticalScroll = true
+			hints.SupportsHorizontalScroll = true
+			hints.SupportsAutoScroll = true
+			hints.DefaultTickerDirection = textlayout.TickerDirectionVertical
+			return hints
+		}
+	} else if cfg.displayCategory != nil && (*cfg.displayCategory == CategoryGrayscaleSlow || *cfg.displayCategory == CategoryColorSlow) {
+		hintProvider = func() textlayout.TextHints {
+			hints := panel.TextHints()
+			if *cfg.displayCategory == CategoryColorSlow {
+				hints.Capability = textlayout.CapColorSlow
+			} else {
+				hints.Capability = textlayout.CapGrayscaleSlow
+			}
+			hints.PreferEventRefresh = true
+			hints.SupportsVerticalScroll = false
+			hints.SupportsHorizontalScroll = false
+			hints.SupportsAutoScroll = false
+			hints.DefaultTickerDirection = textlayout.TickerDirectionNone
+			return hints
+		}
+	}
 	screenPos := region.ScreenPosition{
 		Bounds:       bounds,
-		HintProvider: panel.TextHints,
+		HintProvider: hintProvider,
 	}
 	reg := region.NewRegionWithScreens("test", bounds, surf, []region.ScreenPosition{screenPos}, "", 0, 0)
 

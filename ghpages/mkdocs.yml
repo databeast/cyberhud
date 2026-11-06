@@ -123,6 +123,7 @@ nav:
       - Attract Modes:
           - Overview: display-modes/attract-modes.md
           - Bokeh: display-modes/attract_bokeh.md
+          - Cube: display-modes/attract_cube.md
           - Geometric: display-modes/attract_geometric.md
           - Hacking: display-modes/attract_hacking.md
           - Matrix: display-modes/attract_matrix.md

@@ -7,6 +7,7 @@ Display modes control what content is rendered on your attached panel. Each mode
 | Mode ID | Title | Summary |
 |---------|-------|---------|
 | [attract_bokeh](attract_bokeh.md) | Bokeh | Ambient floating bokeh light orbs with configurable size and saturation |
+| [attract_cube](attract_cube.md) | Cube | A translucent cube tumbling in 3D |
 | [attract_geometric](attract_geometric.md) | Geometric | Clusters of semi-transparent rotating rectangles with sinusoidal fade and glow effects |
 | [attract_hacking](attract_hacking.md) | Hacking | Rapid-fire command output simulation with scrolling terminal effect |
 | [attract_matrix](attract_matrix.md) | Attract Matrix | Cascading character rain effect inspired by the Matrix |

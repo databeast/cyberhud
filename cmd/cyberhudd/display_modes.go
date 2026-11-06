@@ -10,6 +10,7 @@ import (
 	displaymodes "github.com/databeast/cyberhud/display/modes"
 	// Mode self-registration via init().
 	_ "github.com/databeast/cyberhud/display/modes/attract_bokeh"
+	_ "github.com/databeast/cyberhud/display/modes/attract_cube"
 	_ "github.com/databeast/cyberhud/display/modes/attract_geometric"
 	_ "github.com/databeast/cyberhud/display/modes/attract_hacking"
 	_ "github.com/databeast/cyberhud/display/modes/attract_matrix"
@@ -74,6 +75,7 @@ var expectedModeIDs = []string{
 	"attract_popsquares",
 	"attract_starfield",
 	"attract_bokeh",
+	"attract_cube",
 	"attract_shapes",
 	"attract_geometric",
 	"attract_hacking",

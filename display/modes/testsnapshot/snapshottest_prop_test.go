@@ -218,8 +218,8 @@ func TestProperty_DisplayCategoryDerivesColorMode(t *testing.T) {
 		width := rapid.IntRange(60, 4096).Draw(rt, "width")
 		height := rapid.IntRange(60, 4096).Draw(rt, "height")
 
-		// Generate a random DisplayCategory value (0-3).
-		categoryInt := rapid.IntRange(0, 3).Draw(rt, "category")
+		// Generate a random registered DisplayCategory.
+		categoryInt := rapid.IntRange(0, int(CategoryColorSlow)).Draw(rt, "category")
 		category := DisplayCategory(categoryInt)
 
 		// Construct a snapshotConfig with the display category set.
@@ -237,7 +237,7 @@ func TestProperty_DisplayCategoryDerivesColorMode(t *testing.T) {
 		var wantMonochrome bool
 
 		switch category {
-		case CategoryColor:
+		case CategoryColor, CategoryColorSlow:
 			wantColorMode = pngpanel.ColorModeFullColor
 			wantMonochrome = false
 		case CategoryMono:
@@ -246,7 +246,7 @@ func TestProperty_DisplayCategoryDerivesColorMode(t *testing.T) {
 		case CategoryEink:
 			wantColorMode = pngpanel.ColorModeMonochrome
 			wantMonochrome = true
-		case CategoryGrayscale:
+		case CategoryGrayscale, CategoryGrayscaleSlow:
 			wantColorMode = pngpanel.ColorModeGrayscale
 			wantMonochrome = false
 		default:
@@ -266,15 +266,14 @@ func TestProperty_DisplayCategoryDerivesColorMode(t *testing.T) {
 	})
 }
 
-// For any DisplayCategory integer value outside the range [0, 3], calling
+// For any DisplayCategory integer value outside the registered range, calling
 // resolveColorMode SHALL set colorMode = ColorModeFullColor and monochrome = false.
 func TestProperty_OutOfRangeDisplayCategoryDefaultsToFullColor(t *testing.T) {
 	rapid.Check(t, func(rt *rapid.T) {
-		// Generate a DisplayCategory value outside [0, 3].
-		// Use a custom generator that picks either negative values or values >= 4.
+		// Generate a DisplayCategory value outside the registered categories.
 		categoryInt := rapid.OneOf(
 			rapid.IntRange(-1000, -1),
-			rapid.IntRange(4, 1000),
+			rapid.IntRange(int(CategoryColorSlow)+1, 1000),
 		).Draw(rt, "outOfRangeCategory")
 		category := DisplayCategory(categoryInt)
 
