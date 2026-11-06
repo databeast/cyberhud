@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/databeast/cyberhud/display/catalog"
+	"github.com/databeast/cyberhud/display/catalog/cmdutil"
 	"github.com/databeast/cyberhud/display/modes/thermal/source"
 )
 
@@ -53,22 +54,22 @@ func (thermalSnapshotter) RestorePolicy(data map[string]interface{}) error {
 		}
 	}
 	if v, ok := data["refresh_ms"]; ok {
-		if n, ok := toInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.RefreshMS = n
 		}
 	}
 	if v, ok := data["warn_threshold"]; ok {
-		if n, ok := toInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.WarnThreshold = n
 		}
 	}
 	if v, ok := data["crit_threshold"]; ok {
-		if n, ok := toInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.CritThreshold = n
 		}
 	}
 	if v, ok := data["show_border"]; ok {
-		if b, ok := toBool(v); ok {
+		if b, ok := cmdutil.ToBool(v); ok {
 			p.ShowBorder = b
 		}
 	}
@@ -83,38 +84,17 @@ func (thermalSnapshotter) RestorePolicy(data map[string]interface{}) error {
 		}
 	}
 	if v, ok := data["show_led"]; ok {
-		if b, ok := toBool(v); ok {
+		if b, ok := cmdutil.ToBool(v); ok {
 			p.ShowLED = b
 		}
 	}
 	if v, ok := data["show_refresh_bar"]; ok {
-		if b, ok := toBool(v); ok {
+		if b, ok := cmdutil.ToBool(v); ok {
 			p.ShowRefreshBar = b
 		}
 	}
 
 	return SetPolicy(p)
-}
-
-// toInt extracts an int from an interface value, handling both float64
-// (JSON numbers decode as float64) and direct int types.
-func toInt(v interface{}) (int, bool) {
-	switch n := v.(type) {
-	case float64:
-		return int(n), true
-	case int:
-		return n, true
-	case int64:
-		return int(n), true
-	default:
-		return 0, false
-	}
-}
-
-// toBool extracts a bool from an interface value.
-func toBool(v interface{}) (bool, bool) {
-	b, ok := v.(bool)
-	return b, ok
 }
 
 func init() {

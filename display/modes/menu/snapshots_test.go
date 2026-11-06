@@ -20,7 +20,7 @@ func categoryFromStyle(name string, reqs style.SurfaceRequirements) testsnapshot
 		return testsnapshot.CategoryColor
 	case strings.HasPrefix(name, "grayscale-"):
 		return testsnapshot.CategoryGrayscale
-	case strings.HasPrefix(name, "eink-"), strings.HasPrefix(name, "mono-slow-"):
+	case strings.HasPrefix(name, "mono-slow-"):
 		return testsnapshot.CategoryEink
 	case strings.HasPrefix(name, "mono-"):
 		return testsnapshot.CategoryMono

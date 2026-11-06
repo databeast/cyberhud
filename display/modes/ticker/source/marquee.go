@@ -5,7 +5,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/display/widgets"
 	"github.com/databeast/cyberhud/display/widgets/marquee"

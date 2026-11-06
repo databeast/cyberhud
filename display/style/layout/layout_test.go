@@ -54,24 +54,6 @@ func TestProperty3_ContentOriginComputation(t *testing.T) {
 	})
 }
 
-// deriveBarHeight reimplements the expected bar height formula for test verification.
-func deriveBarHeight(show bool, glyphHeight, pixelHeight int) int {
-	if !show {
-		return 0
-	}
-	base := 20
-	if pixelHeight < 80 {
-		base = 10
-	}
-	if glyphHeight > 0 {
-		floor := glyphHeight + 4
-		if floor > base {
-			return floor
-		}
-	}
-	return base
-}
-
 // For any valid LayoutBridge and any row index N (including negative values) and any
 // pixel offset, RowY(n, offset) SHALL equal ContentOrigin().Y + max(0, n) × RowHeight() + offset,
 // with no clamping applied to the output.
@@ -104,7 +86,15 @@ func TestProperty1_RowYFormula(t *testing.T) {
 
 		// Construct bridge and call RowY
 		lb := layout.NewLayoutBridge(hints, cfg)
-		got := lb.RowY(n, offset)
+
+		// Build the Metrics the calculator used to derive internally: advance
+		// defaults to textlayout.GlyphAdvance and row height to textlayout.RowHeight
+		// when the hints are non-positive.
+		advFromHints := glyphAdvanceOrDefault(hints.GlyphAdvance)
+		rowHFromHints := rowHeightOrDefault(hints.RowHeight)
+		m := layout.NewMetrics(advFromHints, rowHFromHints, "")
+
+		got := lb.RowY(n, offset, m)
 
 		// Compute expected: ContentOrigin().Y + max(0, n) * RowHeight() + offset
 		_, originY := lb.ContentOrigin()
@@ -112,11 +102,11 @@ func TestProperty1_RowYFormula(t *testing.T) {
 		if effectiveN < 0 {
 			effectiveN = 0
 		}
-		expected := originY + effectiveN*lb.RowHeight() + offset
+		expected := originY + effectiveN*m.RowHeight() + offset
 
 		if got != expected {
 			t.Fatalf("RowY(%d, %d) = %d, want %d (ContentOrigin().Y=%d, RowHeight()=%d)",
-				n, offset, got, expected, originY, lb.RowHeight())
+				n, offset, got, expected, originY, m.RowHeight())
 		}
 	})
 }
@@ -156,7 +146,8 @@ func TestProperty2_BottomEdgeFormula(t *testing.T) {
 		itemCount := rapid.IntRange(-100, 100).Draw(t, "itemCount")
 
 		_, originY := lb.ContentOrigin()
-		rh := lb.RowHeight()
+		m := layout.NewMetrics(glyphAdvanceOrDefault(hints.GlyphAdvance), rowHeightOrDefault(hints.RowHeight), "")
+		rh := m.RowHeight()
 
 		// Verify RowBottomY(n) == ContentOrigin().Y + (max(0, n) + 1) * RowHeight()
 		clampedN := n
@@ -164,7 +155,7 @@ func TestProperty2_BottomEdgeFormula(t *testing.T) {
 			clampedN = 0
 		}
 		expectedRowBottom := originY + (clampedN+1)*rh
-		gotRowBottom := lb.RowBottomY(n)
+		gotRowBottom := lb.RowBottomY(n, m)
 		if gotRowBottom != expectedRowBottom {
 			t.Fatalf("RowBottomY(%d) = %d, want %d (originY=%d, rowHeight=%d)",
 				n, gotRowBottom, expectedRowBottom, originY, rh)
@@ -176,7 +167,7 @@ func TestProperty2_BottomEdgeFormula(t *testing.T) {
 			clampedCount = 0
 		}
 		expectedItemsBottom := originY + clampedCount*rh
-		gotItemsBottom := lb.ItemsBottomY(itemCount)
+		gotItemsBottom := lb.ItemsBottomY(itemCount, m)
 		if gotItemsBottom != expectedItemsBottom {
 			t.Fatalf("ItemsBottomY(%d) = %d, want %d (originY=%d, rowHeight=%d)",
 				itemCount, gotItemsBottom, expectedItemsBottom, originY, rh)
@@ -212,20 +203,22 @@ func TestProperty5_RemainingSpace(t *testing.T) {
 		// Generate random n in [-100, 100]
 		n := rapid.IntRange(-100, 100).Draw(t, "n")
 
+		m := layout.NewMetrics(glyphAdvanceOrDefault(hints.GlyphAdvance), rowHeightOrDefault(hints.RowHeight), "")
+
 		// Compute expected: max(0, AvailableContentHeight() - max(0, n) * RowHeight())
 		clampedN := n
 		if clampedN < 0 {
 			clampedN = 0
 		}
-		expected := lb.AvailableContentHeight() - clampedN*lb.RowHeight()
+		expected := lb.AvailableContentHeight() - clampedN*m.RowHeight()
 		if expected < 0 {
 			expected = 0
 		}
 
-		got := lb.RemainingSpace(n)
+		got := lb.RemainingSpace(n, m)
 		if got != expected {
 			t.Fatalf("RemainingSpace(%d) = %d, want %d (AvailableContentHeight=%d, RowHeight=%d)",
-				n, got, expected, lb.AvailableContentHeight(), lb.RowHeight())
+				n, got, expected, lb.AvailableContentHeight(), m.RowHeight())
 		}
 	})
 }
@@ -257,7 +250,8 @@ func TestProperty6_RowXFormula(t *testing.T) {
 		charOffset := rapid.IntRange(-50, 100).Draw(t, "charOffset")
 
 		lb := layout.NewLayoutBridge(hints, cfg)
-		got := lb.RowX(charOffset)
+		m := layout.NewMetrics(glyphAdvanceOrDefault(hints.GlyphAdvance), rowHeightOrDefault(hints.RowHeight), "")
+		got := lb.RowX(charOffset, m)
 
 		// Compute expected padding inset (contentOriginX)
 		padInsetX := paddingPct * pixelWidth / 100
@@ -268,12 +262,12 @@ func TestProperty6_RowXFormula(t *testing.T) {
 			effectiveCharOffset = 0
 		}
 
-		expected := padInsetX + effectiveCharOffset*lb.GlyphAdvance()
+		expected := padInsetX + effectiveCharOffset*m.Advance()
 
 		if got != expected {
 			t.Fatalf("RowX(%d) = %d, want %d (padInsetX=%d, glyphAdvance=%d, "+
 				"pixelWidth=%d, paddingPct=%d)",
-				charOffset, got, expected, padInsetX, lb.GlyphAdvance(),
+				charOffset, got, expected, padInsetX, m.Advance(),
 				pixelWidth, paddingPct)
 		}
 	})
@@ -307,9 +301,10 @@ func TestProperty10_MaxVisibleRowsInvariant(t *testing.T) {
 
 		lb := layout.NewLayoutBridge(hints, cfg)
 
-		maxRows := lb.MaxVisibleRows()
+		m := layout.NewMetrics(glyphAdvanceOrDefault(hints.GlyphAdvance), rowHeightOrDefault(hints.RowHeight), "")
+		maxRows := lb.MaxVisibleRows(m)
 		availHeight := lb.AvailableContentHeight()
-		rh := lb.RowHeight()
+		rh := m.RowHeight()
 
 		// Verify: if RowHeight() == 0, MaxVisibleRows() == 0
 		// (shouldn't happen due to defaults, but check anyway)
@@ -455,7 +450,8 @@ func TestProperty4_AvailableContentHeight(t *testing.T) {
 // For any TextHints and BridgeConfig, constructing two LayoutBridge values from
 // identical inputs SHALL produce identical results from all methods (RowY, RowBottomY,
 // ItemsBottomY, ContentOrigin, AvailableContentHeight, RemainingSpace, RowX,
-// MaxVisibleRows, ContentCenter, RowHeight, GlyphAdvance).
+// MaxVisibleRows, ContentCenter — each called with a bridge-derived
+// layout.Metrics, which itself must derive identically from identical hints).
 
 func TestProperty9_Determinism(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
@@ -485,6 +481,9 @@ func TestProperty9_Determinism(t *testing.T) {
 		lb1 := layout.NewLayoutBridge(hints, cfg)
 		lb2 := layout.NewLayoutBridge(hints, cfg)
 
+		// Metrics derived identically from the shared hints.
+		m := layout.NewMetrics(glyphAdvanceOrDefault(hints.GlyphAdvance), rowHeightOrDefault(hints.RowHeight), "")
+
 		// Generate random row indices, offsets, and char offsets for method calls
 		rowIndex := rapid.IntRange(-50, 100).Draw(t, "rowIndex")
 		offset := rapid.IntRange(-200, 200).Draw(t, "offset")
@@ -492,21 +491,21 @@ func TestProperty9_Determinism(t *testing.T) {
 		itemCount := rapid.IntRange(-50, 100).Draw(t, "itemCount")
 
 		// Verify RowY determinism
-		if lb1.RowY(rowIndex, offset) != lb2.RowY(rowIndex, offset) {
+		if lb1.RowY(rowIndex, offset, m) != lb2.RowY(rowIndex, offset, m) {
 			t.Fatalf("RowY(%d, %d) not deterministic: lb1=%d, lb2=%d",
-				rowIndex, offset, lb1.RowY(rowIndex, offset), lb2.RowY(rowIndex, offset))
+				rowIndex, offset, lb1.RowY(rowIndex, offset, m), lb2.RowY(rowIndex, offset, m))
 		}
 
 		// Verify RowBottomY determinism
-		if lb1.RowBottomY(rowIndex) != lb2.RowBottomY(rowIndex) {
+		if lb1.RowBottomY(rowIndex, m) != lb2.RowBottomY(rowIndex, m) {
 			t.Fatalf("RowBottomY(%d) not deterministic: lb1=%d, lb2=%d",
-				rowIndex, lb1.RowBottomY(rowIndex), lb2.RowBottomY(rowIndex))
+				rowIndex, lb1.RowBottomY(rowIndex, m), lb2.RowBottomY(rowIndex, m))
 		}
 
 		// Verify ItemsBottomY determinism
-		if lb1.ItemsBottomY(itemCount) != lb2.ItemsBottomY(itemCount) {
+		if lb1.ItemsBottomY(itemCount, m) != lb2.ItemsBottomY(itemCount, m) {
 			t.Fatalf("ItemsBottomY(%d) not deterministic: lb1=%d, lb2=%d",
-				itemCount, lb1.ItemsBottomY(itemCount), lb2.ItemsBottomY(itemCount))
+				itemCount, lb1.ItemsBottomY(itemCount, m), lb2.ItemsBottomY(itemCount, m))
 		}
 
 		// Verify ContentOrigin determinism
@@ -524,21 +523,21 @@ func TestProperty9_Determinism(t *testing.T) {
 		}
 
 		// Verify RemainingSpace determinism
-		if lb1.RemainingSpace(rowIndex) != lb2.RemainingSpace(rowIndex) {
+		if lb1.RemainingSpace(rowIndex, m) != lb2.RemainingSpace(rowIndex, m) {
 			t.Fatalf("RemainingSpace(%d) not deterministic: lb1=%d, lb2=%d",
-				rowIndex, lb1.RemainingSpace(rowIndex), lb2.RemainingSpace(rowIndex))
+				rowIndex, lb1.RemainingSpace(rowIndex, m), lb2.RemainingSpace(rowIndex, m))
 		}
 
 		// Verify RowX determinism
-		if lb1.RowX(charOffset) != lb2.RowX(charOffset) {
+		if lb1.RowX(charOffset, m) != lb2.RowX(charOffset, m) {
 			t.Fatalf("RowX(%d) not deterministic: lb1=%d, lb2=%d",
-				charOffset, lb1.RowX(charOffset), lb2.RowX(charOffset))
+				charOffset, lb1.RowX(charOffset, m), lb2.RowX(charOffset, m))
 		}
 
 		// Verify MaxVisibleRows determinism
-		if lb1.MaxVisibleRows() != lb2.MaxVisibleRows() {
+		if lb1.MaxVisibleRows(m) != lb2.MaxVisibleRows(m) {
 			t.Fatalf("MaxVisibleRows() not deterministic: lb1=%d, lb2=%d",
-				lb1.MaxVisibleRows(), lb2.MaxVisibleRows())
+				lb1.MaxVisibleRows(m), lb2.MaxVisibleRows(m))
 		}
 
 		// Verify ContentCenter determinism
@@ -549,25 +548,32 @@ func TestProperty9_Determinism(t *testing.T) {
 				cx1, cy1, cx2, cy2)
 		}
 
-		// Verify RowHeight determinism
-		if lb1.RowHeight() != lb2.RowHeight() {
-			t.Fatalf("RowHeight() not deterministic: lb1=%d, lb2=%d",
-				lb1.RowHeight(), lb2.RowHeight())
+		// Verify RowHeight determinism: the calculator no longer carries a row
+		// height, so metrics derived twice from identical hints must agree.
+		m1 := layout.NewMetrics(glyphAdvanceOrDefault(hints.GlyphAdvance), rowHeightOrDefault(hints.RowHeight), "")
+		m2 := layout.NewMetrics(glyphAdvanceOrDefault(hints.GlyphAdvance), rowHeightOrDefault(hints.RowHeight), "")
+		if m1.RowHeight() != m2.RowHeight() {
+			t.Fatalf("RowHeight() not deterministic: m1=%d, m2=%d",
+				m1.RowHeight(), m2.RowHeight())
 		}
 
 		// Verify GlyphAdvance determinism
-		if lb1.GlyphAdvance() != lb2.GlyphAdvance() {
-			t.Fatalf("GlyphAdvance() not deterministic: lb1=%d, lb2=%d",
-				lb1.GlyphAdvance(), lb2.GlyphAdvance())
+		if m1.Advance() != m2.Advance() {
+			t.Fatalf("GlyphAdvance() not deterministic: m1=%d, m2=%d",
+				m1.Advance(), m2.Advance())
 		}
 	})
 }
 
-// For any valid LayoutBridge, any integer charCount, and any integer glyphAdvance parameter:
-// - When charCount <= 0, both TextPixelWidth(charCount) and TextPixelWidthWith(charCount, glyphAdvance) return 0.
-// - When charCount > 0 and glyphAdvance <= 0, TextPixelWidthWith falls back to the bridge's GlyphAdvance() and returns GlyphAdvance() × charCount.
-// - When charCount > 0 and glyphAdvance > 0, TextPixelWidthWith returns glyphAdvance × charCount.
-// - TextPixelWidth(charCount) equals TextPixelWidthWith(charCount, GlyphAdvance()) for all inputs.
+// For any valid LayoutBridge, any integer charCount, and any integer advance
+// supplied through a layout.Metrics:
+// - When charCount <= 0, TextPixelWidth(charCount, m) returns 0 for any Metrics.
+// - When charCount > 0 and advance <= 0, TextPixelWidth multiplies straight
+//   through (advance × charCount); there is NO fallback to a default advance.
+//   (The old TextPixelWidthWith fallback-to-GlyphAdvance no longer exists now
+//   that the calculator carries no default metric, so a zero advance yields 0.)
+// - When charCount > 0 and advance > 0, TextPixelWidth returns advance × charCount.
+// - TextPixelWidth with the bridge-derived Metrics equals advance × charCount.
 
 func TestExtProperty1_TextPixelWidth(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
@@ -593,19 +599,28 @@ func TestExtProperty1_TextPixelWidth(t *testing.T) {
 
 		lb := layout.NewLayoutBridge(hints, cfg)
 
+		// The "bridge metric" of the old API is now an explicit Metrics derived
+		// from the hints with the same defaults the calculator used to apply.
+		bridgeAdv := glyphAdvanceOrDefault(hints.GlyphAdvance)
+		bridgeM := layout.NewMetrics(bridgeAdv, rowHeightOrDefault(hints.RowHeight), "")
+
 		// Generate random charCount and explicit glyph advance
 		charCount := rapid.IntRange(-50, 200).Draw(t, "charCount")
 		explicitGlyphAdvance := rapid.IntRange(-10, 30).Draw(t, "explicitGlyphAdvance")
 
-		// Property: When charCount <= 0, both TextPixelWidth and TextPixelWidthWith return 0
+		// The old TextPixelWidthWith(charCount, adv) maps to TextPixelWidth with a
+		// Metrics carrying that advance (row height is irrelevant here).
+		explicitM := layout.NewMetrics(explicitGlyphAdvance, 1, "")
+
+		// Property: When charCount <= 0, TextPixelWidth returns 0 for any metrics.
 		if charCount <= 0 {
-			got := lb.TextPixelWidth(charCount)
+			got := lb.TextPixelWidth(charCount, bridgeM)
 			if got != 0 {
 				t.Fatalf("TextPixelWidth(%d) = %d, want 0 (charCount <= 0)", charCount, got)
 			}
-			gotWith := lb.TextPixelWidthWith(charCount, explicitGlyphAdvance)
+			gotWith := lb.TextPixelWidth(charCount, explicitM)
 			if gotWith != 0 {
-				t.Fatalf("TextPixelWidthWith(%d, %d) = %d, want 0 (charCount <= 0)",
+				t.Fatalf("TextPixelWidth(%d, advance=%d) = %d, want 0 (charCount <= 0)",
 					charCount, explicitGlyphAdvance, gotWith)
 			}
 			return
@@ -613,46 +628,54 @@ func TestExtProperty1_TextPixelWidth(t *testing.T) {
 
 		// charCount > 0 from here
 
-		// Property: When glyphAdvance <= 0, TextPixelWidthWith falls back to bridge's GlyphAdvance()
+		// Property (CHANGED): an unusable (advance <= 0) Metrics no longer falls
+		// back to a default advance; TextPixelWidth returns 0 for it. This replaces
+		// the old TextPixelWidthWith fallback-to-GlyphAdvance behavior, which no
+		// longer exists now that the calculator carries no default metric.
 		if explicitGlyphAdvance <= 0 {
-			gotWith := lb.TextPixelWidthWith(charCount, explicitGlyphAdvance)
-			expected := lb.GlyphAdvance() * charCount
-			if gotWith != expected {
-				t.Fatalf("TextPixelWidthWith(%d, %d) = %d, want %d (fallback to GlyphAdvance()=%d)",
-					charCount, explicitGlyphAdvance, gotWith, expected, lb.GlyphAdvance())
-			}
-		}
-
-		// Property: When charCount > 0 and glyphAdvance > 0, TextPixelWidthWith returns glyphAdvance × charCount
-		if explicitGlyphAdvance > 0 {
-			gotWith := lb.TextPixelWidthWith(charCount, explicitGlyphAdvance)
+			gotWith := lb.TextPixelWidth(charCount, explicitM)
+			// The method multiplies straight through: advance * charCount. With a
+			// zero advance this is 0 (the new "no default" behavior); with a
+			// negative advance it is a negative product.
 			expected := explicitGlyphAdvance * charCount
 			if gotWith != expected {
-				t.Fatalf("TextPixelWidthWith(%d, %d) = %d, want %d",
+				t.Fatalf("TextPixelWidth(%d, advance=%d) = %d, want %d (unusable Metrics multiplies through, no fallback)",
 					charCount, explicitGlyphAdvance, gotWith, expected)
 			}
 		}
 
-		// Property: TextPixelWidth(charCount) equals TextPixelWidthWith(charCount, GlyphAdvance())
-		got := lb.TextPixelWidth(charCount)
-		gotWith := lb.TextPixelWidthWith(charCount, lb.GlyphAdvance())
-		if got != gotWith {
-			t.Fatalf("TextPixelWidth(%d) = %d != TextPixelWidthWith(%d, %d) = %d",
-				charCount, got, charCount, lb.GlyphAdvance(), gotWith)
+		// Property: When charCount > 0 and glyphAdvance > 0, TextPixelWidth returns glyphAdvance × charCount
+		if explicitGlyphAdvance > 0 {
+			gotWith := lb.TextPixelWidth(charCount, explicitM)
+			expected := explicitGlyphAdvance * charCount
+			if gotWith != expected {
+				t.Fatalf("TextPixelWidth(%d, advance=%d) = %d, want %d",
+					charCount, explicitGlyphAdvance, gotWith, expected)
+			}
 		}
 
-		// Also verify TextPixelWidth uses the bridge's configured advance
-		expectedWidth := lb.GlyphAdvance() * charCount
+		// Property: TextPixelWidth with the bridge metric equals advance×charCount.
+		got := lb.TextPixelWidth(charCount, bridgeM)
+		gotWith := lb.TextPixelWidth(charCount, layout.NewMetrics(bridgeAdv, 1, ""))
+		if got != gotWith {
+			t.Fatalf("TextPixelWidth(%d, bridgeAdv) = %d != TextPixelWidth(%d, advance=%d) = %d",
+				charCount, got, charCount, bridgeAdv, gotWith)
+		}
+
+		// Also verify TextPixelWidth uses the supplied advance
+		expectedWidth := bridgeAdv * charCount
 		if got != expectedWidth {
-			t.Fatalf("TextPixelWidth(%d) = %d, want GlyphAdvance()×charCount = %d×%d = %d",
-				charCount, got, lb.GlyphAdvance(), charCount, expectedWidth)
+			t.Fatalf("TextPixelWidth(%d) = %d, want Advance×charCount = %d×%d = %d",
+				charCount, got, bridgeAdv, charCount, expectedWidth)
 		}
 	})
 }
 
-// For any valid LayoutBridge, any integer charCount, and any integer glyphAdvance parameter:
-// - CenterX(charCount) equals max(0, (AvailableContentWidth() - TextPixelWidth(charCount)) / 2) using integer division.
-// - CenterXWith(charCount, glyphAdvance) equals max(0, (AvailableContentWidth() - TextPixelWidthWith(charCount, glyphAdvance)) / 2).
+// For any valid LayoutBridge, any integer charCount, and any advance supplied
+// through a layout.Metrics:
+// - CenterX(charCount, m) equals max(0, (AvailableContentWidth() - TextPixelWidth(charCount, m)) / 2) using integer division.
+// - This holds whether m is the bridge-derived Metrics or one carrying an
+//   explicit advance (replacing the removed CenterXWith).
 // - When charCount <= 0, text pixel width is 0, so result is AvailableContentWidth() / 2.
 
 func TestExtProperty2_CenterX(t *testing.T) {
@@ -679,45 +702,52 @@ func TestExtProperty2_CenterX(t *testing.T) {
 
 		lb := layout.NewLayoutBridge(hints, cfg)
 
+		// The "bridge metric" derived from hints with the calculator's old defaults.
+		bridgeM := layout.NewMetrics(glyphAdvanceOrDefault(hints.GlyphAdvance), rowHeightOrDefault(hints.RowHeight), "")
+
 		// Generate random charCount and explicit glyph advance
 		charCount := rapid.IntRange(-50, 200).Draw(t, "charCount")
 		explicitGlyphAdvance := rapid.IntRange(-10, 30).Draw(t, "explicitGlyphAdvance")
 
+		// The old CenterXWith(charCount, adv) maps to CenterX with a Metrics
+		// carrying that advance (row height irrelevant to CenterX).
+		explicitM := layout.NewMetrics(explicitGlyphAdvance, 1, "")
+
 		acw := lb.AvailableContentWidth()
 
-		// Property: CenterX(charCount) == max(0, (ACW - TextPixelWidth(charCount)) / 2)
+		// Property: CenterX(charCount, m) == max(0, (ACW - TextPixelWidth(charCount, m)) / 2)
 		{
-			got := lb.CenterX(charCount)
-			textWidth := lb.TextPixelWidth(charCount)
+			got := lb.CenterX(charCount, bridgeM)
+			textWidth := lb.TextPixelWidth(charCount, bridgeM)
 			expected := (acw - textWidth) / 2
 			if expected < 0 {
 				expected = 0
 			}
-			if got != expected {
+			if int(got) != expected {
 				t.Fatalf("CenterX(%d) = %d, want max(0, (ACW=%d - TextPixelWidth=%d) / 2) = %d",
 					charCount, got, acw, textWidth, expected)
 			}
 		}
 
-		// Property: CenterXWith(charCount, glyphAdvance) == max(0, (ACW - TextPixelWidthWith(charCount, glyphAdvance)) / 2)
+		// Property: CenterX(charCount, explicitM) == max(0, (ACW - TextPixelWidth(charCount, explicitM)) / 2)
 		{
-			got := lb.CenterXWith(charCount, explicitGlyphAdvance)
-			textWidth := lb.TextPixelWidthWith(charCount, explicitGlyphAdvance)
+			got := lb.CenterX(charCount, explicitM)
+			textWidth := lb.TextPixelWidth(charCount, explicitM)
 			expected := (acw - textWidth) / 2
 			if expected < 0 {
 				expected = 0
 			}
-			if got != expected {
-				t.Fatalf("CenterXWith(%d, %d) = %d, want max(0, (ACW=%d - TextPixelWidthWith=%d) / 2) = %d",
+			if int(got) != expected {
+				t.Fatalf("CenterX(%d, advance=%d) = %d, want max(0, (ACW=%d - TextPixelWidth=%d) / 2) = %d",
 					charCount, explicitGlyphAdvance, got, acw, textWidth, expected)
 			}
 		}
 
 		// Property: When charCount <= 0, result is ACW / 2
 		if charCount <= 0 {
-			got := lb.CenterX(charCount)
+			got := lb.CenterX(charCount, bridgeM)
 			expected := acw / 2
-			if got != expected {
+			if int(got) != expected {
 				t.Fatalf("CenterX(%d) = %d, want ACW/2 = %d/2 = %d (charCount <= 0)",
 					charCount, got, acw, expected)
 			}
@@ -771,13 +801,14 @@ func TestExtProperty4_AvailableContentWidth(t *testing.T) {
 		// Also verify consistency: AvailableContentWidth() is what CenterX uses internally
 		// This verifies Requirement 4.2: same value used by horizontal centering
 		charCount := rapid.IntRange(1, 50).Draw(t, "charCountForConsistency")
-		centerX := lb.CenterX(charCount)
-		textWidth := lb.TextPixelWidth(charCount)
+		m := layout.NewMetrics(glyphAdvanceOrDefault(hints.GlyphAdvance), rowHeightOrDefault(hints.RowHeight), "")
+		centerX := lb.CenterX(charCount, m)
+		textWidth := lb.TextPixelWidth(charCount, m)
 		expectedCenter := (got - textWidth) / 2
 		if expectedCenter < 0 {
 			expectedCenter = 0
 		}
-		if centerX != expectedCenter {
+		if int(centerX) != expectedCenter {
 			t.Fatalf("CenterX(%d) = %d inconsistent with AvailableContentWidth() = %d: "+
 				"expected max(0, (%d - %d) / 2) = %d",
 				charCount, centerX, got, got, textWidth, expectedCenter)
@@ -852,7 +883,7 @@ func TestExtProperty3_CenterBlockY(t *testing.T) {
 			expected = 0
 		}
 
-		if got != expected {
+		if int(got) != expected {
 			t.Fatalf("CenterBlockY(%v, %d) = %d, want max(0, (ACH=%d - blockH=%d) / 2) = %d",
 				rowHeights, spacing, got, ach, blockHeight, expected)
 		}
@@ -1073,9 +1104,12 @@ func TestExtProperty7_TopRightAnchorX(t *testing.T) {
 	})
 }
 
-// For any valid LayoutBridge, any integers rowIndex, charOffset, rowHeight, and optionally glyphAdvance:
+// For any valid LayoutBridge, any integers rowIndex, charOffset, rowHeight, and
+// any advance supplied through a layout.Metrics:
 // - Row index and character offset are clamped to 0 when negative.
-// - effectiveGlyphAdvance: the explicit param when > 0, else bridge's GlyphAdvance().
+// - effectiveGlyphAdvance: the Metrics advance, used directly with NO fallback
+//   (the old InlineWidgetBoundsWith fell back to the bridge's GlyphAdvance when
+//   the advance was <= 0; that default no longer exists).
 // - Min.X = ContentOrigin().X + max(0, charOffset) × effectiveGlyphAdvance
 // - Min.Y = ContentOrigin().Y + max(0, rowIndex) × rowHeight
 // - Max.X = ContentOrigin().X + AvailableContentWidth()
@@ -1106,23 +1140,30 @@ func TestExtProperty8_InlineWidgetBounds(t *testing.T) {
 
 		lb := layout.NewLayoutBridge(hints, cfg)
 
+		// The "bridge metric" derived from hints with the calculator's old defaults.
+		bridgeM := layout.NewMetrics(glyphAdvanceOrDefault(hints.GlyphAdvance), rowHeightOrDefault(hints.RowHeight), "")
+
 		// Generate random parameters for InlineWidgetBounds
 		rowIndex := rapid.IntRange(-20, 50).Draw(t, "rowIndex")
 		charOffset := rapid.IntRange(-20, 100).Draw(t, "charOffset")
 		rowHeight := rapid.IntRange(0, 40).Draw(t, "rowHeight")
 		explicitGlyphAdvance := rapid.IntRange(-10, 30).Draw(t, "explicitGlyphAdvance")
 
-		// Test InlineWidgetBoundsWith (the parameterized form)
-		got := lb.InlineWidgetBoundsWith(rowIndex, charOffset, rowHeight, explicitGlyphAdvance)
+		// The old InlineWidgetBoundsWith(..., adv) maps to InlineWidgetBounds with a
+		// Metrics carrying that advance. Its row height is irrelevant to the bounds
+		// math (the rowHeight argument drives vertical geometry), so use 1.
+		explicitM := layout.NewMetrics(explicitGlyphAdvance, 1, "")
+
+		got := lb.InlineWidgetBounds(rowIndex, charOffset, rowHeight, explicitM)
 
 		originX, originY := lb.ContentOrigin()
 		acw := lb.AvailableContentWidth()
 
-		// Compute effective glyph advance
+		// Effective glyph advance (CHANGED): the method now uses the Metrics advance
+		// directly with no fallback. The old form fell back to the bridge's
+		// GlyphAdvance when the explicit advance was <= 0; that default no longer
+		// exists, so a <= 0 advance is used straight through.
 		effectiveGA := explicitGlyphAdvance
-		if effectiveGA <= 0 {
-			effectiveGA = lb.GlyphAdvance()
-		}
 
 		// Clamp rowIndex and charOffset
 		clampedRowIndex := rowIndex
@@ -1144,7 +1185,7 @@ func TestExtProperty8_InlineWidgetBounds(t *testing.T) {
 			// When Min.X > Max.X, rectangle should be empty
 			expectedRect := image.Rectangle{}
 			if got != expectedRect {
-				t.Fatalf("InlineWidgetBoundsWith(%d, %d, %d, %d) = %v, want empty rect %v "+
+				t.Fatalf("InlineWidgetBounds(%d, %d, %d, advance=%d) = %v, want empty rect %v "+
 					"(Min.X=%d > Max.X=%d)",
 					rowIndex, charOffset, rowHeight, explicitGlyphAdvance, got, expectedRect,
 					expectedMinX, expectedMaxX)
@@ -1155,28 +1196,31 @@ func TestExtProperty8_InlineWidgetBounds(t *testing.T) {
 				Max: image.Point{X: expectedMaxX, Y: expectedMaxY},
 			}
 			if got != expectedRect {
-				t.Fatalf("InlineWidgetBoundsWith(%d, %d, %d, %d) = %v, want %v "+
+				t.Fatalf("InlineWidgetBounds(%d, %d, %d, advance=%d) = %v, want %v "+
 					"(originX=%d, originY=%d, ACW=%d, effectiveGA=%d)",
 					rowIndex, charOffset, rowHeight, explicitGlyphAdvance, got, expectedRect,
 					originX, originY, acw, effectiveGA)
 			}
 		}
 
-		// Also verify InlineWidgetBounds (non-parameterized) uses bridge's GlyphAdvance
-		gotSimple := lb.InlineWidgetBounds(rowIndex, charOffset, rowHeight)
-		gotWithBridgeGA := lb.InlineWidgetBoundsWith(rowIndex, charOffset, rowHeight, 0)
+		// Also verify InlineWidgetBounds with the bridge metric matches an
+		// independently derived Metrics carrying the same advance.
+		gotSimple := lb.InlineWidgetBounds(rowIndex, charOffset, rowHeight, bridgeM)
+		gotWithBridgeGA := lb.InlineWidgetBounds(rowIndex, charOffset, rowHeight,
+			layout.NewMetrics(bridgeM.Advance(), 1, ""))
 		if gotSimple != gotWithBridgeGA {
-			t.Fatalf("InlineWidgetBounds(%d, %d, %d) = %v != InlineWidgetBoundsWith(%d, %d, %d, 0) = %v",
+			t.Fatalf("InlineWidgetBounds(%d, %d, %d, bridgeM) = %v != InlineWidgetBounds(%d, %d, %d, advance=%d) = %v",
 				rowIndex, charOffset, rowHeight, gotSimple,
-				rowIndex, charOffset, rowHeight, gotWithBridgeGA)
+				rowIndex, charOffset, rowHeight, bridgeM.Advance(), gotWithBridgeGA)
 		}
 	})
 }
 
 // For any TextHints and BridgeConfig, constructing two LayoutBridge values from identical
 // inputs produces identical results from ALL new methods when called with identical arguments:
-// TextPixelWidth, TextPixelWidthWith, CenterX, CenterXWith, AvailableContentWidth,
-// CenterBlockY, FitRows, BottomAnchorY, TopRightAnchorX, InlineWidgetBounds, InlineWidgetBoundsWith.
+// TextPixelWidth, CenterX, AvailableContentWidth, CenterBlockY, FitRows,
+// BottomAnchorY, TopRightAnchorX, InlineWidgetBounds (each exercised with both a
+// bridge-derived and an explicit-advance layout.Metrics).
 
 func TestExtProperty9_Determinism(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
@@ -1206,9 +1250,14 @@ func TestExtProperty9_Determinism(t *testing.T) {
 		lb1 := layout.NewLayoutBridge(hints, cfg)
 		lb2 := layout.NewLayoutBridge(hints, cfg)
 
+		// Metrics derived from the shared hints, plus an explicit-advance Metrics
+		// standing in for the old *With parameter.
+		m := layout.NewMetrics(glyphAdvanceOrDefault(hints.GlyphAdvance), rowHeightOrDefault(hints.RowHeight), "")
+
 		// Generate test parameters
 		charCount := rapid.IntRange(-50, 200).Draw(t, "charCount")
 		explicitGlyphAdvance := rapid.IntRange(-10, 30).Draw(t, "explicitGlyphAdvance")
+		explicitM := layout.NewMetrics(explicitGlyphAdvance, 1, "")
 		spacing := rapid.IntRange(-10, 30).Draw(t, "spacing")
 		elementHeight := rapid.IntRange(-10, 300).Draw(t, "elementHeight")
 		elementWidth := rapid.IntRange(-10, 300).Draw(t, "elementWidth")
@@ -1223,32 +1272,32 @@ func TestExtProperty9_Determinism(t *testing.T) {
 			rowHeights[i] = rapid.IntRange(5, 30).Draw(t, "rowH")
 		}
 
-		// Verify TextPixelWidth determinism
-		if lb1.TextPixelWidth(charCount) != lb2.TextPixelWidth(charCount) {
+		// Verify TextPixelWidth determinism (bridge metric)
+		if lb1.TextPixelWidth(charCount, m) != lb2.TextPixelWidth(charCount, m) {
 			t.Fatalf("TextPixelWidth(%d) not deterministic: lb1=%d, lb2=%d",
-				charCount, lb1.TextPixelWidth(charCount), lb2.TextPixelWidth(charCount))
+				charCount, lb1.TextPixelWidth(charCount, m), lb2.TextPixelWidth(charCount, m))
 		}
 
-		// Verify TextPixelWidthWith determinism
-		if lb1.TextPixelWidthWith(charCount, explicitGlyphAdvance) != lb2.TextPixelWidthWith(charCount, explicitGlyphAdvance) {
-			t.Fatalf("TextPixelWidthWith(%d, %d) not deterministic: lb1=%d, lb2=%d",
+		// Verify TextPixelWidth determinism (explicit advance)
+		if lb1.TextPixelWidth(charCount, explicitM) != lb2.TextPixelWidth(charCount, explicitM) {
+			t.Fatalf("TextPixelWidth(%d, advance=%d) not deterministic: lb1=%d, lb2=%d",
 				charCount, explicitGlyphAdvance,
-				lb1.TextPixelWidthWith(charCount, explicitGlyphAdvance),
-				lb2.TextPixelWidthWith(charCount, explicitGlyphAdvance))
+				lb1.TextPixelWidth(charCount, explicitM),
+				lb2.TextPixelWidth(charCount, explicitM))
 		}
 
-		// Verify CenterX determinism
-		if lb1.CenterX(charCount) != lb2.CenterX(charCount) {
+		// Verify CenterX determinism (bridge metric)
+		if lb1.CenterX(charCount, m) != lb2.CenterX(charCount, m) {
 			t.Fatalf("CenterX(%d) not deterministic: lb1=%d, lb2=%d",
-				charCount, lb1.CenterX(charCount), lb2.CenterX(charCount))
+				charCount, lb1.CenterX(charCount, m), lb2.CenterX(charCount, m))
 		}
 
-		// Verify CenterXWith determinism
-		if lb1.CenterXWith(charCount, explicitGlyphAdvance) != lb2.CenterXWith(charCount, explicitGlyphAdvance) {
-			t.Fatalf("CenterXWith(%d, %d) not deterministic: lb1=%d, lb2=%d",
+		// Verify CenterX determinism (explicit advance)
+		if lb1.CenterX(charCount, explicitM) != lb2.CenterX(charCount, explicitM) {
+			t.Fatalf("CenterX(%d, advance=%d) not deterministic: lb1=%d, lb2=%d",
 				charCount, explicitGlyphAdvance,
-				lb1.CenterXWith(charCount, explicitGlyphAdvance),
-				lb2.CenterXWith(charCount, explicitGlyphAdvance))
+				lb1.CenterX(charCount, explicitM),
+				lb2.CenterX(charCount, explicitM))
 		}
 
 		// Verify AvailableContentWidth determinism
@@ -1285,19 +1334,19 @@ func TestExtProperty9_Determinism(t *testing.T) {
 				elementWidth, lb1.TopRightAnchorX(elementWidth), lb2.TopRightAnchorX(elementWidth))
 		}
 
-		// Verify InlineWidgetBounds determinism
-		r1 := lb1.InlineWidgetBounds(rowIndex, charOffset, rh)
-		r2 := lb2.InlineWidgetBounds(rowIndex, charOffset, rh)
+		// Verify InlineWidgetBounds determinism (bridge metric)
+		r1 := lb1.InlineWidgetBounds(rowIndex, charOffset, rh, m)
+		r2 := lb2.InlineWidgetBounds(rowIndex, charOffset, rh, m)
 		if r1 != r2 {
 			t.Fatalf("InlineWidgetBounds(%d, %d, %d) not deterministic: lb1=%v, lb2=%v",
 				rowIndex, charOffset, rh, r1, r2)
 		}
 
-		// Verify InlineWidgetBoundsWith determinism
-		r1w := lb1.InlineWidgetBoundsWith(rowIndex, charOffset, rh, explicitGlyphAdvance)
-		r2w := lb2.InlineWidgetBoundsWith(rowIndex, charOffset, rh, explicitGlyphAdvance)
+		// Verify InlineWidgetBounds determinism (explicit advance)
+		r1w := lb1.InlineWidgetBounds(rowIndex, charOffset, rh, explicitM)
+		r2w := lb2.InlineWidgetBounds(rowIndex, charOffset, rh, explicitM)
 		if r1w != r2w {
-			t.Fatalf("InlineWidgetBoundsWith(%d, %d, %d, %d) not deterministic: lb1=%v, lb2=%v",
+			t.Fatalf("InlineWidgetBounds(%d, %d, %d, advance=%d) not deterministic: lb1=%v, lb2=%v",
 				rowIndex, charOffset, rh, explicitGlyphAdvance, r1w, r2w)
 		}
 	})
@@ -1338,9 +1387,10 @@ func TestBackwardCompatibility_PaddedStyle(t *testing.T) {
 	}
 
 	// RowY(n, 0) == 12 + n*10 for n=0..4
+	m := layout.NewMetrics(6, 10, "")
 	for n := 0; n < 5; n++ {
 		expected := 12 + n*10
-		if got := lb.RowY(n, 0); got != expected {
+		if got := lb.RowY(n, 0, m); got != expected {
 			t.Fatalf("RowY(%d, 0) = %d, want %d", n, got, expected)
 		}
 	}
@@ -1368,9 +1418,10 @@ func TestBackwardCompatibility_NoPaddingStyle(t *testing.T) {
 	}
 
 	// RowY(n, 0) == n*10 for n=0..4
+	m := layout.NewMetrics(6, 10, "")
 	for n := 0; n < 5; n++ {
 		expected := n * 10
-		if got := lb.RowY(n, 0); got != expected {
+		if got := lb.RowY(n, 0, m); got != expected {
 			t.Fatalf("RowY(%d, 0) = %d, want %d", n, got, expected)
 		}
 	}
@@ -1398,9 +1449,10 @@ func TestBackwardCompatibility_SerialWithTitleStyle(t *testing.T) {
 	}
 
 	// RowY(n, 0) == 0 + n*10 for n=0..4
+	m := layout.NewMetrics(6, 10, "")
 	for n := 0; n < 5; n++ {
 		expected := n * 10
-		if got := lb.RowY(n, 0); got != expected {
+		if got := lb.RowY(n, 0, m); got != expected {
 			t.Fatalf("RowY(%d, 0) = %d, want %d", n, got, expected)
 		}
 	}
@@ -1432,9 +1484,10 @@ func TestBackwardCompatibility_PaddedWithTitle(t *testing.T) {
 	}
 
 	// RowY(n, 0) == 12 + n*10 for n=0..4
+	m := layout.NewMetrics(6, 10, "")
 	for n := 0; n < 5; n++ {
 		expected := 12 + n*10
-		if got := lb.RowY(n, 0); got != expected {
+		if got := lb.RowY(n, 0, m); got != expected {
 			t.Fatalf("RowY(%d, 0) = %d, want %d", n, got, expected)
 		}
 	}
@@ -1505,8 +1558,9 @@ func TestRendererPaddingProperty11_CenterXMidpointAccuracy(t *testing.T) {
 
 		// Generate char counts that produce text widths both less than and greater than ACW
 		charCount := rapid.IntRange(1, 100).Draw(t, "charCount")
-		textPixelWidth := lb.TextPixelWidth(charCount)
-		centerX := lb.CenterX(charCount)
+		m := layout.NewMetrics(glyphAdvanceOrDefault(hints.GlyphAdvance), rowHeightOrDefault(hints.RowHeight), "")
+		textPixelWidth := lb.TextPixelWidth(charCount, m)
+		centerX := lb.CenterX(charCount, m)
 
 		if textPixelWidth >= acw {
 			// When text pixel width exceeds AvailableContentWidth, CenterX SHALL return 0
@@ -1517,7 +1571,7 @@ func TestRendererPaddingProperty11_CenterXMidpointAccuracy(t *testing.T) {
 		} else {
 			// When text pixel width < ACW, verify midpoint accuracy:
 			// offset + textPixelWidth/2 should be within 1px of ACW/2
-			textMidpoint := centerX + textPixelWidth/2
+			textMidpoint := int(centerX) + textPixelWidth/2
 			areaMidpoint := acw / 2
 
 			diff := textMidpoint - areaMidpoint
@@ -1534,4 +1588,25 @@ func TestRendererPaddingProperty11_CenterXMidpointAccuracy(t *testing.T) {
 			}
 		}
 	})
+}
+
+// glyphAdvanceOrDefault replicates the advance the LayoutCalculator used to
+// derive internally: the hint's GlyphAdvance when positive, otherwise the
+// package default textlayout.GlyphAdvance. Tests build a layout.Metrics from
+// this so their arithmetic matches the pre-migration oracle exactly.
+func glyphAdvanceOrDefault(hintAdvance int) int {
+	if hintAdvance > 0 {
+		return hintAdvance
+	}
+	return textlayout.GlyphAdvance
+}
+
+// rowHeightOrDefault replicates the row height the LayoutCalculator used to
+// derive internally: the hint's RowHeight when positive, otherwise the package
+// default textlayout.RowHeight.
+func rowHeightOrDefault(hintRowHeight int) int {
+	if hintRowHeight > 0 {
+		return hintRowHeight
+	}
+	return textlayout.RowHeight
 }

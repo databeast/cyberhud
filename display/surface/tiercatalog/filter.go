@@ -3,7 +3,7 @@ package tiercatalog
 import (
 	"fmt"
 
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 )
 
 // buildCandidatePool computes the advance budget, wraps all registered fonts

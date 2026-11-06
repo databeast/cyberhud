@@ -2,7 +2,6 @@ package led
 
 import (
 	"math"
-	"time"
 )
 
 // resolveBrightness converts the Config's Brightness and State fields into a
@@ -124,19 +123,4 @@ func resolveAnimation(cfg Config, baseBrightness float64) float64 {
 	}
 
 	return baseBrightness
-}
-
-// defaultAnimationPeriod returns the default period for each animation type.
-// This is used during validation when Period is not explicitly set.
-func defaultAnimationPeriod(animType Animation) time.Duration {
-	switch animType {
-	case Pulse:
-		return 1000 * time.Millisecond
-	case Blink:
-		return 500 * time.Millisecond
-	case Fade:
-		return 2000 * time.Millisecond
-	default:
-		return 0
-	}
 }

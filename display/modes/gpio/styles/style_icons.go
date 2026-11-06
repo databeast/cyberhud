@@ -9,5 +9,4 @@ import "github.com/databeast/cyberhud/display/style"
 var IconsStyle = def{
 	name: "icons",
 	reqs: style.SurfaceRequirements{MinWidth: 64, MinHeight: 16, PreferredWidth: 0, PreferredHeight: 0, Capability: style.ColorSlow},
-	p:    Params{Layout: layoutIcons},
 }

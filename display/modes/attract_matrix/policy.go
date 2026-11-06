@@ -47,10 +47,6 @@ func normalizePolicy(p source.Policy) source.Policy {
 	return source.NormalizePolicy(p)
 }
 
-func policyFingerprint(p source.Policy) string {
-	return source.PolicyFingerprint(p)
-}
-
 // matrixSnapshotter implements catalog.PolicySnapshotter for the attract_matrix mode.
 type matrixSnapshotter struct{}
 
@@ -67,69 +63,33 @@ func (matrixSnapshotter) RestorePolicy(data map[string]interface{}) error {
 	p := DefaultPolicy()
 
 	if v, ok := data["min_speed"]; ok {
-		if f, ok := toFloat64(v); ok {
+		if f, ok := cmdutil.ToFloat64(v); ok {
 			p.MinSpeed = f
 		}
 	}
 	if v, ok := data["max_speed"]; ok {
-		if f, ok := toFloat64(v); ok {
+		if f, ok := cmdutil.ToFloat64(v); ok {
 			p.MaxSpeed = f
 		}
 	}
 	if v, ok := data["trail_length"]; ok {
-		if n, ok := toInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.TrailLength = n
 		}
 	}
 	if v, ok := data["density"]; ok {
-		if f, ok := toFloat64(v); ok {
+		if f, ok := cmdutil.ToFloat64(v); ok {
 			p.Density = f
 		}
 	}
 	if v, ok := data["show_background"]; ok {
-		if b, ok := toBool(v); ok {
+		if b, ok := cmdutil.ToBool(v); ok {
 			p.ShowBackground = b
 		}
 	}
 
 	SetPolicy(p)
 	return nil
-}
-
-// toFloat64 extracts a float64 from an interface value, handling both
-// float64 (native JSON number) and int/int64 conversions.
-func toFloat64(v interface{}) (float64, bool) {
-	switch n := v.(type) {
-	case float64:
-		return n, true
-	case int:
-		return float64(n), true
-	case int64:
-		return float64(n), true
-	default:
-		return 0, false
-	}
-}
-
-// toInt extracts an int from an interface value, handling both float64
-// (JSON numbers decode as float64) and direct int types.
-func toInt(v interface{}) (int, bool) {
-	switch n := v.(type) {
-	case float64:
-		return int(n), true
-	case int:
-		return n, true
-	case int64:
-		return int(n), true
-	default:
-		return 0, false
-	}
-}
-
-// toBool extracts a bool from an interface value.
-func toBool(v interface{}) (bool, bool) {
-	b, ok := v.(bool)
-	return b, ok
 }
 
 func init() {
@@ -145,20 +105,6 @@ func floatPositiveValidator() cmdutil.KeyValidator {
 		}
 		if f <= 0 {
 			return "must be > 0"
-		}
-		return ""
-	}
-}
-
-// floatRangeValidator returns a KeyValidator that accepts float values in [min, max].
-func floatRangeValidator(min, max float64) cmdutil.KeyValidator {
-	return func(value string) string {
-		f, err := strconv.ParseFloat(strings.TrimSpace(value), 64)
-		if err != nil {
-			return "must be a number"
-		}
-		if f < min || f > max {
-			return fmt.Sprintf("must be in [%.1f, %.1f]", min, max)
 		}
 		return ""
 	}

@@ -19,6 +19,19 @@ import (
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 )
 
+// TTYX and TTYY are pixel coordinates measured within the TTY text-block's own
+// frame — the laid-out, centered, padding-inset block of text rows a style hands
+// the renderer. They are NOT panel-absolute (world) pixels: the block is a
+// subregion floating inside the region, so a TTY coordinate only becomes a world
+// pixel after its origin offset is added.
+//
+// World-relative pixels stay plain int / image.Point. Object-relative (TTY) pixels
+// are these distinct types so a TTY value cannot be silently assigned into a
+// world-space field (e.g. widgets.Sprite.Position) — that assignment is the
+// recurring footgun. Cross the boundary deliberately via LayoutCalculator.TTYToPixel.
+type TTYX int
+type TTYY int
+
 // BridgeConfig holds the inset configuration
 // needed to construct a LayoutCalculator.
 type BridgeConfig struct {
@@ -28,11 +41,50 @@ type BridgeConfig struct {
 // LayoutCalculator encapsulates all layout geometry derived from TextHints and
 // BridgeConfig. It is an immutable value type: all fields are set at construction
 // and never mutated.
+// Metrics is the glyph advance and row height of a SPECIFIC resolved font,
+// bound together so a measuring call cannot silently use metrics from a
+// different font than the renderer will draw with.
+//
+// The fields are unexported and there is no bare-int path into them: the only
+// way to obtain a usable Metrics is MetricsFrom (from the tiercatalog.Entry the
+// renderer resolves the same tier to) or DefaultMetrics (the deliberate,
+// greppable "I am drawing in the region default face" deviation). A style that
+// measures with ctx.Entry(tier).Metrics() and emits that same tier is therefore
+// guaranteed that the advance it centred with is the advance drawn — the
+// measure-with-one-font-draw-with-another bug class becomes unrepresentable.
+//
+// The zero Metrics is unusable (advance/rowHeight 0); measuring methods treat it
+// as "no font" and return zero rather than falling back to a hidden default.
+type Metrics struct {
+	advance   int
+	rowHeight int
+	fontID    string // the face these metrics belong to; for diagnostics
+}
+
+// Advance returns the glyph advance in pixels.
+func (m Metrics) Advance() int { return m.advance }
+
+// RowHeight returns the row height in pixels.
+func (m Metrics) RowHeight() int { return m.rowHeight }
+
+// FontID returns the identifier of the face these metrics describe.
+func (m Metrics) FontID() string { return m.fontID }
+
+// Usable reports whether these metrics carry positive advance and row height.
+func (m Metrics) Usable() bool { return m.advance > 0 && m.rowHeight > 0 }
+
+// NewMetrics builds a Metrics from raw values. It is the low-level constructor
+// used by the catalog/context bridges (MetricsFrom, DefaultMetrics); styles
+// should obtain Metrics through StyleContext, not call this directly. Kept
+// exported because the tiercatalog→layout binding lives in the style package,
+// which cannot reach into layout's unexported fields.
+func NewMetrics(advance, rowHeight int, fontID string) Metrics {
+	return Metrics{advance: advance, rowHeight: rowHeight, fontID: fontID}
+}
+
 type LayoutCalculator struct {
 	contentOriginX         int
 	contentOriginY         int
-	rowHeight              int
-	glyphAdvance           int
 	pixelWidth             int
 	pixelHeight            int
 	availableContentHeight int
@@ -51,50 +103,42 @@ func (lb LayoutCalculator) AvailableContentWidth() int {
 	return lb.availableContentWidth
 }
 
-// RowY returns the Y pixel coordinate where text row n begins, plus an
-// optional vertical pixel offset. Negative row indices are clamped to zero.
-// The result is not clamped to the panel height.
-func (lb LayoutCalculator) RowY(n, offsetPx int) int {
+// RowY returns the Y pixel coordinate where text row n begins, plus an optional
+// vertical pixel offset, for rows of the given font's height. Negative row
+// indices are clamped to zero. The result is not clamped to the panel height.
+func (lb LayoutCalculator) RowY(n, offsetPx int, m Metrics) int {
 	if n < 0 {
 		n = 0
 	}
-	return lb.contentOriginY + n*lb.rowHeight + offsetPx
+	return lb.contentOriginY + n*m.rowHeight + offsetPx
 }
 
-// RowHeight returns the effective row height in pixels.
-func (lb LayoutCalculator) RowHeight() int {
-	return lb.rowHeight
-}
-
-// GlyphAdvance returns the effective glyph advance in pixels.
-func (lb LayoutCalculator) GlyphAdvance() int {
-	return lb.glyphAdvance
-}
-
-func (lb LayoutCalculator) MaxChars() int {
-	if lb.glyphAdvance > 0 {
-		return lb.AvailableContentWidth() / lb.GlyphAdvance()
+// MaxChars returns how many glyphs of the given font fit across the content
+// width. Returns 0 for an unusable Metrics.
+func (lb LayoutCalculator) MaxChars(m Metrics) int {
+	if m.advance > 0 {
+		return lb.availableContentWidth / m.advance
 	}
 	return 0
 }
 
-// RowBottomY returns the Y pixel coordinate of the bottom edge of text row n.
-// Negative row indices are clamped to zero.
-func (lb LayoutCalculator) RowBottomY(n int) int {
+// RowBottomY returns the Y pixel coordinate of the bottom edge of text row n for
+// rows of the given font's height. Negative row indices are clamped to zero.
+func (lb LayoutCalculator) RowBottomY(n int, m Metrics) int {
 	if n < 0 {
 		n = 0
 	}
-	return lb.contentOriginY + (n+1)*lb.rowHeight
+	return lb.contentOriginY + (n+1)*m.rowHeight
 }
 
-// RowX returns the X pixel coordinate for a given character offset within a
-// text row. The base is always contentOriginX (the padding inset). Negative
-// char offsets are treated as zero. The result is not clamped to the panel width.
-func (lb LayoutCalculator) RowX(charOffset int) int {
+// RowX returns the X pixel coordinate for a given character offset within a text
+// row, for the given font. The base is always contentOriginX (the padding
+// inset). Negative char offsets are treated as zero. Not clamped to panel width.
+func (lb LayoutCalculator) RowX(charOffset int, m Metrics) int {
 	if charOffset < 0 {
 		charOffset = 0
 	}
-	return lb.contentOriginX + charOffset*lb.glyphAdvance
+	return lb.contentOriginX + charOffset*m.advance
 }
 
 // ContentOrigin returns the (X, Y) pixel coordinates of the content area's
@@ -120,88 +164,66 @@ func (lb LayoutCalculator) ContentCenter() (int, int) {
 	return centerX, centerY
 }
 
-// RemainingSpace returns how many vertical pixels remain after n text rows
-// have been allocated. Negative n is treated as zero. The result is never
-// negative.
-func (lb LayoutCalculator) RemainingSpace(n int) int {
+// RemainingSpace returns how many vertical pixels remain after n text rows of
+// the given font have been allocated. Negative n is treated as zero. The result
+// is never negative.
+func (lb LayoutCalculator) RemainingSpace(n int, m Metrics) int {
 	if n < 0 {
 		n = 0
 	}
-	if lb.rowHeight == 0 {
+	if m.rowHeight == 0 {
 		return 0
 	}
-	remaining := lb.availableContentHeight - n*lb.rowHeight
+	remaining := lb.availableContentHeight - n*m.rowHeight
 	if remaining < 0 {
 		return 0
 	}
 	return remaining
 }
 
-// MaxVisibleRows returns the number of text rows that fit in the available
-// content area. Returns zero if row height is zero or there is no available
-// content height.
-func (lb LayoutCalculator) MaxVisibleRows() int {
-	if lb.rowHeight == 0 || lb.availableContentHeight == 0 {
+// MaxVisibleRows returns the number of text rows of the given font that fit in
+// the available content area. Returns zero for an unusable Metrics or no height.
+func (lb LayoutCalculator) MaxVisibleRows(m Metrics) int {
+	if m.rowHeight == 0 || lb.availableContentHeight == 0 {
 		return 0
 	}
-	return lb.availableContentHeight / lb.rowHeight
+	return lb.availableContentHeight / m.rowHeight
 }
 
 // ItemsBottomY returns the Y pixel coordinate immediately below the last of
-// itemCount text rows. Negative item counts are treated as zero.
-func (lb LayoutCalculator) ItemsBottomY(itemCount int) int {
+// itemCount text rows of the given font. Negative item counts are treated as zero.
+func (lb LayoutCalculator) ItemsBottomY(itemCount int, m Metrics) int {
 	if itemCount < 0 {
 		itemCount = 0
 	}
-	return lb.contentOriginY + itemCount*lb.rowHeight
+	return lb.contentOriginY + itemCount*m.rowHeight
 }
 
-// TextPixelWidth returns GlyphAdvance × charCount using the bridge's configured advance.
-// Returns 0 when charCount <= 0.
-func (lb LayoutCalculator) TextPixelWidth(charCount int) int {
+// TextPixelWidth returns the pixel width of charCount glyphs of the given font.
+// Returns 0 when charCount <= 0 or the Metrics is unusable.
+func (lb LayoutCalculator) TextPixelWidth(charCount int, m Metrics) int {
 	if charCount <= 0 {
 		return 0
 	}
-	return lb.glyphAdvance * charCount
+	return m.advance * charCount
 }
 
-// TextPixelWidthWith returns glyphAdvance × charCount using the provided advance.
-// Falls back to the bridge's configured advance when glyphAdvance <= 0.
-// Returns 0 when charCount <= 0.
-func (lb LayoutCalculator) TextPixelWidthWith(charCount, glyphAdvance int) int {
-	if charCount <= 0 {
-		return 0
-	}
-	if glyphAdvance <= 0 {
-		glyphAdvance = lb.glyphAdvance
-	}
-	return glyphAdvance * charCount
-}
-
-// CenterX returns the horizontal offset to center text of charCount characters.
-// Result is max(0, (AvailableContentWidth - TextPixelWidth(charCount)) / 2).
-func (lb LayoutCalculator) CenterX(charCount int) int {
-	offset := (lb.availableContentWidth - lb.TextPixelWidth(charCount)) / 2
+// CenterX returns the horizontal offset to center charCount glyphs of the given
+// font within the content width. Result is max(0, (ACW - advance*charCount)/2).
+// Because m comes only from the font the renderer draws with, the centring is
+// guaranteed to match the drawn text.
+func (lb LayoutCalculator) CenterX(charCount int, m Metrics) TTYX {
+	offset := (lb.availableContentWidth - lb.TextPixelWidth(charCount, m)) / 2
 	if offset < 0 {
 		return 0
 	}
-	return offset
-}
-
-// CenterXWith returns the horizontal centering offset using an explicit glyph advance.
-// Falls back to bridge's configured advance when glyphAdvance <= 0.
-func (lb LayoutCalculator) CenterXWith(charCount, glyphAdvance int) int {
-	offset := (lb.availableContentWidth - lb.TextPixelWidthWith(charCount, glyphAdvance)) / 2
-	if offset < 0 {
-		return 0
-	}
-	return offset
+	return TTYX(offset)
 }
 
 // CenterBlockY returns the vertical offset to center a content block defined by
 // rowHeights and inter-row spacing within the available content height.
 // Returns 0 for empty slices or when the block exceeds available height.
-func (lb LayoutCalculator) CenterBlockY(rowHeights []int, spacing int) int {
+func (lb LayoutCalculator) CenterBlockY(rowHeights []int, spacing int) TTYY {
 	if len(rowHeights) == 0 {
 		return 0
 	}
@@ -219,7 +241,7 @@ func (lb LayoutCalculator) CenterBlockY(rowHeights []int, spacing int) int {
 	if offset < 0 {
 		return 0
 	}
-	return offset
+	return TTYY(offset)
 }
 
 // FitRows determines how many rows fit, their spacing, and the vertical centering
@@ -335,19 +357,11 @@ func NewLayoutBridge(hints textlayout.TextHints, cfg BridgeConfig) LayoutCalcula
 		pixelHeight: hints.PixelHeight,
 	}
 
-	// Derive rowHeight.
-	if hints.RowHeight > 0 {
-		lb.rowHeight = hints.RowHeight
-	} else {
-		lb.rowHeight = textlayout.RowHeight // 10
-	}
-
-	// Derive glyphAdvance.
-	if hints.GlyphAdvance > 0 {
-		lb.glyphAdvance = hints.GlyphAdvance
-	} else {
-		lb.glyphAdvance = textlayout.GlyphAdvance // 6
-	}
+	// The calculator no longer holds a glyph advance or row height. Text
+	// measurement requires a layout.Metrics (from the font the renderer will
+	// draw with); the calculator provides only pixel geometry (content area,
+	// padding origin) that is font-independent. This is deliberate: a baked-in
+	// default advance was the frictionless path to measuring with the wrong font.
 
 	// Clamp PaddingPct to [0, 50].
 	paddingPct := cfg.PaddingPct
@@ -381,31 +395,10 @@ func NewLayoutBridge(hints textlayout.TextHints, cfg BridgeConfig) LayoutCalcula
 	return lb
 }
 
-// deriveBarHeight computes the pixel height of a title or hint bar based on
-// visibility, the panel's pixel height (which determines the base size), and
-// the glyph height (which may override the base when glyphs are tall).
-func deriveBarHeight(show bool, glyphHeight, pixelHeight int) int {
-	if !show {
-		return 0
-	}
-	base := 20
-	if pixelHeight < 80 {
-		base = 10
-	}
-	if glyphHeight > 0 {
-		floor := glyphHeight + 4
-		if floor > base {
-			return floor
-		}
-	}
-	return base
-}
-
 // RowInput describes a single text row's geometry for multi-tier layout computation.
 type RowInput struct {
-	TextLen      int // Number of characters in the row.
-	GlyphAdvance int // Glyph advance for this row's font tier; ≤0 uses bridge default.
-	RowHeight    int // Row height for this row's font tier; ≤0 uses bridge default.
+	TextLen int     // Number of characters in the row.
+	Font    Metrics // The font this row is measured and drawn with. Must be usable.
 }
 
 // RowsResult holds the computed layout geometry for a set of tiered rows.
@@ -416,10 +409,10 @@ type RowInput struct {
 // computed from these exact values — see the VisibleCount doc below for the
 // concrete failure that motivated carrying the full result.
 type RowsResult struct {
-	Offsets    []int // Per-row horizontal centering offsets.
-	RowHeights []int // Per-row pixel heights (normalized; never ≤0).
-	OffsetY    int   // Vertical centering offset from FitRows.
-	Spacing    int   // Inter-row spacing from FitRows.
+	Offsets    []TTYX // Per-row horizontal centering offsets (TTY-block frame).
+	RowHeights []int  // Per-row pixel heights (normalized; never ≤0). A magnitude, not a coordinate.
+	OffsetY    TTYY   // Vertical centering offset from FitRows (TTY-block frame).
+	Spacing    int    // Inter-row spacing from FitRows (a gap, frame-agnostic).
 
 	// VisibleCount is how many rows actually fit the region, as decided by
 	// [LayoutCalculator.FitRows]. It may be fewer than len(Offsets): FitRows drops
@@ -444,22 +437,15 @@ type RowsResult struct {
 // zero/negative glyph advance and row height values to the bridge defaults,
 // centers each row individually, and delegates vertical fitting to FitRows.
 func (lb LayoutCalculator) LayoutRows(rows []RowInput) RowsResult {
-	offsets := make([]int, len(rows))
+	offsets := make([]TTYX, len(rows))
 	rowHeights := make([]int, len(rows))
 
 	for i, r := range rows {
-		ga := r.GlyphAdvance
-		if ga <= 0 {
-			ga = lb.glyphAdvance
-		}
+		ga := r.Font.advance
 		if ga <= 0 {
 			ga = 1
 		}
-
-		rh := r.RowHeight
-		if rh <= 0 {
-			rh = lb.rowHeight
-		}
+		rh := r.Font.rowHeight
 		if rh <= 0 {
 			rh = 1
 		}
@@ -468,35 +454,39 @@ func (lb LayoutCalculator) LayoutRows(rows []RowInput) RowsResult {
 		if offset < 0 {
 			offset = 0
 		}
-		offsets[i] = offset
+		offsets[i] = TTYX(offset)
 		rowHeights[i] = rh
 	}
 
 	spacing, offsetY, visibleCount := lb.FitRows(rowHeights)
+
 	return RowsResult{
 		Offsets:      offsets,
 		RowHeights:   rowHeights,
-		OffsetY:      offsetY,
+		OffsetY:      TTYY(offsetY),
 		Spacing:      spacing,
 		VisibleCount: visibleCount,
 	}
 }
 
-// InlineWidgetBounds returns the pixel rectangle for a widget placed to the right
-// of text at the given character offset on a specific row. Uses the bridge's
-// configured glyph advance for the Min.X computation.
-// Negative rowIndex and charOffset are clamped to 0.
-// When Min.X > Max.X, returns an empty rectangle.
-func (lb LayoutCalculator) InlineWidgetBounds(rowIndex, charOffset, rowHeight int) image.Rectangle {
-	return lb.InlineWidgetBoundsWith(rowIndex, charOffset, rowHeight, 0)
+// TTYToPixel projects a coordinate from the TTY text-block frame into
+// panel-absolute (world) pixel space by adding the block's content origin
+// (padding inset). This is the sanctioned, deliberate crossing from
+// object-relative to world-relative coordinates — e.g. to pin a widgets.Sprite
+// beside a specific text row. The returned image.Point is world-space and may be
+// assigned directly to Sprite.Position.
+func (lb LayoutCalculator) TTYToPixel(x TTYX, y TTYY) image.Point {
+	return image.Point{
+		X: lb.contentOriginX + int(x),
+		Y: lb.contentOriginY + int(y),
+	}
 }
 
-// InlineWidgetBoundsWith returns the pixel rectangle for a widget placed to the
-// right of text at the given character offset on a specific row, using an explicit
-// glyph advance. Falls back to the bridge's configured advance when glyphAdvance <= 0.
-// Negative rowIndex and charOffset are clamped to 0.
+// InlineWidgetBounds returns the pixel rectangle for a widget placed to the
+// right of text at the given character offset on a specific row, measured with
+// the row's font m. Negative rowIndex and charOffset are clamped to 0.
 // When Min.X > Max.X, returns an empty rectangle.
-func (lb LayoutCalculator) InlineWidgetBoundsWith(rowIndex, charOffset, rowHeight, glyphAdvance int) image.Rectangle {
+func (lb LayoutCalculator) InlineWidgetBounds(rowIndex, charOffset, rowHeight int, m Metrics) image.Rectangle {
 	if rowIndex < 0 {
 		rowIndex = 0
 	}
@@ -504,12 +494,7 @@ func (lb LayoutCalculator) InlineWidgetBoundsWith(rowIndex, charOffset, rowHeigh
 		charOffset = 0
 	}
 
-	effectiveGlyphAdvance := glyphAdvance
-	if effectiveGlyphAdvance <= 0 {
-		effectiveGlyphAdvance = lb.glyphAdvance
-	}
-
-	minX := lb.contentOriginX + charOffset*effectiveGlyphAdvance
+	minX := lb.contentOriginX + charOffset*m.advance
 	minY := lb.contentOriginY + rowIndex*rowHeight
 	maxX := lb.contentOriginX + lb.availableContentWidth
 	maxY := minY + rowHeight

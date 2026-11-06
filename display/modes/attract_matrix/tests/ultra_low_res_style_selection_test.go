@@ -24,12 +24,12 @@ type styleCase struct {
 
 func TestAttractModes_16x8StyleResolution(t *testing.T) {
 	runUltraLowResStyleResolution(t, 16, 8, []styleCase{
-		{name: "particles mono", modeID: "attract_particles", capability: textlayout.CapMonoFast, wantStyle: "mono-16x8"},
+		{name: "particles mono", modeID: "attract_particles", capability: textlayout.CapMonoFast, wantStyle: "mono-fast-16x8"},
 		{name: "particles grayscale", modeID: "attract_particles", capability: textlayout.CapGrayscaleFast, wantStyle: "grayscale-fast-16x8"},
-		{name: "particles color", modeID: "attract_particles", capability: textlayout.CapColorFast, wantStyle: "color-16x8"},
-		{name: "plasma mono", modeID: "attract_plasma", capability: textlayout.CapMonoFast, wantStyle: "mono-16x8"},
+		{name: "particles color", modeID: "attract_particles", capability: textlayout.CapColorFast, wantStyle: "color-fast-16x8"},
+		{name: "plasma mono", modeID: "attract_plasma", capability: textlayout.CapMonoFast, wantStyle: "mono-fast-16x8"},
 		{name: "plasma grayscale", modeID: "attract_plasma", capability: textlayout.CapGrayscaleFast, wantStyle: "grayscale-fast-16x8"},
-		{name: "plasma color", modeID: "attract_plasma", capability: textlayout.CapColorFast, wantStyle: "color-16x8"},
+		{name: "plasma color", modeID: "attract_plasma", capability: textlayout.CapColorFast, wantStyle: "color-fast-16x8"},
 		{name: "shapes mono", modeID: "attract_shapes", capability: textlayout.CapMonoFast, wantStyle: "mono-fast-16x8"},
 		{name: "shapes grayscale", modeID: "attract_shapes", capability: textlayout.CapGrayscaleFast, wantStyle: "grayscale-fast-16x8"},
 		{name: "shapes color", modeID: "attract_shapes", capability: textlayout.CapColorFast, wantStyle: "color-fast-16x8"},
@@ -39,23 +39,23 @@ func TestAttractModes_16x8StyleResolution(t *testing.T) {
 		{name: "waveform mono", modeID: "attract_waveform", capability: textlayout.CapMonoFast, wantStyle: "mono-fast-16x8"},
 		{name: "waveform grayscale", modeID: "attract_waveform", capability: textlayout.CapGrayscaleFast, wantStyle: "grayscale-fast-16x8"},
 		{name: "waveform color", modeID: "attract_waveform", capability: textlayout.CapColorFast, wantStyle: "color-fast-16x8"},
-		{name: "matrix mono", modeID: "attract_matrix", capability: textlayout.CapMonoFast, wantStyle: "mono-16x8"},
+		{name: "matrix mono", modeID: "attract_matrix", capability: textlayout.CapMonoFast, wantStyle: "mono-fast-16x8"},
 		{name: "matrix grayscale", modeID: "attract_matrix", capability: textlayout.CapGrayscaleFast, wantStyle: "grayscale-fast-16x8"},
-		{name: "matrix color", modeID: "attract_matrix", capability: textlayout.CapColorFast, wantStyle: "color-16x8"},
-		{name: "geometric mono", modeID: "attract_geometric", capability: textlayout.CapMonoFast, wantStyle: "mono-16x8"},
+		{name: "matrix color", modeID: "attract_matrix", capability: textlayout.CapColorFast, wantStyle: "color-fast-16x8"},
+		{name: "geometric mono", modeID: "attract_geometric", capability: textlayout.CapMonoFast, wantStyle: "mono-fast-16x8"},
 		{name: "geometric grayscale", modeID: "attract_geometric", capability: textlayout.CapGrayscaleFast, wantStyle: "grayscale-fast-16x8"},
-		{name: "geometric color", modeID: "attract_geometric", capability: textlayout.CapColorFast, wantStyle: "color-16x8"},
+		{name: "geometric color", modeID: "attract_geometric", capability: textlayout.CapColorFast, wantStyle: "color-fast-16x8"},
 	})
 }
 
 func TestAttractModes_8x16StyleResolution(t *testing.T) {
 	runUltraLowResStyleResolution(t, 8, 16, []styleCase{
-		{name: "particles mono", modeID: "attract_particles", capability: textlayout.CapMonoFast, wantStyle: "mono-8x16"},
+		{name: "particles mono", modeID: "attract_particles", capability: textlayout.CapMonoFast, wantStyle: "mono-fast-8x16"},
 		{name: "particles grayscale", modeID: "attract_particles", capability: textlayout.CapGrayscaleFast, wantStyle: "grayscale-fast-8x16"},
-		{name: "particles color", modeID: "attract_particles", capability: textlayout.CapColorFast, wantStyle: "color-8x16"},
-		{name: "plasma mono", modeID: "attract_plasma", capability: textlayout.CapMonoFast, wantStyle: "mono-8x16"},
+		{name: "particles color", modeID: "attract_particles", capability: textlayout.CapColorFast, wantStyle: "color-fast-8x16"},
+		{name: "plasma mono", modeID: "attract_plasma", capability: textlayout.CapMonoFast, wantStyle: "mono-fast-8x16"},
 		{name: "plasma grayscale", modeID: "attract_plasma", capability: textlayout.CapGrayscaleFast, wantStyle: "grayscale-fast-8x16"},
-		{name: "plasma color", modeID: "attract_plasma", capability: textlayout.CapColorFast, wantStyle: "color-8x16"},
+		{name: "plasma color", modeID: "attract_plasma", capability: textlayout.CapColorFast, wantStyle: "color-fast-8x16"},
 		{name: "shapes mono", modeID: "attract_shapes", capability: textlayout.CapMonoFast, wantStyle: "mono-fast-8x16"},
 		{name: "shapes grayscale", modeID: "attract_shapes", capability: textlayout.CapGrayscaleFast, wantStyle: "grayscale-fast-8x16"},
 		{name: "shapes color", modeID: "attract_shapes", capability: textlayout.CapColorFast, wantStyle: "color-fast-8x16"},
@@ -65,12 +65,12 @@ func TestAttractModes_8x16StyleResolution(t *testing.T) {
 		{name: "waveform mono", modeID: "attract_waveform", capability: textlayout.CapMonoFast, wantStyle: "mono-fast-8x16"},
 		{name: "waveform grayscale", modeID: "attract_waveform", capability: textlayout.CapGrayscaleFast, wantStyle: "grayscale-fast-8x16"},
 		{name: "waveform color", modeID: "attract_waveform", capability: textlayout.CapColorFast, wantStyle: "color-fast-8x16"},
-		{name: "matrix mono", modeID: "attract_matrix", capability: textlayout.CapMonoFast, wantStyle: "mono-8x16"},
+		{name: "matrix mono", modeID: "attract_matrix", capability: textlayout.CapMonoFast, wantStyle: "mono-fast-8x16"},
 		{name: "matrix grayscale", modeID: "attract_matrix", capability: textlayout.CapGrayscaleFast, wantStyle: "grayscale-fast-8x16"},
-		{name: "matrix color", modeID: "attract_matrix", capability: textlayout.CapColorFast, wantStyle: "color-8x16"},
-		{name: "geometric mono", modeID: "attract_geometric", capability: textlayout.CapMonoFast, wantStyle: "mono-8x16"},
+		{name: "matrix color", modeID: "attract_matrix", capability: textlayout.CapColorFast, wantStyle: "color-fast-8x16"},
+		{name: "geometric mono", modeID: "attract_geometric", capability: textlayout.CapMonoFast, wantStyle: "mono-fast-8x16"},
 		{name: "geometric grayscale", modeID: "attract_geometric", capability: textlayout.CapGrayscaleFast, wantStyle: "grayscale-fast-8x16"},
-		{name: "geometric color", modeID: "attract_geometric", capability: textlayout.CapColorFast, wantStyle: "color-8x16"},
+		{name: "geometric color", modeID: "attract_geometric", capability: textlayout.CapColorFast, wantStyle: "color-fast-8x16"},
 	})
 }
 

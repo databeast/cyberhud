@@ -1,7 +1,9 @@
 package styles
 
-import "github.com/databeast/cyberhud/display/style"
-import "github.com/databeast/cyberhud/display/modes/attract_bokeh/source"
+import (
+	"github.com/databeast/cyberhud/display/modes/attract_bokeh/source"
+	"github.com/databeast/cyberhud/display/style"
+)
 
 // Compile-time interface compliance checks.
 var (

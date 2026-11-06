@@ -12,10 +12,19 @@ override_dh_auto_build:
 	$(MAKE) generate
 	GOOS=linux GOARCH=$(TARGET_GOARCH) go build -trimpath -ldflags="-s -w -X github.com/databeast/cyberhud/display/modes/dashboard.Version=$(VERSION)" -o cyberhudd ./cmd/cyberhudd
 	GOOS=linux GOARCH=$(TARGET_GOARCH) go build -trimpath -ldflags="-s -w" -o cyberhudctl ./cmd/cyberhudctl
+	GOOS=linux GOARCH=$(TARGET_GOARCH) go build -trimpath -ldflags="-s -w" -o cyberhudweb ./cmd/cyberhudweb
 
 override_dh_auto_install:
 	:
 
+# The web control UI is optional and unauthenticated, so it must NOT be enabled
+# or started automatically on install. Ship the unit but leave it inert; an
+# operator opts in with `systemctl enable --now cyberhudweb`. The daemon unit
+# keeps the default dh_installsystemd behaviour (enabled + started).
+override_dh_installsystemd:
+	dh_installsystemd --no-enable --no-start --name=cyberhudweb cyberhudweb.service
+	dh_installsystemd --name=cyberhudd cyberhudd.service
+
 override_dh_clean:
 	dh_clean
-	rm -f cyberhudd cyberhudctl
+	rm -f cyberhudd cyberhudctl cyberhudweb

@@ -4,16 +4,10 @@ import (
 	"github.com/databeast/cyberhud/display/catalog"
 	displaymodes "github.com/databeast/cyberhud/display/modes"
 	"github.com/databeast/cyberhud/display/modes/systemd/source"
+	"github.com/databeast/cyberhud/display/region/modehints"
 	"github.com/databeast/cyberhud/display/style"
-	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 	"github.com/databeast/cyberhud/runtime/action"
 )
-
-// Font configuration for the systemd mode.
-// Previously stored in modeFontConfig["systemd"] = {Family: "spleen", Tier: TierNormal}.
-const systemdFontFamily = "spleen"
-
-var systemdFontTier = tiercatalog.TierNormal
 
 func init() {
 	displaymodes.RegisterFactory("systemd", newInstance)
@@ -32,7 +26,7 @@ func (i *instance) Deactivate()                   {} // systemd has no backgroun
 func (i *instance) ActionHandler() action.Handler { return Handler{} }
 
 func (i *instance) BuildView() style.ViewData {
-	if hints, ok := getPanelHints(); ok {
+	if hints, ok := modehints.Current(); ok {
 		return BuildView(hints)
 	}
 	return style.ViewData{Items: []string{"error"}}
@@ -44,12 +38,13 @@ func (i *instance) RenderCacheKey() uint32 {
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "systemd",
-		Title:   "Systemd Boot",
-		Summary: "Boot progress and target transition diagnostics.",
-		Order:   5,
+		ID:       "systemd",
+		Title:    "Systemd Boot",
+		Category: "System",
+		Summary:  "Boot progress and target transition diagnostics.",
+		Order:    5,
 		Options: []catalog.OptionDefinition{
-			{Key: "style", Type: "string", Summary: "Visual presentation style.", Default: "", Allowed: registeredStyleNames()},
+			{Key: "style", Type: "string", Summary: "Visual presentation style.", Default: "", Allowed: systemdRegistry.RegisteredNames()},
 			{Key: "color_accent", Type: "string", Summary: "Boot progress accent color.", Default: "amber", Allowed: source.AllowedAccents},
 		},
 	})

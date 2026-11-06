@@ -8,7 +8,7 @@ import (
 	"testing"
 	"unsafe"
 
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 	"github.com/databeast/cyberhud/display/widgets"
 	"github.com/databeast/cyberhud/display/widgets/borderframe"
 	"github.com/databeast/cyberhud/display/widgets/led"

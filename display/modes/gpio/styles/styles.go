@@ -11,7 +11,7 @@ import (
 	"github.com/databeast/cyberhud/display/widgets"
 	"github.com/databeast/cyberhud/display/widgets/led"
 	"github.com/databeast/cyberhud/display/widgets/sparkline"
-	gpiomgr "github.com/databeast/cyberhud/hardware/gpio"
+	"github.com/databeast/cyberhud/display/widgets/textlabel"
 )
 
 type GpioSnapshot = source.GpioSnapshot
@@ -62,241 +62,167 @@ func MaxCharsPerRow(hints textlayout.TextHints) int {
 	return hints.PixelWidth / hints.GlyphAdvance
 }
 
-// maxCharsFromBridge computes how many monospace glyphs fit using bridge metrics.
-func maxCharsFromBridge(bridge layout.LayoutCalculator) int {
-	if bridge.GlyphAdvance() <= 0 || bridge.AvailableContentWidth() <= 0 {
-		return 0
-	}
-	return bridge.AvailableContentWidth() / bridge.GlyphAdvance()
-}
-
-// longestItemLen returns the length of the longest string in items.
-// Returns 0 for an empty or nil slice.
-func longestItemLen(items []string) int {
-	maxLen := 0
-	for _, s := range items {
-		if len(s) > maxLen {
-			maxLen = len(s)
-		}
-	}
-	return maxLen
-}
-
-// allEmptyItems returns true if items is nil, empty, or contains only empty strings.
-func allEmptyItems(items []string) bool {
-	if len(items) == 0 {
-		return true
-	}
-	for _, item := range items {
-		if item != "" {
-			return false
-		}
-	}
-	return true
+// maxCharsFromBridge computes how many monospace glyphs of font m fit across the
+// content width.
+func maxCharsFromBridge(bridge layout.LayoutCalculator, m layout.Metrics) int {
+	return bridge.MaxChars(m)
 }
 
 // buildListInternal replicates the list-style rendering logic from BuildView.
+// buildListInternal renders the GPIO LIVE-FUNCTIONS view — the one idea this
+// mode exists to deliver on a headless box's only screen: "what is the header
+// actually doing, right now?"
+//
+// It shows one row per live function (see source.LiveFunctions): standalone
+// driven/read pins individually with their level, each bus (SPI0, I2C1, …)
+// collapsed to a single "up" row, and unconfigured pins absent entirely. The
+// resting state is a calm legible list; because the screen always reflects
+// current truth, a line going dark or an output flipping simply shows — the
+// human's memory supplies the delta, with no animation.
+//
+// It renders ENTIRELY on the pixel (sprite) plane: one indicator dot and one
+// text label per function, positioned by the SAME row arithmetic so they can
+// never desync. ViewData.Items is left empty so the renderer's TTY text flow is
+// never engaged (mixing the two planes is what smeared earlier versions). Rows
+// distribute across the full content height so a tall strip fills top-to-bottom
+// instead of clumping, and text truncates to the width budget so nothing runs
+// off a narrow panel.
 func buildListInternal(snap GpioSnapshot, ctx style.StyleContext) style.ViewData {
 	pol := snap.Policy
-	hints := ctx.Hints()
-	_ = hints
 	bridge := ctx.Layout(0)
 
-	// Use catalog metrics for layout.
+	if bridge.AvailableContentWidth() == 0 || bridge.AvailableContentHeight() == 0 {
+		return style.ViewData{Static: true}
+	}
+
 	entry := ctx.Entry(tiercatalog.TierNormal)
+	face := ctx.Face("spleen", tiercatalog.TierNormal)
 
-	maxRows := bridge.MaxVisibleRows()
-	maxChars := 0
-	if entry.GlyphAdvance > 0 {
-		maxChars = bridge.AvailableContentWidth() / entry.GlyphAdvance
-	}
+	fns := source.LiveFunctions(snap.Pins)
 
-	visiblePins := configuredPins(snap.Pins)
-	if len(visiblePins) == 0 {
-		return style.ViewData{
-			Items:  noConfiguredItems(len(snap.Pins), maxChars),
-			Colors: nil,
-			Static: true,
+	// Idle fallback: nothing on the header is doing anything. A single centered
+	// line via the TTY path (no sprites) — honest and does not engage the
+	// two-plane machinery.
+	if len(fns) == 0 {
+		maxChars := maxCharsFromBridge(bridge, ctx.DefaultMetrics())
+		msg := "GPIO idle"
+		if maxChars > 0 {
+			msg = textlayout.Truncate(msg, maxChars)
 		}
-	}
-	if maxRows > 0 && len(visiblePins) > maxRows {
-		visiblePins = visiblePins[:maxRows]
+		return style.ViewData{Items: []string{msg}, Static: true}
 	}
 
-	items := BuildItemsTruncated(visiblePins, maxChars)
-	colors := buildAccentColors(visiblePins, pol)
+	originX, originY := bridge.ContentOrigin()
+	availW := bridge.AvailableContentWidth()
+	availH := bridge.AvailableContentHeight()
 
-	rowHeight := entry.RowHeight
-	if rowHeight <= 0 {
-		rowHeight = bridge.RowHeight()
-	}
-	glyphWidth := entry.GlyphWidth
-	if glyphWidth <= 0 {
-		glyphWidth = bridge.GlyphAdvance()
-	}
+	// Minimum legible row pitch from the font; grow it to fill the panel when
+	// there are few rows, so a tall strip distributes rows instead of clumping.
 	glyphHeight := entry.GlyphHeight
 	if glyphHeight <= 0 {
-		glyphHeight = bridge.RowHeight()
+		glyphHeight = textlayout.RowHeight
 	}
-	sprites := BuildSpritesFromMetrics(visiblePins, rowHeight, glyphWidth, glyphHeight)
-
-	// TextLabel rendering for list style using tier catalog for face resolution.
-	face := ctx.Face("spleen", tiercatalog.TierNormal)
-	if face != nil {
-		// Build a TextHints-compatible struct for textlabel sprites.
-		textLabelHints := textlayout.TextHints{
-			PixelWidth:   bridge.AvailableContentWidth(),
-			PixelHeight:  bridge.AvailableContentHeight(),
-			GlyphWidth:   entry.GlyphWidth,
-			GlyphHeight:  entry.GlyphHeight,
-			GlyphAdvance: entry.GlyphAdvance,
-			RowHeight:    entry.RowHeight,
-		}
-		textLabelSprites := buildTextLabelSprites(visiblePins, textLabelHints, face, colors)
-		if textLabelSprites != nil {
-			sprites = append(sprites, textLabelSprites...)
-		}
+	minPitch := glyphHeight + 2
+	if minPitch < 8 {
+		minPitch = 8
+	}
+	count := len(fns)
+	rowPitch := availH / count
+	if rowPitch < minPitch {
+		rowPitch = minPitch
 	}
 
-	return style.ViewData{
-		Items:   items,
-		Colors:  colors,
-		Sprites: sprites,
+	// Drop trailing rows that would not fit, so no row is clipped at the bottom.
+	maxRows := availH / rowPitch
+	if maxRows < 1 {
+		maxRows = 1
 	}
-}
-
-// BuildSpritesFromMetrics returns sprites for output-mode pins using provided metrics.
-// This is the bridge-compatible version of BuildSprites.
-func BuildSpritesFromMetrics(pins []gpiomgr.PinState, rowHeight, glyphWidth, glyphHeight int) []widgets.Sprite {
-	diameter := led.DiameterForRow(rowHeight)
-
-	ctx := widgets.SuppressionContext{
-		AvailableWidth:  diameter,
-		AvailableHeight: rowHeight * len(pins),
+	if count > maxRows {
+		fns = fns[:maxRows]
+		count = maxRows
 	}
-	comp := widgets.NewCompositor(ctx)
 
-	for i, p := range pins {
+	// Dot column on the left; text to its right.
+	diameter := led.DiameterForRow(rowPitch)
+	if diameter < 4 {
+		diameter = 4
+	}
+	// Text sits right of the dot column, except on e-ink where the dot is
+	// suppressed and text reclaims the full width from the left margin.
+	isEink := ctx.Cap() == style.MonoSlow
+	textGap := diameter + 4
+	if isEink {
+		textGap = 0
+	}
+	textX := originX + textGap
+	textWidth := availW - textGap
+	glyphAdvance := entry.GlyphAdvance
+	if glyphAdvance <= 0 {
+		glyphAdvance = textlayout.GlyphAdvance
+	}
+	maxChars := 0
+	if glyphAdvance > 0 && textWidth > 0 {
+		maxChars = textWidth / glyphAdvance
+	}
+
+	accent := resolveFGColor(pol.FGColor)
+	dimmed := dimFGColor(pol.FGColor)
+	colorOn := pol.Color
+
+	// On e-ink the indicator dots are dropped (LEDs are not eink-safe): the
+	// text row already carries the full "identity + state" so the dot is
+	// redundant there. SuppressOnEink enforces this via the compositor.
+	suppCtx := widgets.SuppressionContext{IsEink: isEink, AvailableWidth: availW, AvailableHeight: availH}
+	comp := widgets.NewCompositor(suppCtx, widgets.SuppressOnEink())
+
+	for i, fn := range fns {
+		rowY := originY + i*rowPitch
+
+		// A function is "lit" when it is live: a bus is always up, a standalone
+		// pin is lit when HIGH. Lit → accent/On, unlit → dimmed/Off.
+		lit := fn.Kind == source.KindBus || fn.Level
+		fg := dimmed
 		state := led.Off
-		if p.Level {
+		if lit {
+			fg = accent
 			state = led.On
 		}
-		comp.AddIf(p.Mode == gpiomgr.ModeOutput, led.New(led.Config{
+
+		// Indicator dot, vertically centered in the row pitch.
+		dotY := rowY + (rowPitch-diameter)/2
+		if dotY < rowY {
+			dotY = rowY
+		}
+		comp.Add(led.New(led.Config{
 			State:      state,
 			Brightness: -1.0,
 			Diameter:   diameter,
-			Bounds:     image.Rectangle{Min: image.Pt(0, i*rowHeight)},
-			Foreground: ColorHigh,
+			Bounds:     image.Rectangle{Min: image.Pt(originX, dotY)},
+			Foreground: fg,
 		}))
+
+		// Text label on the SAME row arithmetic, truncated to the width budget.
+		if face != nil {
+			label := fn.Row()
+			if maxChars > 0 && len(label) > maxChars {
+				label = label[:maxChars]
+			}
+			labelFG := fg
+			if !colorOn {
+				labelFG = accent // mono panels ignore color; keep bright text
+			}
+			comp.Add(textlabel.New(textlabel.Config{
+				Text:       label,
+				Bounds:     image.Rect(textX, rowY, originX+availW, rowY+rowPitch),
+				Font:       face,
+				Alignment:  textlabel.Left,
+				Foreground: labelFG,
+			}))
+		}
 	}
-	if len(comp.Sprites()) == 0 {
-		return nil
-	}
-	return comp.Sprites()
-}
-
-// buildIconsInternal replicates the icons-style rendering logic from BuildView.
-func buildIconsInternal(snap GpioSnapshot, ctx style.StyleContext) style.ViewData {
-	hints := ctx.Hints()
-	_ = hints
-	bridge := ctx.Layout(0)
-
-	// Use catalog metrics for layout.
-	entry := ctx.Entry(tiercatalog.TierNormal)
-
-	sprites := BuildIconGrid(snap.Pins, bridge.AvailableContentWidth(), bridge.AvailableContentHeight(), entry.GlyphWidth, entry.GlyphHeight)
-	var viewColors = buildAccentColors(snap.Pins, snap.Policy)
 
 	return style.ViewData{
-		Items:   nil,
-		Colors:  viewColors,
-		Sprites: sprites,
+		Sprites: comp.Sprites(),
 		Static:  true,
 	}
-}
-
-// buildDetailInternal replicates the detail-style rendering logic from BuildView.
-func buildDetailInternal(snap GpioSnapshot, ctx style.StyleContext) style.ViewData {
-	pol := snap.Policy
-	hints := ctx.Hints()
-	_ = hints
-	bridge := ctx.Layout(0)
-
-	// Use catalog metrics for layout.
-	entry := ctx.Entry(tiercatalog.TierNormal)
-
-	// Resolve a face for sprite rendering via tier catalog.
-	selectedFont := ctx.Face("spleen", tiercatalog.TierNormal)
-
-	// Build TextHints for BuildDetailView compatibility.
-	detailHints := textlayout.TextHints{
-		PixelWidth:   bridge.AvailableContentWidth(),
-		PixelHeight:  bridge.AvailableContentHeight(),
-		GlyphWidth:   entry.GlyphWidth,
-		GlyphHeight:  entry.GlyphHeight,
-		GlyphAdvance: entry.GlyphAdvance,
-		RowHeight:    entry.RowHeight,
-	}
-
-	sprites := BuildDetailView(snap.Pins, detailHints, pol.PinLabels, selectedFont)
-	var viewColors = buildAccentColors(snap.Pins, pol)
-
-	return style.ViewData{
-		Items:   nil,
-		Colors:  viewColors,
-		Sprites: sprites,
-		Static:  false,
-	}
-}
-
-// buildDashboardInternal replicates the dashboard-style rendering logic from BuildView.
-func buildDashboardInternal(snap GpioSnapshot, ctx style.StyleContext) style.ViewData {
-	hints := ctx.Hints()
-	_ = hints
-	bridge := ctx.Layout(0)
-
-	// Use catalog metrics for layout.
-	entry := ctx.Entry(tiercatalog.TierNormal)
-
-	// Resolve a face for sprite rendering via tier catalog.
-	selectedFont := ctx.Face("spleen", tiercatalog.TierNormal)
-
-	// Build TextHints for BuildDashboardView compatibility.
-	dashHints := textlayout.TextHints{
-		PixelWidth:   bridge.AvailableContentWidth(),
-		PixelHeight:  bridge.AvailableContentHeight(),
-		GlyphWidth:   entry.GlyphWidth,
-		GlyphHeight:  entry.GlyphHeight,
-		GlyphAdvance: entry.GlyphAdvance,
-		RowHeight:    entry.RowHeight,
-	}
-
-	vd := BuildDashboardView(snap.Pins, dashHints, selectedFont)
-	return vd
-}
-
-// buildActivityInternal replicates the activity-style rendering logic from BuildView.
-func buildActivityInternal(snap GpioSnapshot, ctx style.StyleContext) style.ViewData {
-	hints := ctx.Hints()
-	_ = hints
-	bridge := ctx.Layout(0)
-
-	// Use catalog metrics for layout.
-	entry := ctx.Entry(tiercatalog.TierNormal)
-
-	// Resolve a face for sprite rendering via tier catalog.
-	selectedFont := ctx.Face("spleen", tiercatalog.TierNormal)
-
-	// Build TextHints for BuildActivityView compatibility.
-	actHints := textlayout.TextHints{
-		PixelWidth:   bridge.AvailableContentWidth(),
-		PixelHeight:  bridge.AvailableContentHeight(),
-		GlyphWidth:   entry.GlyphWidth,
-		GlyphHeight:  entry.GlyphHeight,
-		GlyphAdvance: entry.GlyphAdvance,
-		RowHeight:    entry.RowHeight,
-	}
-
-	vd := BuildActivityView(snap.Pins, actHints, selectedFont)
-	return vd
 }

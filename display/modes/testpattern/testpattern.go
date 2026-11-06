@@ -39,10 +39,11 @@ var (
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "testpattern",
-		Title:   "Test Pattern",
-		Summary: "Fixed diagnostic pattern for screen validation.",
-		Order:   90,
+		ID:       "testpattern",
+		Title:    "Test Pattern",
+		Category: "Test",
+		Summary:  "Fixed diagnostic pattern for screen validation.",
+		Order:    90,
 	})
 }
 

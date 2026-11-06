@@ -54,13 +54,13 @@ var ColorSlow320x480Style = styleDef{
 }
 
 var ColorLarge480x320Style = styleDef{
-	name: "color-480x320",
+	name: "color-fast-480x320",
 	reqs: style.SurfaceRequirements{MinWidth: 480, MinHeight: 320, Capability: style.ColorFast},
 	p:    Params{Fast: true, Color: true},
 }
 
 var ColorLarge320x480Style = styleDef{
-	name: "color-320x480",
+	name: "color-fast-320x480",
 	reqs: style.SurfaceRequirements{MinWidth: 320, MinHeight: 480, Capability: style.ColorFast},
 	p:    Params{Fast: true, Color: true},
 }

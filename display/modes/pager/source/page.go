@@ -2,8 +2,6 @@ package source
 
 import (
 	"time"
-
-	"github.com/databeast/cyberhud/display/style"
 )
 
 // pagePhase represents the current state of a page transition.
@@ -194,51 +192,24 @@ func padPage(lines []string, visibleRows int) []string {
 	return page
 }
 
-// renderPageView produces a style.ViewData representing the current page state.
-// This is a standalone rendering function that does NOT modify BuildView directly;
-// callers are responsible for wiring it into the instance's BuildView method.
+// PageFrame resolves the display lines for the current page state, truncated to
+// the column budget. It is pure frame resolution: the phase's opacity is carried
+// separately (PageState.FadeAlpha) and applied by the style when it rasterizes
+// the page, so this returns only the text content to show this pass.
 //
-// Parameters:
-//   - ps: the current page state
-//   - bufferSnapshot: current lines from the line buffer
-//   - layout: computed layout information (visible rows, columns, dimensions)
-//
-// During idle phase, it renders the current page at full opacity.
-// During fadeOut, it renders the current page at decreasing opacity.
-// During fadeIn, it renders the new (current) page at increasing opacity.
-func RenderPageView(ps *PageState, bufferSnapshot []string, layout Layout) style.ViewData {
+// In every phase the lines to show are those on currentPage — fade-out shows the
+// outgoing page, fade-in shows the incoming page already promoted to current.
+// Returns nil when the layout has no usable area.
+func PageFrame(ps *PageState, layout Layout) []string {
 	if layout.VisibleRows <= 0 || layout.VisibleColumns <= 0 {
-		return style.ViewData{
-			Items:  []string{},
-			Static: true,
-		}
+		return nil
 	}
 
-	var displayLines []string
-	switch ps.phase {
-	case PhaseIdle:
-		displayLines = ps.currentPage
-	case PhaseFadeOut:
-		// During fade-out, show the current (outgoing) page.
-		displayLines = ps.currentPage
-	case PhaseFadeIn:
-		// During fade-in, show the new (incoming) page (already promoted to currentPage).
-		displayLines = ps.currentPage
-	}
+	display := ps.currentPage
 
-	// Ensure we have exactly visibleRows lines for display.
 	items := make([]string, layout.VisibleRows)
-	for i := 0; i < layout.VisibleRows && i < len(displayLines); i++ {
-		line := displayLines[i]
-		// Truncate to visible columns if needed.
-		if len(line) > layout.VisibleColumns {
-			line = line[:layout.VisibleColumns]
-		}
-		items[i] = line
+	for i := 0; i < layout.VisibleRows && i < len(display); i++ {
+		items[i] = truncateCols(display[i], layout.VisibleColumns)
 	}
-
-	return style.ViewData{
-		Items:  items,
-		Static: ps.phase == PhaseIdle,
-	}
+	return items
 }

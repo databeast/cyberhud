@@ -25,13 +25,14 @@ func init() {
 		Title:      "SH1106",
 		Summary:    "SPI monochrome OLED controller commonly used by 128x64 HAT panels.",
 		Monochrome: true,
+		ColorDepth: driver.DepthMono1,
+		Capability: textlayout.CapMonoFast,
 		OptionDefs: []driver.OptionDefinition{
 			{Key: "width", Type: "int", Summary: "Logical panel width in pixels.", Default: "128"},
 			{Key: "height", Type: "int", Summary: "Logical panel height in pixels.", Default: "64"},
 			{Key: "spi_hz", Type: "frequency", Summary: "SPI bus speed used for the panel transport.", Default: "10MHz"},
 			{Key: "col_offset", Type: "int", Summary: "Column offset applied when addressing SH1106 display RAM.", Default: "2"},
 		},
-		DefaultText: textlayout.DefaultTextHints(image.Rect(0, 0, sh1106Width, sh1106Height)),
 		NewSPI: func(port spi.Port, dc, rst, bl gpio.PinOut, _ gpio.PinIn, cfg driver.DriverConfig) (driver.DrawTarget, error) {
 			return New(port, dc, rst, bl, cfg)
 		},
@@ -112,7 +113,7 @@ func (d *SH1106) DrawImage(src draw.Image) error {
 			for bit := 0; bit < 8; bit++ {
 				y := page*8 + bit
 				r, g, b, _ := src.At(x, y).RGBA()
-				if luminanceOn(r, g, b) {
+				if driver.Luminance(r, g, b) > driver.MonoThreshold {
 					col |= 1 << bit
 				}
 			}
@@ -199,4 +200,4 @@ func (d *SH1106) data(buf []byte) error {
 	return d.c.Tx(buf, nil)
 }
 
-func luminanceOn(r, g, b uint32) bool { return (299*r+587*g+114*b)/1000 > 0x3000 }
+

@@ -45,19 +45,21 @@ func init() {
 		Title:      "EPD 4.26\"",
 		Summary:    "SPI monochrome e-ink controller for Waveshare 4.26-inch 800x480 B/W display.",
 		Monochrome: true,
+		// NOTE: the Waveshare 4.26" panel is 4-level grayscale in hardware, but this
+		// driver's packFrame hard-thresholds to 1 bit (see packFrame). ColorDepth
+		// reflects what the driver actually drives today — mono1 — not the panel's
+		// latent capability. Declaring gray here while rendering 1-bit would make
+		// the panel advertise a luminance range it never produces. Teaching
+		// packFrame to emit 4-level gray is a separate render change; when that
+		// lands, bump ColorDepth to DepthGray and Capability to CapGrayscaleSlow.
+		ColorDepth: driver.DepthMono1,
+		Capability: textlayout.CapMonoSlow,
 		IsEPaper:   true,
 		OptionDefs: []driver.OptionDefinition{
 			{Key: "width", Type: "int", Summary: "Display width in pixels.", Default: "800"},
 			{Key: "height", Type: "int", Summary: "Display height in pixels.", Default: "480"},
 			{Key: "spi_hz", Type: "frequency", Summary: "SPI bus speed.", Default: "4MHz"},
 			{Key: "busy_timeout", Type: "duration", Summary: "Maximum time to wait for refresh.", Default: "30s"},
-		},
-		DefaultText: textlayout.TextHints{
-			PixelWidth: epd4in26Width, PixelHeight: epd4in26Height,
-			SupportsVerticalScroll: false, SupportsHorizontalScroll: false, SupportsAutoScroll: false,
-			PreferEventRefresh:     true,
-			Capability:             textlayout.CapMonoSlow,
-			DefaultTickerDirection: textlayout.TickerDirectionNone, DefaultLineMode: textlayout.LineModeTruncate,
 		},
 		NewSPI: func(port spi.Port, dc, rst, _ gpio.PinOut, busy gpio.PinIn, cfg driver.DriverConfig) (driver.DrawTarget, error) {
 			return New(port, dc, rst, busy, cfg)

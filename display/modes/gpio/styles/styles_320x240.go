@@ -39,13 +39,11 @@ var GrayscaleSlow320x240Style = def{
 var GrayscaleFast320x240Style = def{
 	name: "grayscale-fast-320x240",
 	reqs: style.SurfaceRequirements{MinWidth: 320, MinHeight: 240, Capability: style.GrayscaleFast},
-	p:    Params{Layout: layoutGrayscaleFast},
 }
 
 var GrayscaleFast240x320Style = def{
 	name: "grayscale-fast-240x320",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 320, Capability: style.GrayscaleFast},
-	p:    Params{Layout: layoutGrayscaleFast},
 }
 
 var ColorSlow240x320Style = def{
@@ -59,13 +57,11 @@ var ColorSlow320x240Style = def{
 }
 
 var ColorStyle320x240 = def{
-	name: "color-320x240",
+	name: "color-fast-320x240",
 	reqs: style.SurfaceRequirements{MinWidth: 320, MinHeight: 240, Capability: style.ColorFast},
-	p:    Params{Layout: layoutColorFastRows},
 }
 
 var ColorStyle240x320 = def{
-	name: "color-240x320",
+	name: "color-fast-240x320",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 320, Capability: style.ColorFast},
-	p:    Params{Layout: layoutColorFastRows},
 }

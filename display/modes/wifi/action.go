@@ -1,6 +1,9 @@
 package wifi
 
-import "github.com/databeast/cyberhud/runtime/action"
+import (
+	"github.com/databeast/cyberhud/display/region/modehints"
+	"github.com/databeast/cyberhud/runtime/action"
+)
 
 // Handler implements action.Handler for the WiFi mode.
 //
@@ -34,7 +37,7 @@ func cycleStyle(delta int) action.Result {
 	policyState.Lock()
 	defer policyState.Unlock()
 
-	hints, _ := getPanelHints()
+	hints, _ := modehints.Current()
 	next := wifiRegistry.Cycle(policyState.policy.Style, delta, hints)
 	if next == nil {
 		return action.Result{}

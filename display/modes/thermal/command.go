@@ -8,22 +8,12 @@ import (
 	"github.com/databeast/cyberhud/display/modes/thermal/source"
 )
 
-// fontValidator accepts "auto" or any non-empty trimmed string.
-// Whitespace-only values are rejected.
-func fontValidator(value string) string {
-	v := strings.TrimSpace(value)
-	if v == "" {
-		return "must be \"auto\" or a non-empty font ID"
-	}
-	return ""
-}
-
 // cmdHandler is the declarative CmdHandler for the "thermal" command verb.
 var cmdHandler = &cmdutil.CmdHandler{
 	Verb: "thermal",
 	Keys: []cmdutil.KeyDef{
 		{Name: "style", Validate: cmdutil.AllowedValidator(allowedStyleNames())},
-		{Name: "font", Validate: fontValidator},
+		{Name: "font", Validate: cmdutil.FontValidator()},
 		{Name: "refresh_ms", Validate: cmdutil.IntValidator(500)},
 		{Name: "warn_threshold", Validate: cmdutil.IntValidator(0)},
 		{Name: "crit_threshold", Validate: cmdutil.IntValidator(0)},

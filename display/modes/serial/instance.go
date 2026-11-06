@@ -5,27 +5,17 @@ import (
 	"github.com/databeast/cyberhud/display/modes/serial/source"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
-	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 	"github.com/databeast/cyberhud/runtime/action"
 )
-
-// Font configuration for the serial mode.
-// Previously stored in modeFontConfig["serial"] = {Family: "terminus", Tier: TierNormal}.
-const serialFontFamily = "terminus"
-
-var serialFontTier = tiercatalog.TierNormal
 
 func init() {
 	displaymodes.RegisterFactory("serial", newInstance)
 }
 
 // instance implements displaymodes.ModeInstance for the serial mode.
-// It manages the serial monitor lifecycle via Activate/Deactivate and
-// owns scroll state (cursor, topRow) internally.
+// It manages the serial monitor lifecycle via Activate/Deactivate.
 type instance struct {
-	hints  textlayout.TextHints
-	cursor int
-	topRow int
+	hints textlayout.TextHints
 }
 
 func newInstance() displaymodes.ModeInstance {

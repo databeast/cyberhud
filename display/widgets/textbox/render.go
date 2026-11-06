@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 )
 
 // ellipsis is the Unicode character used as a truncation indicator.

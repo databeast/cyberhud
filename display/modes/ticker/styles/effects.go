@@ -7,6 +7,7 @@ import (
 
 	"github.com/databeast/cyberhud/display/modes/ticker/source"
 	sharedcolor "github.com/databeast/cyberhud/display/style/color"
+	"github.com/databeast/cyberhud/display/style/layout"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/display/widgets"
 	"github.com/databeast/cyberhud/display/widgets/borderframe"
@@ -68,13 +69,13 @@ func buildGlowBackground(width, height int, accent color.RGBA) widgets.Sprite {
 // Each glow sprite is an *image.RGBA rectangle extending at least 1px
 // beyond the text glyph bounds in all directions, filled with the accent
 // color at reduced opacity (alpha ~100).
-func buildGlowSprites(formatted []source.FormattedLine, hints textlayout.TextHints, offsetY int, accent color.RGBA) []widgets.Sprite {
+func buildGlowSprites(formatted []source.FormattedLine, hints textlayout.TextHints, offsetY layout.TTYY, accent color.RGBA) []widgets.Sprite {
 	if len(formatted) == 0 {
 		return nil
 	}
 
 	sprites := make([]widgets.Sprite, 0, len(formatted))
-	currentY := offsetY
+	currentY := int(offsetY) // glow sprites are placed in panel/world pixel space
 
 	// Glow color: accent at reduced alpha for soft glow effect.
 	const glowAlpha = 100

@@ -24,9 +24,9 @@ func buildGrayscaleFast128x128(data source.DashboardContent, pol source.Policy, 
 	}
 
 	// Horizontal centering.
-	offsets := make([]int, len(items))
+	offsets := make([]style.TTYX, len(items))
 	for i, item := range items {
-		offsets[i] = layout.CenterX(len([]rune(item)))
+		offsets[i] = layout.CenterX(len([]rune(item)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
 	// Declare a uniform TierNormal per row. Without this, resolveTierFonts
@@ -45,15 +45,12 @@ func buildMonoStyle128x128(data source.DashboardContent, pol source.Policy, ctx 
 
 	items := []string{data.Hostname, data.Uptime, data.IPAddress}
 
-	maxRows := layout.MaxVisibleRows()
+	maxRows := layout.MaxVisibleRows(ctx.Metrics(tiercatalog.TierNormal))
 	if maxRows > 0 && len(items) > maxRows {
 		items = items[:maxRows]
 	}
 
-	maxChars := 0
-	if layout.GlyphAdvance() > 0 {
-		maxChars = layout.AvailableContentWidth() / layout.GlyphAdvance()
-	}
+	maxChars := layout.MaxChars(ctx.Metrics(tiercatalog.TierNormal))
 	if maxChars > 0 {
 		for i, item := range items {
 			items[i] = textlayout.Truncate(item, maxChars)
@@ -61,9 +58,9 @@ func buildMonoStyle128x128(data source.DashboardContent, pol source.Policy, ctx 
 	}
 
 	// Horizontal centering.
-	offsets := make([]int, len(items))
+	offsets := make([]style.TTYX, len(items))
 	for i, item := range items {
-		offsets[i] = layout.CenterX(len([]rune(item)))
+		offsets[i] = layout.CenterX(len([]rune(item)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
 	return style.ViewData{Items: items, Tiers: uniformTiers(len(items)), LineOffsets: offsets, Static: true}
@@ -78,15 +75,15 @@ func buildMonoStyle32x128(data source.DashboardContent, pol source.Policy, ctx s
 	ip := abbreviate(data.IPAddress)
 	items := []string{h, u, ip}
 
-	maxRows := layout.MaxVisibleRows()
+	maxRows := layout.MaxVisibleRows(ctx.Metrics(tiercatalog.TierNormal))
 	if maxRows > 0 && len(items) > maxRows {
 		items = items[:maxRows]
 	}
 
 	// Horizontal centering.
-	offsets := make([]int, len(items))
+	offsets := make([]style.TTYX, len(items))
 	for i, item := range items {
-		offsets[i] = layout.CenterX(len([]rune(item)))
+		offsets[i] = layout.CenterX(len([]rune(item)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
 	return style.ViewData{Items: items, Tiers: uniformTiers(len(items)), LineOffsets: offsets, Static: true}
@@ -96,12 +93,12 @@ func buildMonoStyle128x32(data source.DashboardContent, pol source.Policy, ctx s
 	layout := ctx.Layout(0)
 	items := []string{data.Hostname, data.Uptime, data.IPAddress}
 
-	maxRows := layout.MaxVisibleRows()
+	maxRows := layout.MaxVisibleRows(ctx.Metrics(tiercatalog.TierNormal))
 	if maxRows > 0 && len(items) > maxRows {
 		items = items[:maxRows]
 	}
 
-	maxChars := layout.MaxChars()
+	maxChars := layout.MaxChars(ctx.Metrics(tiercatalog.TierNormal))
 	if maxChars > 0 {
 		for i, item := range items {
 			items[i] = textlayout.Truncate(item, maxChars)
@@ -109,9 +106,9 @@ func buildMonoStyle128x32(data source.DashboardContent, pol source.Policy, ctx s
 	}
 
 	// Horizontal centering.
-	offsets := make([]int, len(items))
+	offsets := make([]style.TTYX, len(items))
 	for i, item := range items {
-		offsets[i] = layout.CenterX(len([]rune(item)))
+		offsets[i] = layout.CenterX(len([]rune(item)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
 	return style.ViewData{
@@ -126,12 +123,12 @@ func buildMonoStyle64x128(data source.DashboardContent, pol source.Policy, ctx s
 	layout := ctx.Layout(0)
 	items := []string{data.Hostname, data.Uptime, data.IPAddress}
 
-	maxRows := layout.MaxVisibleRows()
+	maxRows := layout.MaxVisibleRows(ctx.Metrics(tiercatalog.TierNormal))
 	if maxRows > 0 && len(items) > maxRows {
 		items = items[:maxRows]
 	}
 
-	maxChars := layout.MaxChars()
+	maxChars := layout.MaxChars(ctx.Metrics(tiercatalog.TierNormal))
 	if maxChars > 0 {
 		for i, item := range items {
 			items[i] = textlayout.Truncate(item, maxChars)
@@ -139,9 +136,9 @@ func buildMonoStyle64x128(data source.DashboardContent, pol source.Policy, ctx s
 	}
 
 	// Horizontal centering.
-	offsets := make([]int, len(items))
+	offsets := make([]style.TTYX, len(items))
 	for i, item := range items {
-		offsets[i] = layout.CenterX(len([]rune(item)))
+		offsets[i] = layout.CenterX(len([]rune(item)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
 	return style.ViewData{Items: items, Tiers: uniformTiers(len(items)), LineOffsets: offsets, Static: true}
@@ -176,7 +173,7 @@ func buildColorStyle160x128(data source.DashboardContent, pol source.Policy, ctx
 		data.Version,
 	}
 
-	maxRows := layout.MaxVisibleRows()
+	maxRows := layout.MaxVisibleRows(ctx.Metrics(tiercatalog.TierNormal))
 	if maxRows <= 0 {
 		return style.ViewData{Items: []string{}, Static: true}
 	}
@@ -195,9 +192,10 @@ func buildColorStyle160x128(data source.DashboardContent, pol source.Policy, ctx
 	// Use FitRows for vertical centering and potential further row reduction.
 	rowHeights := make([]int, len(allItems))
 	for i := range allItems {
-		rowHeights[i] = layout.RowHeight()
+		rowHeights[i] = ctx.Metrics(tiercatalog.TierNormal).RowHeight()
 	}
-	_, offsetY, visibleCount := layout.FitRows(rowHeights)
+	_, offsetYRaw, visibleCount := layout.FitRows(rowHeights)
+	offsetY := style.TTYY(offsetYRaw)
 	if visibleCount < len(allItems) {
 		allItems = allItems[:visibleCount]
 		colors = colors[:visibleCount]
@@ -205,10 +203,7 @@ func buildColorStyle160x128(data source.DashboardContent, pol source.Policy, ctx
 	}
 
 	// Truncate text per row.
-	maxChars := 0
-	if layout.GlyphAdvance() > 0 {
-		maxChars = layout.AvailableContentWidth() / layout.GlyphAdvance()
-	}
+	maxChars := layout.MaxChars(ctx.Metrics(tiercatalog.TierNormal))
 	if maxChars > 0 {
 		for i, item := range allItems {
 			allItems[i] = textlayout.Truncate(item, maxChars)
@@ -216,9 +211,9 @@ func buildColorStyle160x128(data source.DashboardContent, pol source.Policy, ctx
 	}
 
 	// Horizontal centering.
-	offsets := make([]int, len(allItems))
+	offsets := make([]style.TTYX, len(allItems))
 	for i, item := range allItems {
-		offsets[i] = layout.CenterX(len([]rune(item)))
+		offsets[i] = layout.CenterX(len([]rune(item)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
 	return style.ViewData{
@@ -254,7 +249,7 @@ func buildColorStyle160x80(data source.DashboardContent, pol source.Policy, ctx 
 		data.Version,
 	}
 
-	maxRows := layout.MaxVisibleRows()
+	maxRows := layout.MaxVisibleRows(ctx.Metrics(tiercatalog.TierNormal))
 	if maxRows <= 0 {
 		return style.ViewData{Items: []string{}, Static: true}
 	}
@@ -273,9 +268,10 @@ func buildColorStyle160x80(data source.DashboardContent, pol source.Policy, ctx 
 	// Use FitRows for vertical centering and potential further row reduction.
 	rowHeights := make([]int, len(allItems))
 	for i := range allItems {
-		rowHeights[i] = layout.RowHeight()
+		rowHeights[i] = ctx.Metrics(tiercatalog.TierNormal).RowHeight()
 	}
-	_, offsetY, visibleCount := layout.FitRows(rowHeights)
+	_, offsetYRaw, visibleCount := layout.FitRows(rowHeights)
+	offsetY := style.TTYY(offsetYRaw)
 	if visibleCount < len(allItems) {
 		allItems = allItems[:visibleCount]
 		colors = colors[:visibleCount]
@@ -283,7 +279,7 @@ func buildColorStyle160x80(data source.DashboardContent, pol source.Policy, ctx 
 	}
 
 	// Truncate text per row.
-	maxChars := layout.MaxChars()
+	maxChars := layout.MaxChars(ctx.Metrics(tiercatalog.TierNormal))
 	if maxChars > 0 {
 		for i, item := range allItems {
 			allItems[i] = textlayout.Truncate(item, maxChars)
@@ -291,9 +287,9 @@ func buildColorStyle160x80(data source.DashboardContent, pol source.Policy, ctx 
 	}
 
 	// Horizontal centering.
-	offsets := make([]int, len(allItems))
+	offsets := make([]style.TTYX, len(allItems))
 	for i, item := range allItems {
-		offsets[i] = layout.CenterX(len([]rune(item)))
+		offsets[i] = layout.CenterX(len([]rune(item)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
 	return style.ViewData{
@@ -303,50 +299,6 @@ func buildColorStyle160x80(data source.DashboardContent, pol source.Policy, ctx 
 		LineOffsets: offsets,
 		OffsetY:     offsetY,
 		Static:      true,
-	}
-}
-
-func buildEinkStyle200x200(data source.DashboardContent, pol source.Policy, ctx style.StyleContext, d styleDef) style.ViewData {
-	layout := ctx.Layout(0)
-
-	wctx := widgets.SuppressionContext{
-		AvailableWidth:  layout.AvailableContentWidth(),
-		AvailableHeight: layout.AvailableContentHeight(),
-		IsEink:          true,
-	}
-	comp := widgets.NewCompositor(wctx, widgets.SuppressOnEink())
-
-	items := []string{data.Hostname, data.Uptime, data.IPAddress}
-
-	// Truncate to visible rows
-	maxRows := layout.MaxVisibleRows()
-	if maxRows > 0 && len(items) > maxRows {
-		items = items[:maxRows]
-	}
-
-	// Truncate each row
-	maxChars := 0
-	if layout.GlyphAdvance() > 0 {
-		maxChars = layout.AvailableContentWidth() / layout.GlyphAdvance()
-	}
-	if maxChars > 0 {
-		for i, item := range items {
-			items[i] = textlayout.Truncate(item, maxChars)
-		}
-	}
-
-	// Horizontal centering.
-	offsets := make([]int, len(items))
-	for i, item := range items {
-		offsets[i] = layout.CenterX(len([]rune(item)))
-	}
-
-	return style.ViewData{
-		Items:       items,
-		Tiers:       uniformTiers(len(items)),
-		LineOffsets: offsets,
-		Static:      true,
-		Sprites:     comp.Sprites(),
 	}
 }
 
@@ -382,7 +334,7 @@ func buildColorStyle135x240(data source.DashboardContent, pol source.Policy, ctx
 	}
 
 	// Truncate to visible rows.
-	maxRows := layout.MaxVisibleRows()
+	maxRows := layout.MaxVisibleRows(ctx.Metrics(tiercatalog.TierNormal))
 	if maxRows > 0 && len(items) > maxRows {
 		items = items[:maxRows]
 		colors = colors[:maxRows]
@@ -390,10 +342,7 @@ func buildColorStyle135x240(data source.DashboardContent, pol source.Policy, ctx
 	}
 
 	// Truncate each row's text to fit available width.
-	maxChars := 0
-	if layout.GlyphAdvance() > 0 {
-		maxChars = layout.AvailableContentWidth() / layout.GlyphAdvance()
-	}
+	maxChars := layout.MaxChars(ctx.Metrics(tiercatalog.TierNormal))
 	if maxChars > 0 {
 		for i, item := range items {
 			items[i] = textlayout.Truncate(item, maxChars)
@@ -401,9 +350,9 @@ func buildColorStyle135x240(data source.DashboardContent, pol source.Policy, ctx
 	}
 
 	// Horizontal centering.
-	offsets := make([]int, len(items))
+	offsets := make([]style.TTYX, len(items))
 	for i, item := range items {
-		offsets[i] = layout.CenterX(len([]rune(item)))
+		offsets[i] = layout.CenterX(len([]rune(item)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
 	return style.ViewData{Items: items, Colors: colors, Tiers: tiers, LineOffsets: offsets, Static: true}
@@ -461,7 +410,7 @@ func buildColorStyle240x240(data source.DashboardContent, pol source.Policy, ctx
 	}
 
 	// Truncate to visible rows.
-	maxRows := layout.MaxVisibleRows()
+	maxRows := layout.MaxVisibleRows(ctx.Metrics(tiercatalog.TierNormal))
 	if maxRows > 0 && len(items) > maxRows {
 		items = items[:maxRows]
 		colors = colors[:maxRows]
@@ -471,9 +420,10 @@ func buildColorStyle240x240(data source.DashboardContent, pol source.Policy, ctx
 	// Use FitRows for vertical centering and potential further row reduction.
 	rowHeights := make([]int, len(items))
 	for i := range items {
-		rowHeights[i] = layout.RowHeight()
+		rowHeights[i] = ctx.Metrics(tiercatalog.TierNormal).RowHeight()
 	}
-	_, offsetY, visibleCount := layout.FitRows(rowHeights)
+	_, offsetYRaw, visibleCount := layout.FitRows(rowHeights)
+	offsetY := style.TTYY(offsetYRaw)
 	if visibleCount < len(items) {
 		items = items[:visibleCount]
 		colors = colors[:visibleCount]
@@ -481,7 +431,7 @@ func buildColorStyle240x240(data source.DashboardContent, pol source.Policy, ctx
 	}
 
 	// Truncate each row's text to fit available width.
-	maxChars := layout.MaxChars()
+	maxChars := layout.MaxChars(ctx.Metrics(tiercatalog.TierNormal))
 	if maxChars > 0 {
 		for i, item := range items {
 			items[i] = textlayout.Truncate(item, maxChars)
@@ -489,9 +439,9 @@ func buildColorStyle240x240(data source.DashboardContent, pol source.Policy, ctx
 	}
 
 	// Horizontal centering.
-	offsets := make([]int, len(items))
+	offsets := make([]style.TTYX, len(items))
 	for i, item := range items {
-		offsets[i] = layout.CenterX(len([]rune(item)))
+		offsets[i] = layout.CenterX(len([]rune(item)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
 	return style.ViewData{Items: items, Colors: colors, Tiers: tiers, LineOffsets: offsets, OffsetY: offsetY, Static: true}
@@ -529,7 +479,7 @@ func buildColorStyle320x240(data source.DashboardContent, pol source.Policy, ctx
 	}
 
 	// Truncate to visible rows.
-	maxRows := layout.MaxVisibleRows()
+	maxRows := layout.MaxVisibleRows(ctx.Metrics(tiercatalog.TierNormal))
 	if maxRows > 0 && len(items) > maxRows {
 		items = items[:maxRows]
 		colors = colors[:maxRows]
@@ -539,9 +489,10 @@ func buildColorStyle320x240(data source.DashboardContent, pol source.Policy, ctx
 	// Use FitRows for vertical centering and potential further row reduction.
 	rowHeights := make([]int, len(items))
 	for i := range items {
-		rowHeights[i] = layout.RowHeight()
+		rowHeights[i] = ctx.Metrics(tiercatalog.TierNormal).RowHeight()
 	}
-	_, offsetY, visibleCount := layout.FitRows(rowHeights)
+	_, offsetYRaw, visibleCount := layout.FitRows(rowHeights)
+	offsetY := style.TTYY(offsetYRaw)
 	if visibleCount < len(items) {
 		items = items[:visibleCount]
 		colors = colors[:visibleCount]
@@ -549,10 +500,7 @@ func buildColorStyle320x240(data source.DashboardContent, pol source.Policy, ctx
 	}
 
 	// Truncate each row's text to fit available width.
-	maxChars := 0
-	if layout.GlyphAdvance() > 0 {
-		maxChars = layout.AvailableContentWidth() / layout.GlyphAdvance()
-	}
+	maxChars := layout.MaxChars(ctx.Metrics(tiercatalog.TierNormal))
 	if maxChars > 0 {
 		for i, item := range items {
 			items[i] = textlayout.Truncate(item, maxChars)
@@ -560,15 +508,15 @@ func buildColorStyle320x240(data source.DashboardContent, pol source.Policy, ctx
 	}
 
 	// Horizontal centering.
-	offsets := make([]int, len(items))
+	offsets := make([]style.TTYX, len(items))
 	for i, item := range items {
-		offsets[i] = layout.CenterX(len([]rune(item)))
+		offsets[i] = layout.CenterX(len([]rune(item)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
 	return style.ViewData{Items: items, Colors: colors, Tiers: tiers, LineOffsets: offsets, OffsetY: offsetY, Static: true}
 }
 
-func buildEinkStyle800x480(data source.DashboardContent, pol source.Policy, ctx style.StyleContext, d styleDef) style.ViewData {
+func buildMonoSlow800x480Style(data source.DashboardContent, pol source.Policy, ctx style.StyleContext, d styleDef) style.ViewData {
 	layout := ctx.Layout(0)
 
 	// Step 2 (Borderframe): render decorative border sprite.
@@ -650,9 +598,9 @@ func buildEinkStyle800x480(data source.DashboardContent, pol source.Policy, ctx 
 	}
 
 	// Step 8 (Centering): horizontal per-tier centering.
-	offsets := make([]int, len(visibleRows))
+	offsets := make([]style.TTYX, len(visibleRows))
 	for i, r := range visibleRows {
-		offsets[i] = layout.CenterXWith(len([]rune(r.text)), r.entry.GlyphAdvance)
+		offsets[i] = layout.CenterX(len([]rune(r.text)), ctx.Metrics(r.tier))
 	}
 
 	// Vertical centering: compute total block height and center it.
@@ -675,7 +623,7 @@ func buildEinkStyle800x480(data source.DashboardContent, pol source.Policy, ctx 
 		}
 	}
 
-	offsetY := (layout.AvailableContentHeight() - blockHeight) / 2
+	offsetY := style.TTYY((layout.AvailableContentHeight() - blockHeight) / 2)
 	if offsetY < 0 {
 		offsetY = 0
 	}

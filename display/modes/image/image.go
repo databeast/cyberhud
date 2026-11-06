@@ -29,11 +29,12 @@ var allowedStyles = []string{StyleDefault, StyleBordered}
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "image",
-		Title:   "Image",
-		Scope:   "any",
-		Summary: "Externally supplied image displayed full-panel with configurable scaling policy.",
-		Order:   80,
+		ID:       "image",
+		Title:    "Image",
+		Category: "Data",
+		Scope:    "any",
+		Summary:  "Externally supplied image displayed full-panel with configurable scaling policy.",
+		Order:    80,
 		Options: []catalog.OptionDefinition{
 			{Key: "fit", Type: "string", Summary: "How the image should fit the panel bounds.", Default: FitScale, Allowed: []string{FitTruncate, FitScale, FitStretch}},
 			{Key: "style", Type: "string", Summary: "Visual presentation style (default or bordered).", Default: "", Allowed: allowedStyles},
@@ -42,7 +43,7 @@ func init() {
 	catalog.RegisterCommand(catalog.CommandDefinition{
 		Verb:    "image",
 		Summary: "Manage externally supplied images and fit policy.",
-		Usage:   "image <set|policy|style|clear> ...",
+		Usage:   "image set <file|base64> <data> | image clear | image [fit=<truncate|scale|stretch>] [style=<default|bordered>]",
 		Handle:  HandleConsoleCommand,
 	})
 }
@@ -189,10 +190,14 @@ func Signature() string {
 	return fmt.Sprintf("image:%dx%d:%s:%s", bounds.Dx(), bounds.Dy(), imageState.policy.Fit, imageState.policy.Style)
 }
 
-// HandleConsoleCommand handles the top-level "image" console verb.
+// HandleConsoleCommand handles the top-level "image" console verb. The data
+// sub-verbs "set" and "clear" manage the externally-supplied image; everything
+// else is treated as policy key=value edits and delegated to the uniform
+// cmdutil.CmdHandler (which drives centralized PolicyStore capture). A bare
+// "image" with no args returns the current policy query line.
 func HandleConsoleCommand(args []string) string {
-	if len(args) < 1 {
-		return "ERR usage: image <set|policy|style|clear> ..."
+	if len(args) == 0 {
+		return cmdHandler.Handle(args)
 	}
 	sub := strings.ToLower(strings.TrimSpace(args[0]))
 	switch sub {
@@ -210,66 +215,12 @@ func HandleConsoleCommand(args []string) string {
 		default:
 			return "ERR source must be 'file' or 'base64'"
 		}
-	case "policy":
-		if len(args) == 1 {
-			return formatPolicyResponse(PolicySnapshot())
-		}
-		p := PolicySnapshot()
-		for _, token := range args[1:] {
-			kv := strings.SplitN(token, "=", 2)
-			if len(kv) != 2 {
-				return "ERR usage: image policy [fit=<truncate|scale|stretch>] [style=<default|bordered>]"
-			}
-			key := strings.ToLower(strings.TrimSpace(kv[0]))
-			val := strings.TrimSpace(kv[1])
-			switch key {
-			case "fit":
-				p.Fit = val
-			case "style":
-				lower := strings.ToLower(val)
-				found := false
-				for _, a := range allowedStyles {
-					if lower == a {
-						found = true
-						break
-					}
-				}
-				if !found {
-					return fmt.Sprintf("ERR style: must be one of [%s]", strings.Join(allowedStyles, ", "))
-				}
-				p.Style = lower
-			default:
-				return fmt.Sprintf("ERR unknown image policy key %q", key)
-			}
-		}
-		SetPolicy(p)
-		return formatPolicyResponse(PolicySnapshot())
-	case "style":
-		if len(args) == 1 {
-			// Query current style.
-			p := PolicySnapshot()
-			return fmt.Sprintf("OK image style=%s", p.Style)
-		}
-		val := strings.ToLower(strings.TrimSpace(args[1]))
-		found := false
-		for _, a := range allowedStyles {
-			if val == a {
-				found = true
-				break
-			}
-		}
-		if !found {
-			return fmt.Sprintf("ERR style: must be one of [%s]", strings.Join(allowedStyles, ", "))
-		}
-		p := PolicySnapshot()
-		p.Style = val
-		SetPolicy(p)
-		return fmt.Sprintf("OK image style=%s", val)
 	case "clear":
 		Clear()
 		return "OK image cleared"
 	default:
-		return "ERR usage: image <set|policy|style|clear> ..."
+		// Policy edits: fit=... style=... — uniform key=value path.
+		return cmdHandler.Handle(args)
 	}
 }
 
@@ -333,10 +284,6 @@ func setFromBase64(data string) string {
 	SetImage(img, PolicySnapshot())
 	bounds := img.Bounds()
 	return fmt.Sprintf("OK image loaded %dx%d", bounds.Dx(), bounds.Dy())
-}
-
-func formatPolicyResponse(p Policy) string {
-	return fmt.Sprintf("OK image policy fit=%s style=%s", p.Fit, p.Style)
 }
 
 // ViewData holds the output of BuildView for the registry to convert to State.

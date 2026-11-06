@@ -6,10 +6,17 @@ import (
 	"image/color"
 
 	"github.com/databeast/cyberhud/display/catalog"
+	"github.com/databeast/cyberhud/display/style/layout"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 	"github.com/databeast/cyberhud/display/widgets"
 )
+
+// TTYX and TTYY are re-exported from the layout package so styles (which all
+// import this package) can name TTY-block coordinates without a second import.
+// See layout.TTYX/TTYY for the coordinate-space contract.
+type TTYX = layout.TTYX
+type TTYY = layout.TTYY
 
 // Style is the interface that all display mode style implementations satisfy.
 // S is the mode-specific snapshot type, P is mode policy for the style to obey
@@ -31,8 +38,32 @@ type Style[C any, P catalog.ConfigPolicy] interface {
 // StyleReport carries metadata about which style was resolved during BuildView.
 // Zero value means "no style resolution occurred" (mode has no style registry).
 type StyleReport struct {
-	Name   string // Resolved style name (e.g., "color-240x320")
+	Name   string // Resolved style name (e.g., "color-fast-240x320")
 	Reason string // "configured" or "default"
+
+	// Capability-utilization fields (lever 2). These make the gap between what the
+	// panel can show and what the chosen style actually uses observable at runtime
+	// — the number the fitness scorer previously computed and discarded. They are
+	// populated by ResolveStyle; a hand-built report (some attract modes) leaves
+	// them at the HasCapInfo=false zero value, meaning "gap unknown".
+	HasCapInfo bool       // true when the cap fields below are meaningful
+	PanelCap   Capability // the panel's advertised capability
+	StyleCap   Capability // the chosen style's required capability
+}
+
+// CapGap is the number of capability tiers the chosen style sits below the
+// panel. 0 means the style uses the panel's full tier; a positive value is wasted
+// capability (e.g. a color panel running a mono style reports 4 or 5). Returns 0
+// when no capability info is present.
+func (r StyleReport) CapGap() int {
+	if !r.HasCapInfo {
+		return 0
+	}
+	gap := int(r.PanelCap) - int(r.StyleCap)
+	if gap < 0 {
+		return 0
+	}
+	return gap
 }
 
 // ViewData is the rendering output produced by a Style's Build method.
@@ -83,8 +114,8 @@ type ViewData struct {
 	// renderer means it cannot be forgotten per-mode.
 	FontIDs []string
 
-	LineOffsets []int // Per-line horizontal pixel offset for marquee; nil if inactive.
-	OffsetY     int   // Vertical pixel offset for content block (used for centering).
+	LineOffsets []layout.TTYX // Per-line horizontal offset (TTY-block frame); nil if inactive.
+	OffsetY     layout.TTYY   // Vertical offset of content block in the TTY-block frame (centering).
 
 	// RowHeights is the per-row pixel height, parallel to Items. Nil means the
 	// renderer derives each row's height from that row's font metrics.

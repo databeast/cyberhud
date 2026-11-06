@@ -1,0 +1,39 @@
+[Unit]
+Description=CyberHUD web control UI (optional)
+Documentation=https://github.com/databeast/cyberhud
+# The web UI is a client of the daemon's console socket. It is useful on its own
+# but is intended to run alongside the daemon.
+Wants=cyberhudd.service
+After=cyberhudd.service
+
+[Service]
+Type=simple
+# Bind to loopback by default. This is a Pi-local tool with no authentication:
+# binding the address IS the access control. To expose it on the LAN, override
+# with a drop-in that sets a different -addr (e.g. 0.0.0.0:8080), understanding
+# that anyone who can reach that address can drive the display.
+ExecStart=/usr/bin/cyberhudweb -socket /run/cyberhudd/console.sock -addr 127.0.0.1:8080
+Restart=on-failure
+RestartSec=5s
+
+# Run as the dedicated package-managed service account so it can read the
+# daemon's group-owned console socket (/run/cyberhudd/console.sock, mode 0660,
+# group cyberhud).
+User=cyberhud
+Group=cyberhud
+
+# Logging: send stdout/stderr to the system journal.
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cyberhudweb
+
+# Hardening. The web UI needs no device access — only the daemon socket.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ReadOnlyPaths=/run/cyberhudd
+
+[Install]
+WantedBy=multi-user.target

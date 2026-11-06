@@ -12,13 +12,6 @@ import (
 // set of CodepointRange values, ParseWithConfig SHALL retain only glyphs whose
 // codepoints fall within at least one configured range, and discard all others.
 
-// genCodepointRange generates a single valid CodepointRange with Low <= High.
-func genCodepointRange(t *rapid.T, label string) CodepointRange {
-	low := rune(rapid.IntRange(33, 0x1000).Draw(t, label+"_low"))
-	high := rune(rapid.IntRange(int(low), int(low)+100).Draw(t, label+"_high"))
-	return CodepointRange{Low: low, High: high}
-}
-
 // genCodepointRanges generates a slice of 1-4 non-overlapping CodepointRange values.
 func genCodepointRanges(t *rapid.T) []CodepointRange {
 	count := rapid.IntRange(1, 4).Draw(t, "rangeCount")

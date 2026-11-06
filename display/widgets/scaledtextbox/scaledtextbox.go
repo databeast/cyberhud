@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 	"github.com/databeast/cyberhud/display/surface/scale"
 	"github.com/databeast/cyberhud/display/widgets"
 	"github.com/databeast/cyberhud/display/widgets/textbox"

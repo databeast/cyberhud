@@ -63,6 +63,6 @@ func BuildEinkView(width, height int, p source.Policy, isMono bool) style.ViewDa
 	return style.ViewData{
 		Static:      true,
 		Sprites:     []widgets.Sprite{{Image: img, Position: image.Point{}, Label: "particles-eink"}},
-		StyleReport: style.StyleReport{Name: "eink-fallback", Reason: "fitness"},
+		StyleReport: style.StyleReport{Name: "mono-slow-fallback", Reason: "fitness"},
 	}
 }

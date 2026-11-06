@@ -130,36 +130,36 @@ var ColorSlow240x135MinimalStyle = def{
 }
 
 var ColorFast240x135Style = def{
-	name: "color-240x135",
+	name: "color-fast-240x135",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 135, Capability: style.ColorFast},
 }
 
 var ColorFast240x135OverviewStyle = def{
-	name: "color-240x135-overview",
+	name: "color-fast-240x135-overview",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 135, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildOverviewStyle},
 }
 
 var ColorFast240x135TimegraphStyle = def{
-	name: "color-240x135-timegraph",
+	name: "color-fast-240x135-timegraph",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 135, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildTimegraphStyle},
 }
 
 var ColorFast240x135DetailStyle = def{
-	name: "color-240x135-detail",
+	name: "color-fast-240x135-detail",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 135, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildDetailStyle},
 }
 
 var ColorFast240x135GraphStyle = def{
-	name: "color-240x135-graph",
+	name: "color-fast-240x135-graph",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 135, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildGraphStyle},
 }
 
 var ColorFast240x135MinimalStyle = def{
-	name: "color-240x135-minimal",
+	name: "color-fast-240x135-minimal",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 135, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildMinimalStyle},
 }

@@ -132,8 +132,9 @@ const (
 	msgStemmaUsage          = "ERR usage: stemma status"
 	msgPolicyUsage          = "ERR usage: policy dump"
 	msgPolicyStoreNil       = "ERR policy store not configured"
-	msgDisplayUsage         = "ERR usage: display <status|modes|set|config|next|prev|<mode>> ..."
+	msgDisplayUsage         = "ERR usage: display <status|regions|geometry|modes|set|config|next|prev|<mode>> ..."
 	msgDisplayModesUsage    = "ERR usage: display modes"
+	msgDisplayGeometryUsage = "ERR usage: display geometry"
 	msgDisplaySetUsage      = "ERR usage: display set <region> <mode> [key=value ...]"
 	msgDisplayNextUsage     = "ERR usage: display next <region>"
 	msgDisplayPrevUsage     = "ERR usage: display prev <region>"
@@ -570,9 +571,12 @@ func (s *Server) listModeCommands() string {
 			fmt.Fprintf(&sb, " summary=%q", cmd.Summary)
 		}
 		if def, ok := meta[cmd.Verb]; ok {
-			fmt.Fprintf(&sb, " mode_title=%q scope=%s", def.Title, def.Scope)
+			fmt.Fprintf(&sb, " mode_title=%q scope=%s category=%q", def.Title, def.Scope, def.Category)
 			for _, opt := range def.Options {
 				fmt.Fprintf(&sb, "\n    option=%s type=%s default=%q summary=%q", opt.Key, opt.Type, opt.Default, opt.Summary)
+				if len(opt.Allowed) > 0 {
+					fmt.Fprintf(&sb, " allowed=%q", strings.Join(opt.Allowed, ","))
+				}
 			}
 		}
 	}
@@ -592,6 +596,11 @@ func (s *Server) handleDisplay(args []string) string {
 		return s.listDisplay()
 	case "regions":
 		return s.listDisplayRegions()
+	case "geometry":
+		if len(args) != 1 {
+			return msgDisplayGeometryUsage
+		}
+		return s.listDisplayGeometry()
 	case "modes":
 		if len(args) != 1 {
 			return msgDisplayModesUsage
@@ -842,6 +851,34 @@ func (s *Server) listDisplayRegions() string {
 	return sb.String()
 }
 
+// listDisplayGeometry reports the virtual-display dimensions and each region's
+// placement rectangle in virtual-display pixel coordinates. The first data line is
+// the virtual display total size; each subsequent line describes one region's
+// origin and size. Geometry is only populated once the daemon has bound its live
+// RegionManager (i.e. the display is running); before then the region list is empty.
+//
+// Format:
+//
+//	OK
+//	  virtual w=<W> h=<H>
+//	  region=<name>.0 index=<i> name=<name> x=<X> y=<Y> w=<W> h=<H>
+//	  ...
+func (s *Server) listDisplayGeometry() string {
+	geo := s.modes.Geometry()
+	var sb strings.Builder
+	sb.WriteString("OK")
+	fmt.Fprintf(&sb, "\n  virtual w=%d h=%d", geo.VirtualW, geo.VirtualH)
+	for _, r := range geo.Regions {
+		name := r.Name
+		if name == "" {
+			name = fmt.Sprintf("region%d", r.Index)
+		}
+		fmt.Fprintf(&sb, "\n  region=%s.0 index=%d name=%q x=%d y=%d w=%d h=%d",
+			name, r.Index, r.Name, r.X, r.Y, r.W, r.H)
+	}
+	return sb.String()
+}
+
 func (s *Server) listDisplayModes() string {
 	regions := s.modes.Definitions()
 	if len(regions) == 0 {
@@ -867,7 +904,20 @@ func (s *Server) listDisplayModes() string {
 			if mode.Scope != "" {
 				fmt.Fprintf(&sb, " scope=%s", mode.Scope)
 			}
+			if mode.Category != "" {
+				fmt.Fprintf(&sb, " category=%q", mode.Category)
+			}
 			fmt.Fprintf(&sb, " summary=%q", mode.Summary)
+			// Per-option metadata so clients (CLI, web UI) can render a config
+			// editor: key, type, default, summary, and the allowed-value list
+			// for enum-style options. Options are omitted for modes with none.
+			for _, opt := range mode.Options {
+				fmt.Fprintf(&sb, "\n      option=%s type=%s default=%q summary=%q",
+					opt.Key, opt.Type, opt.Default, opt.Summary)
+				if len(opt.Allowed) > 0 {
+					fmt.Fprintf(&sb, " allowed=%q", strings.Join(opt.Allowed, ","))
+				}
+			}
 		}
 	}
 	return sb.String()

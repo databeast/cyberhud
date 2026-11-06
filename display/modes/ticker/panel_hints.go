@@ -7,12 +7,8 @@ import (
 	"github.com/databeast/cyberhud/display/modes/ticker/styles"
 	"github.com/databeast/cyberhud/display/region/modehints"
 	"github.com/databeast/cyberhud/display/style"
-	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 )
-
-// getPanelHints returns the centrally stored panel hints (see modehints).
-func getPanelHints() (textlayout.TextHints, bool) { return modehints.Current() }
 
 // fitnessNotesPostApply generates fitness notes after policy keys are applied
 // in the ticker policy command. It checks if the "style", "font_tier", or
@@ -36,7 +32,7 @@ func fitnessNotesPostApply(appliedKeys []string) []string {
 		return nil
 	}
 
-	hints, ok := getPanelHints()
+	hints, ok := modehints.Current()
 	if !ok {
 		// No panel hints available (e.g., testing or headless mode).
 		return nil

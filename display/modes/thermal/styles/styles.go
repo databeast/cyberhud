@@ -11,6 +11,7 @@ import (
 	"github.com/databeast/cyberhud/display/modes/thermal/source"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/display/style/layout"
+	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 	"github.com/databeast/cyberhud/display/widgets/borderframe"
 	"github.com/databeast/cyberhud/display/widgets/progressbar"
@@ -39,13 +40,13 @@ import (
 // --- ColorFast 320×240 (landscape) ---
 
 var Color320x240OverviewStyle = def{
-	name: "color-320x240-overview",
+	name: "color-fast-320x240-overview",
 	reqs: style.SurfaceRequirements{MinWidth: 320, MinHeight: 240, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildOverviewStyle},
 }
 
 var Color320x240TimegraphStyle = def{
-	name: "color-320x240-timegraph",
+	name: "color-fast-320x240-timegraph",
 	reqs: style.SurfaceRequirements{MinWidth: 320, MinHeight: 240, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildTimegraphStyle},
 }
@@ -53,31 +54,31 @@ var Color320x240TimegraphStyle = def{
 // --- ColorFast 240×320 (portrait) ---
 
 var Color240x320ThermometerStyle = def{
-	name: "color-240x320-thermometer",
+	name: "color-fast-240x320-thermometer",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 320, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildPortraitThermometerStyle},
 }
 
 var Color240x320SparkStyle = def{
-	name: "color-240x320-spark",
+	name: "color-fast-240x320-spark",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 320, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildPortraitSparkStyle},
 }
 
 var Color240x320HeatmapStyle = def{
-	name: "color-240x320-heatmap",
+	name: "color-fast-240x320-heatmap",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 320, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildPortraitHeatmapStyle},
 }
 
 var Color240x320LEDsStyle = def{
-	name: "color-240x320-leds",
+	name: "color-fast-240x320-leds",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 320, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildPortraitLEDsStyle},
 }
 
 var Color240x320AvgThermoStyle = def{
-	name: "color-240x320-avg-thermo",
+	name: "color-fast-240x320-avg-thermo",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 320, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildPortraitAvgThermoStyle},
 }
@@ -93,7 +94,7 @@ var MonoSlow128x64Style = def{
 // --- MonoFast 128×128 ---
 
 var Mono128x128Style = def{
-	name: "mono-128x128",
+	name: "mono-fast-128x128",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildDetailStyle},
 }
@@ -113,7 +114,6 @@ var GrayscaleFast400x300Style = def{
 	reqs: style.SurfaceRequirements{MinWidth: 400, MinHeight: 300, Capability: style.GrayscaleFast},
 	p:    Params{BuildFn: buildOverviewStyle},
 }
-
 
 // ──────────────────────────────────────────────────────────────────────────────
 // New layout build functions referenced in the per-resolution declarations.
@@ -163,9 +163,10 @@ func buildOverview(snap source.ThermalSnapshot, pol source.Policy, ctx style.Sty
 	ox, oy := bridge.ContentOrigin()
 	width := bridge.AvailableContentWidth()
 	hasBorder := pol.ShowBorder && hints.PixelWidth >= 16 && hints.PixelHeight >= 16
-	rowHeight := bridge.RowHeight()
+	m := ctx.DefaultMetrics()
+	rowHeight := m.RowHeight()
 
-	maxRows := bridge.MaxVisibleRows()
+	maxRows := bridge.MaxVisibleRows(m)
 	zones := snap.Zones
 	if maxRows > 0 && len(zones) > maxRows {
 		zones = zones[:maxRows]
@@ -216,7 +217,7 @@ func buildOverview(snap source.ThermalSnapshot, pol source.Policy, ctx style.Sty
 		}
 
 		// Build a text-based progress bar.
-		barWidth := computeBarWidthFromBridge(bridge, z.Label, tempStr)
+		barWidth := computeBarWidthFromBridge(bridge, m, z.Label, tempStr)
 		bar := renderTextBar(fill, barWidth)
 
 		row := fmt.Sprintf("%s %s %s", z.Label, tempStr, bar)
@@ -224,12 +225,12 @@ func buildOverview(snap source.ThermalSnapshot, pol source.Policy, ctx style.Sty
 		vd.Colors = append(vd.Colors, labelColor)
 
 		// Compute Y position for this row using content origin.
-		yPos := oy + offsetY + i*rowHeight
+		yPos := oy + int(offsetY) + i*rowHeight
 
 		// Render progressbar widget for this zone using severity-driven bar fill color.
 		// Position: to the right of text area, leaving space for label+temp text.
 		textChars := utf8.RuneCountInString(z.Label) + 1 + utf8.RuneCountInString(tempStr) + 1
-		glyphAdvance := bridge.GlyphAdvance()
+		glyphAdvance := m.Advance()
 		barX := ox + textChars*glyphAdvance
 		barPixelWidth := width - textChars*glyphAdvance
 		if barPixelWidth < 1 {
@@ -259,8 +260,8 @@ func buildOverview(snap source.ThermalSnapshot, pol source.Policy, ctx style.Sty
 
 // computeBarWidthFromBridge determines how many characters are available for the progress bar
 // after accounting for label and temperature text, using the LayoutBridge for geometry.
-func computeBarWidthFromBridge(bridge layout.LayoutCalculator, label, tempStr string) int {
-	glyphAdvance := bridge.GlyphAdvance()
+func computeBarWidthFromBridge(bridge layout.LayoutCalculator, m layout.Metrics, label, tempStr string) int {
+	glyphAdvance := m.Advance()
 	if glyphAdvance <= 0 {
 		return 8 // default fallback
 	}
@@ -377,7 +378,7 @@ func buildDetail(snap source.ThermalSnapshot, pol source.Policy, ctx style.Style
 		}
 	}
 
-	rowHeight := bridge.RowHeight()
+	rowHeight := ctx.DefaultMetrics().RowHeight()
 
 	// Determine effective panel height for sparkline/trip point suppression.
 	suppressSparkAndTrips := height < 64
@@ -420,7 +421,7 @@ func buildDetail(snap source.ThermalSnapshot, pol source.Policy, ctx style.Style
 	}
 
 	// Truncate to visible rows.
-	maxRows := bridge.MaxVisibleRows()
+	maxRows := bridge.MaxVisibleRows(ctx.DefaultMetrics())
 	if maxRows > 0 && len(vd.Items) > maxRows {
 		vd.Items = vd.Items[:maxRows]
 		vd.Colors = vd.Colors[:maxRows]
@@ -429,7 +430,7 @@ func buildDetail(snap source.ThermalSnapshot, pol source.Policy, ctx style.Style
 
 	// Render sparkline widget for temperature history.
 	if !suppressSparkAndTrips && sparkRowIndex >= 0 && sparkRowIndex < len(vd.Items) {
-		sparkY := oy + vd.OffsetY + sparkRowIndex*rowHeight
+		sparkY := oy + int(vd.OffsetY) + sparkRowIndex*rowHeight
 		sparkWidth := width
 		if sparkWidth < 1 {
 			sparkWidth = hints.PixelWidth
@@ -537,9 +538,10 @@ func buildGraph(snap source.ThermalSnapshot, pol source.Policy, ctx style.StyleC
 	ox, oy := bridge.ContentOrigin()
 	width := bridge.AvailableContentWidth()
 
-	rowHeight := bridge.RowHeight()
-	glyphAdvance := bridge.GlyphAdvance()
-	maxRows := bridge.MaxVisibleRows()
+	m := ctx.DefaultMetrics()
+	rowHeight := m.RowHeight()
+	glyphAdvance := m.Advance()
+	maxRows := bridge.MaxVisibleRows(m)
 	zones := snap.Zones
 	if maxRows > 0 && len(zones) > maxRows {
 		zones = zones[:maxRows]
@@ -600,7 +602,7 @@ func buildGraph(snap source.ThermalSnapshot, pol source.Policy, ctx style.StyleC
 		vd.Colors = append(vd.Colors, sevColor)
 
 		// Compute Y position and prefix width for sparkline widget placement.
-		yPos := oy + offsetY + i*rowHeight
+		yPos := oy + int(offsetY) + i*rowHeight
 		prefixPixelWidth := prefixLen * glyphAdvance
 
 		// Suppress sparkline widgets when panel is too narrow (show text only).
@@ -703,10 +705,10 @@ func buildMinimal(snap source.ThermalSnapshot, pol source.Policy, ctx style.Styl
 		rowHeight = m.RowHeight
 	}
 	if glyphAdvance <= 0 {
-		glyphAdvance = bridge.GlyphAdvance()
+		glyphAdvance = textlayout.GlyphAdvance
 	}
 	if rowHeight <= 0 {
-		rowHeight = bridge.RowHeight()
+		rowHeight = textlayout.RowHeight
 	}
 
 	ox, oy := bridge.ContentOrigin()
@@ -727,14 +729,14 @@ func buildMinimal(snap source.ThermalSnapshot, pol source.Policy, ctx style.Styl
 	}
 
 	// Compute centering offsets.
-	offsetX := bridge.CenterXWith(utf8.RuneCountInString(tempText), glyphAdvance)
+	offsetX := bridge.CenterX(utf8.RuneCountInString(tempText), layout.NewMetrics(glyphAdvance, rowHeight, ""))
 	offsetY := (height - rowHeight) / 2
 	if offsetY < 0 {
 		offsetY = 0
 	}
 	vd.Tiers = []tiercatalog.Tier{tiercatalog.TierNormal}
-	vd.LineOffsets = []int{offsetX}
-	vd.OffsetY = offsetY
+	vd.LineOffsets = []layout.TTYX{offsetX}
+	vd.OffsetY = layout.TTYY(offsetY)
 
 	// Use ScaledTextBox for large panels (≥ 240×240) to render temperature prominently.
 	if hints.PixelWidth >= 240 && hints.PixelHeight >= 240 && face != nil {
@@ -784,9 +786,10 @@ func buildMonoOLEDCompact(snap source.ThermalSnapshot, pol source.Policy, ctx st
 
 	ox, oy := bridge.ContentOrigin()
 	width := bridge.AvailableContentWidth()
-	rowHeight := bridge.RowHeight()
-	glyphAdvance := bridge.GlyphAdvance()
-	maxRows := bridge.MaxVisibleRows()
+	m := ctx.DefaultMetrics()
+	rowHeight := m.RowHeight()
+	glyphAdvance := m.Advance()
+	maxRows := bridge.MaxVisibleRows(m)
 
 	hasBorder := pol.ShowBorder && hints.PixelWidth >= 16 && hints.PixelHeight >= 16
 
@@ -897,7 +900,7 @@ func buildMonoOLEDCompact(snap source.ThermalSnapshot, pol source.Policy, ctx st
 		bar := renderTextBar(zfill, barWidth)
 
 		rowIdx := len(vd.Items)
-		yPos := bridge.RowY(rowIdx, 0)
+		yPos := bridge.RowY(rowIdx, 0, m)
 
 		vd.Items = append(vd.Items, fmt.Sprintf("%s %s %s", abbr, zTempStr, bar))
 		vd.Colors = append(vd.Colors, zColor)
@@ -926,13 +929,13 @@ func buildMonoOLEDCompact(snap source.ThermalSnapshot, pol source.Policy, ctx st
 	}
 
 	offsetY := bridge.CenterBlockY(uniformRowHeights(len(vd.Items), rowHeight), 0)
-	vd.OffsetY = offsetY
+	vd.OffsetY = layout.TTYY(offsetY)
 	if offsetY > 0 {
 		for i := range vd.Sprites {
 			if strings.HasPrefix(vd.Sprites[i].Label, "thermal-compact-") {
-				vd.Sprites[i].Position.Y += offsetY
+				vd.Sprites[i].Position.Y += int(offsetY)
 				if vd.Sprites[i].Bounds != (image.Rectangle{}) {
-					vd.Sprites[i].Bounds = vd.Sprites[i].Bounds.Add(image.Pt(0, offsetY))
+					vd.Sprites[i].Bounds = vd.Sprites[i].Bounds.Add(image.Pt(0, int(offsetY)))
 				}
 			}
 		}

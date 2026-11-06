@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 	"github.com/databeast/cyberhud/display/surface/tierselect"
 	"pgregory.net/rapid"

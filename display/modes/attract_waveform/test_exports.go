@@ -19,4 +19,5 @@ func ResetSnapshotState() {
 	frameCounter = 0
 	lastTick = time.Time{}
 	animPhase = 0
+	phosphor = phosphorBuffer{}
 }

@@ -19,7 +19,7 @@ func categoryFromStyle(name string, reqs style.SurfaceRequirements) testsnapshot
 		return testsnapshot.CategoryColor
 	case strings.HasPrefix(name, "grayscale-"):
 		return testsnapshot.CategoryGrayscale
-	case strings.HasPrefix(name, "eink-"), strings.HasPrefix(name, "mono-slow-"):
+	case strings.HasPrefix(name, "mono-slow-"):
 		return testsnapshot.CategoryEink
 	case strings.HasPrefix(name, "mono-"):
 		return testsnapshot.CategoryMono
@@ -36,6 +36,17 @@ func categoryFromStyle(name string, reqs style.SurfaceRequirements) testsnapshot
 	}
 }
 
+// snapshotMinDimension is the floor applied to snapshot render dimensions.
+//
+// A style may declare a surface smaller than this (e.g. 128x32 or 64x128), but
+// the production renderer reserves a title + hint bar (10px each on small
+// panels) and the tier catalog needs enough width to fit a font. Rendering a
+// genuinely tiny surface therefore leaves no room to draw a row, so — matching
+// the serial mode's snapshot test — we clamp both dimensions to 128 for the
+// snapshot only. The style's real requirements are unchanged; on hardware the
+// renderer's chrome handling differs per panel.
+const snapshotMinDimension = 128
+
 func dimensionsFromRequirements(reqs style.SurfaceRequirements) (int, int) {
 	width, height := reqs.MinWidth, reqs.MinHeight
 	if width == 0 {
@@ -49,6 +60,12 @@ func dimensionsFromRequirements(reqs style.SurfaceRequirements) (int, int) {
 	}
 	if height == 0 {
 		height = 240
+	}
+	if width < snapshotMinDimension {
+		width = snapshotMinDimension
+	}
+	if height < snapshotMinDimension {
+		height = snapshotMinDimension
 	}
 	return width, height
 }

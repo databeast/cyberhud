@@ -35,7 +35,6 @@ func BuildColorArray(trailLength int, mono bool) []color.RGBA {
 func ResetLayoutCache() {
 	stripCache = nil
 	stripColumnMap = nil
-	lastPolicyFingerprint = ""
 	lastCacheKey = ""
 	firstBuildDone = false
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/databeast/cyberhud/display/modes/attract_shapes/source"
 	"github.com/databeast/cyberhud/display/modes/attract_shapes/styles"
 	"github.com/databeast/cyberhud/display/region"
+	"github.com/databeast/cyberhud/display/region/modehints"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 )
@@ -24,7 +25,7 @@ const maxTickElapsed = 80 * time.Millisecond
 // BuildView produces a complete shapes frame as style.ViewData.
 // It is called by the display runtime each render cycle with the panel's text hints.
 func BuildView() style.ViewData {
-	hints, ok := getPanelHints()
+	hints, ok := modehints.Current()
 	if !ok {
 		return style.ViewData{Items: []string{"error"}}
 	}

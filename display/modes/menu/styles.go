@@ -13,16 +13,6 @@ var menuRegistry = style.NewRegistry[source.MenuSnapshot, source.Policy](
 	styles.MonoSlow800x480Style,
 )
 
-// registeredStyleNames returns the list of style names from the menuRegistry.
-func registeredStyleNames() []string {
-	styles := menuRegistry.Enumerate()
-	names := make([]string, len(styles))
-	for i, s := range styles {
-		names[i] = s.Name()
-	}
-	return names
-}
-
 // MenuRegistryEnumerate exposes registered menu styles for snapshot tests.
 func MenuRegistryEnumerate() []style.Style[source.MenuSnapshot, source.Policy] {
 	return menuRegistry.Enumerate()

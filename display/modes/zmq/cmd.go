@@ -20,8 +20,8 @@ func newCmdHandler() *cmdutil.CmdHandler {
 			{Name: "topic", Validate: nil}, // accepts any string
 			{Name: "max_lines", Validate: cmdutil.IntValidator(1)},
 			{Name: "json_fields", Validate: nil}, // accepts any string
-			{Name: "style", Validate: cmdutil.AllowedValidator(registeredStyleNames())},
-			{Name: "font", Validate: fontValidator},
+			{Name: "style", Validate: cmdutil.AllowedValidator(zmqRegistry.RegisteredNames())},
+			{Name: "font", Validate: cmdutil.FontValidator()},
 		},
 		Get:       getZmqPolicyValue,
 		Apply:     applyZmqPolicyValue,

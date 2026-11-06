@@ -20,23 +20,23 @@ Three severity levels drive color coding across all styles: normal (green), warn
 
 Each style targets a specific panel form factor (resolution and display capability). The `style` option accepts any of the per-resolution names listed below:
 
-- **color-320x240-overview** — one row per zone with label, temperature, and progress bar. Targets ColorFast 320×240 landscape panels. Zones are ordered by zone ID ascending and truncated to the number of rows that fit. Zone labels render in the active foreground color while temperature values use severity colors.
+- **color-fast-320x240-overview** — one row per zone with label, temperature, and progress bar. Targets ColorFast 320×240 landscape panels. Zones are ordered by zone ID ascending and truncated to the number of rows that fit. Zone labels render in the active foreground color while temperature values use severity colors.
 
-- **color-320x240-timegraph** — time-series graph with stacked sparklines showing temperature history for all zones. Targets ColorFast 320×240 landscape panels. Each zone's sparkline is colored by that zone's severity level.
+- **color-fast-320x240-timegraph** — time-series graph with stacked sparklines showing temperature history for all zones. Targets ColorFast 320×240 landscape panels. Each zone's sparkline is colored by that zone's severity level.
 
-- **color-240x320-thermometer** — vertical thermometer bar display showing zone temperatures as filled vertical bars. Targets ColorFast 240×320 portrait panels. Bar fill height and color reflect severity level.
+- **color-fast-240x320-thermometer** — vertical thermometer bar display showing zone temperatures as filled vertical bars. Targets ColorFast 240×320 portrait panels. Bar fill height and color reflect severity level.
 
-- **color-240x320-spark** — sparkline-focused portrait layout with compact per-zone history graphs. Targets ColorFast 240×320 portrait panels. Optimized for trend visualization on narrow side-mounted displays.
+- **color-fast-240x320-spark** — sparkline-focused portrait layout with compact per-zone history graphs. Targets ColorFast 240×320 portrait panels. Optimized for trend visualization on narrow side-mounted displays.
 
-- **color-240x320-heatmap** — heatmap-style visualization mapping zone temperatures to a color grid. Targets ColorFast 240×320 portrait panels. Provides an at-a-glance thermal overview using heat-mapped cells.
+- **color-fast-240x320-heatmap** — heatmap-style visualization mapping zone temperatures to a color grid. Targets ColorFast 240×320 portrait panels. Provides an at-a-glance thermal overview using heat-mapped cells.
 
-- **color-240x320-leds** — LED-style zone indicators with circular status lights per zone. Targets ColorFast 240×320 portrait panels. Each LED is colored by severity, ideal for quick status checks.
+- **color-fast-240x320-leds** — LED-style zone indicators with circular status lights per zone. Targets ColorFast 240×320 portrait panels. Each LED is colored by severity, ideal for quick status checks.
 
-- **color-240x320-avg-thermo** — average thermometer display showing the mean temperature across all zones as a single vertical bar. Targets ColorFast 240×320 portrait panels.
+- **color-fast-240x320-avg-thermo** — average thermometer display showing the mean temperature across all zones as a single vertical bar. Targets ColorFast 240×320 portrait panels.
 
 - **mono-slow-128x64** — compact monochrome layout for small OLEDs. Targets MonoSlow 128×64 panels. High-contrast text rendering with zone labels and temperatures.
 
-- **mono-128x128** — detailed monochrome layout with more vertical space for additional zone rows. Targets MonoFast 128×128 panels.
+- **mono-fast-128x128** — detailed monochrome layout with more vertical space for additional zone rows. Targets MonoFast 128×128 panels.
 
 - **grayscale-slow-296x128** — overview layout for e-ink displays. Targets GrayscaleSlow 296×128 panels. Static temperature frame that updates at the configured refresh interval.
 
@@ -54,37 +54,37 @@ Each style automatically selects the best bitmap font for the available panel sp
 <div class="grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
 
 <figure>
-  <img src="../img/thermal/color-240x320-avg-thermo_0001.png" alt="color-240x320-avg-thermo 240x320" style="max-width:320px;width:100%;">
+  <img src="../img/thermal/color-fast-240x320-avg-thermo_0001.png" alt="color-fast-240x320-avg-thermo 240x320" style="max-width:320px;width:100%;">
   <figcaption>240x320</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/thermal/color-240x320-heatmap_0001.png" alt="color-240x320-heatmap 240x320" style="max-width:320px;width:100%;">
+  <img src="../img/thermal/color-fast-240x320-heatmap_0001.png" alt="color-fast-240x320-heatmap 240x320" style="max-width:320px;width:100%;">
   <figcaption>240x320</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/thermal/color-240x320-leds_0001.png" alt="color-240x320-leds 240x320" style="max-width:320px;width:100%;">
+  <img src="../img/thermal/color-fast-240x320-leds_0001.png" alt="color-fast-240x320-leds 240x320" style="max-width:320px;width:100%;">
   <figcaption>240x320</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/thermal/color-240x320-spark_0001.png" alt="color-240x320-spark 240x320" style="max-width:320px;width:100%;">
+  <img src="../img/thermal/color-fast-240x320-spark_0001.png" alt="color-fast-240x320-spark 240x320" style="max-width:320px;width:100%;">
   <figcaption>240x320</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/thermal/color-240x320-thermometer_0001.png" alt="color-240x320-thermometer 240x320" style="max-width:320px;width:100%;">
+  <img src="../img/thermal/color-fast-240x320-thermometer_0001.png" alt="color-fast-240x320-thermometer 240x320" style="max-width:320px;width:100%;">
   <figcaption>240x320</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/thermal/color-320x240-overview_0001.png" alt="color-320x240-overview 320x240" style="max-width:320px;width:100%;">
+  <img src="../img/thermal/color-fast-320x240-overview_0001.png" alt="color-fast-320x240-overview 320x240" style="max-width:320px;width:100%;">
   <figcaption>320x240</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/thermal/color-320x240-timegraph_0001.png" alt="color-320x240-timegraph 320x240" style="max-width:320px;width:100%;">
+  <img src="../img/thermal/color-fast-320x240-timegraph_0001.png" alt="color-fast-320x240-timegraph 320x240" style="max-width:320px;width:100%;">
   <figcaption>320x240</figcaption>
 </figure>
 
@@ -110,7 +110,7 @@ Each style automatically selects the best bitmap font for the available panel sp
 </figure>
 
 <figure>
-  <img src="../img/thermal/mono-128x128_0001.png" alt="mono-128x128 128x128" style="max-width:320px;width:100%;">
+  <img src="../img/thermal/mono-fast-128x128_0001.png" alt="mono-fast-128x128 128x128" style="max-width:320px;width:100%;">
   <figcaption>128x128</figcaption>
 </figure>
 
@@ -121,7 +121,7 @@ Each style automatically selects the best bitmap font for the available panel sp
 
 | Key | Type | Description | Default | Allowed Values |
 |-----|------|-------------|---------|----------------|
-| `style` | string | Visual presentation style controlling the thermal data layout and detail level | (auto-selected) | color-320x240-overview, color-320x240-timegraph, color-240x320-thermometer, color-240x320-spark, color-240x320-heatmap, color-240x320-leds, color-240x320-avg-thermo, mono-slow-128x64, mono-128x128, grayscale-slow-296x128, grayscale-fast-400x300 |
+| `style` | string | Visual presentation style controlling the thermal data layout and detail level | (auto-selected) | color-fast-320x240-overview, color-fast-320x240-timegraph, color-fast-240x320-thermometer, color-fast-240x320-spark, color-fast-240x320-heatmap, color-fast-240x320-leds, color-fast-240x320-avg-thermo, mono-slow-128x64, mono-fast-128x128, grayscale-slow-296x128, grayscale-fast-400x300 |
 | `font` | string | Font selection (auto or a registered font ID) | auto | any valid string (auto or a registered font ID) |
 | `refresh_ms` | int | Sampling interval in milliseconds controlling how often thermal zones are polled | 2000 | 500–120000 |
 | `warn_threshold` | int | Warning temperature threshold in °C; must be strictly less than `crit_threshold` (rejected if not) | 70 | 0 or above (must be < crit_threshold) |
@@ -149,13 +149,13 @@ cyberhudctl display set 0 thermal
 Select the overview layout for a 320×240 color panel:
 
 ```sh
-cyberhudctl display thermal style=color-320x240-overview
+cyberhudctl display thermal style=color-fast-320x240-overview
 ```
 
 Switch to the time-graph variant on a 320×240 color panel:
 
 ```sh
-cyberhudctl display thermal style=color-320x240-timegraph
+cyberhudctl display thermal style=color-fast-320x240-timegraph
 ```
 
 Use the monochrome style for a 128×64 OLED:
@@ -167,7 +167,7 @@ cyberhudctl display thermal style=mono-slow-128x64
 Select a portrait thermometer layout for a 240×320 color panel:
 
 ```sh
-cyberhudctl display thermal style=color-240x320-thermometer
+cyberhudctl display thermal style=color-fast-240x320-thermometer
 ```
 
 Display temperatures in Fahrenheit:
@@ -209,7 +209,7 @@ cyberhudctl display thermal show_refresh_bar=false
 Combine multiple options in a single command:
 
 ```sh
-cyberhudctl display thermal style=color-320x240-timegraph unit=F refresh_ms=1000
+cyberhudctl display thermal style=color-fast-320x240-timegraph unit=F refresh_ms=1000
 ```
 
 Query all current settings (zero arguments returns the active configuration):
@@ -221,7 +221,7 @@ cyberhudctl display thermal
 This returns all key=value pairs reflecting the active configuration, for example:
 
 ```
-OK thermal style=color-320x240-overview font=auto refresh_ms=2000 warn_threshold=70 crit_threshold=90 unit=C fgcolor=thermal show_led=true show_refresh_bar=true
+OK thermal style=color-fast-320x240-overview font=auto refresh_ms=2000 warn_threshold=70 crit_threshold=90 unit=C fgcolor=thermal show_led=true show_refresh_bar=true
 ```
 
 ## Temperature Sources

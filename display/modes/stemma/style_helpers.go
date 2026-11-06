@@ -11,19 +11,6 @@ var stemmaRegistry = style.NewRegistry[source.StemmaSnapshot, source.Policy](
 	styles.AllStyles()...,
 )
 
-// allEmptyItems returns true if items is nil, empty, or contains only empty strings.
-func allEmptyItems(items []string) bool {
-	if len(items) == 0 {
-		return true
-	}
-	for _, item := range items {
-		if item != "" {
-			return false
-		}
-	}
-	return true
-}
-
 // registryStyleNames returns the ordered list of style names from the stemmaRegistry.
 // Used for cmdHandler validation and catalog registration.
 func registryStyleNames() []string {

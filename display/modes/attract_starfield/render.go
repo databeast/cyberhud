@@ -84,7 +84,7 @@ func BuildView(hints textlayout.TextHints) style.ViewData {
 // RenderCacheKey returns a change-detection key incorporating the frame counter
 // and policy fingerprint.
 func RenderCacheKey() uint32 {
-	return region.CalcRegionCacheKey(fmt.Sprintf("attract_starfield:%d|%s", frameCounter, policyFingerprint(GetPolicy())))
+	return region.CalcRegionCacheKey(fmt.Sprintf("attract_starfield:%d|%s", frameCounter, GetPolicy().Fingerprint()))
 }
 
 func tunePolicyForUltraLowRes(p source.Policy, panelWidth, panelHeight int) source.Policy {

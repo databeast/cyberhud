@@ -1,7 +1,9 @@
 BINARY    := cyberhudd
 CTL       := cyberhudctl
+WEB       := cyberhudweb
 CMD       := ./cmd/$(BINARY)
 CTLCMD    := ./cmd/$(CTL)
+WEBCMD    := ./cmd/$(WEB)
 PREFIX    ?= /usr
 BINDIR    ?= $(PREFIX)/bin
 SVCDIR    ?= /lib/systemd/system
@@ -33,7 +35,7 @@ DAEMON_FLAGS ?=
 
 .PHONY: all build build-pi install test vet generate clean clean-fonts clean-icons \
         run run-headless run-profile list-panels \
-        install-service uninstall service-status \
+        install-service install-web-service uninstall service-status \
         prepare-debian deb \
         download-icons extract-icons \
         collect-snapshots generate-gallery docs-preview snapshots \
@@ -47,10 +49,12 @@ all: vet test build
 build: generate
 	go build -o $(BINARY) $(CMD)
 	go build -o $(CTL) $(CTLCMD)
+	go build -o $(WEB) $(WEBCMD)
 
 build-pi: generate
 	GOOS=$(GOOS_PI) GOARCH=$(GOARCH_PI) go build -o $(BINARY) $(CMD)
 	GOOS=$(GOOS_PI) GOARCH=$(GOARCH_PI) go build -o $(CTL) $(CTLCMD)
+	GOOS=$(GOOS_PI) GOARCH=$(GOARCH_PI) go build -o $(WEB) $(WEBCMD)
 
 # --- Code generation ---
 
@@ -94,17 +98,28 @@ test: generate
 install: build
 	install -Dm755 $(BINARY) $(DESTDIR)$(BINDIR)/$(BINARY)
 	install -Dm755 $(CTL) $(DESTDIR)$(BINDIR)/$(CTL)
+	install -Dm755 $(WEB) $(DESTDIR)$(BINDIR)/$(WEB)
 
 install-service:
 	install -Dm644 systemd/$(BINARY).service $(DESTDIR)$(SVCDIR)/$(BINARY).service
 	systemctl daemon-reload
 	systemctl enable --now $(BINARY).service
 
+# Optional: enable the web control UI. Not part of the default install — the web
+# UI has no authentication, so enabling it is a deliberate opt-in.
+install-web-service:
+	install -Dm644 systemd/$(WEB).service $(DESTDIR)$(SVCDIR)/$(WEB).service
+	systemctl daemon-reload
+	systemctl enable --now $(WEB).service
+
 uninstall:
 	systemctl disable --now $(BINARY).service || true
+	systemctl disable --now $(WEB).service || true
 	rm -f $(DESTDIR)$(BINDIR)/$(BINARY)
 	rm -f $(DESTDIR)$(BINDIR)/$(CTL)
+	rm -f $(DESTDIR)$(BINDIR)/$(WEB)
 	rm -f $(DESTDIR)$(SVCDIR)/$(BINARY).service
+	rm -f $(DESTDIR)$(SVCDIR)/$(WEB).service
 	systemctl daemon-reload
 
 # --- Run ---
@@ -193,4 +208,5 @@ clean-icons:
 clean: clean-fonts clean-icons
 	rm -f $(BINARY)
 	rm -f $(CTL)
+	rm -f $(WEB)
 	rm -rf $(DISTDIR)

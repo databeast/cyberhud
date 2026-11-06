@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/databeast/cyberhud/display/catalog"
+	"github.com/databeast/cyberhud/display/catalog/cmdutil"
 	"github.com/databeast/cyberhud/display/modes/attract_starfield/source"
 )
 
@@ -59,8 +60,6 @@ func normalizePolicy(p source.Policy) source.Policy {
 	return p
 }
 
-func policyFingerprint(p source.Policy) string { return p.Fingerprint() }
-
 // starfieldSnapshotter implements catalog.PolicySnapshotter for the attract_starfield mode.
 type starfieldSnapshotter struct{}
 
@@ -76,17 +75,17 @@ func (starfieldSnapshotter) RestorePolicy(data map[string]interface{}) error {
 	p := source.DefaultPolicy()
 
 	if v, ok := data["speed"]; ok {
-		if f, ok := source.ToFloat64(v); ok {
+		if f, ok := cmdutil.ToFloat64(v); ok {
 			p.Speed = f
 		}
 	}
 	if v, ok := data["density"]; ok {
-		if f, ok := source.ToFloat64(v); ok {
+		if f, ok := cmdutil.ToFloat64(v); ok {
 			p.Density = f
 		}
 	}
 	if v, ok := data["layers"]; ok {
-		if n, ok := source.ToInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.Layers = n
 		}
 	}

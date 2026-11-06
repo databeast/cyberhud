@@ -12,8 +12,8 @@ import (
 type ZoneHistory = source.ZoneHistory
 
 func NormalizePolicy(p Policy) (Policy, error) { return normalizePolicy(p) }
-func NewZoneHistory() *ZoneHistory    { return &source.ZoneHistory{} }
-func ToFahrenheit(c float64) float64  { return styles.ToFahrenheit(c) }
+func NewZoneHistory() *ZoneHistory             { return &source.ZoneHistory{} }
+func ToFahrenheit(c float64) float64           { return styles.ToFahrenheit(c) }
 func Severity(tempC, warnThreshold, effectiveCrit float64) int {
 	return styles.Severity(tempC, warnThreshold, effectiveCrit)
 }

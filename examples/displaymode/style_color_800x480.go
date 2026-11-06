@@ -8,7 +8,7 @@ import (
 // ColorLarge800x480Style targets the 800×480 color TFT/IPS panel.
 type ColorLarge800x480Style struct{}
 
-func (s ColorLarge800x480Style) Name() string { return "color-800x480" }
+func (s ColorLarge800x480Style) Name() string { return "color-fast-800x480" }
 
 // Requirements returns SurfaceRequirements for the 800×480 color panel.
 // Target: 800×480, RGB888/RGB666, Continuous refresh.

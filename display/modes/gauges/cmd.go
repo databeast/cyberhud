@@ -6,37 +6,171 @@ import (
 	"strings"
 
 	"github.com/databeast/cyberhud/display/catalog"
+	"github.com/databeast/cyberhud/display/catalog/cmdutil"
 	"github.com/databeast/cyberhud/display/modes/gauges/source"
 	"github.com/databeast/cyberhud/display/style/color"
 )
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "gauges",
-		Title:   "Gauges",
-		Scope:   "any",
-		Summary: "User-supplied progress bars, rings, and dials rendered as panel widgets.",
-		Order:   85,
+		ID:       "gauges",
+		Title:    "Gauges",
+		Category: "Data",
+		Scope:    "any",
+		Summary:  "User-supplied progress bars, rings, and dials rendered as panel widgets.",
+		Order:    85,
 		Options: append(source.Policy{}.Options(), catalog.OptionDefinition{
 			Key:     "style",
 			Type:    "string",
 			Summary: "Visual style name or empty for automatic fitness selection.",
 			Default: "",
-			Allowed: registeredStyleNames(),
+			Allowed: gaugesRegistry.RegisteredNames(),
 		}),
 	})
 	catalog.RegisterCommand(catalog.CommandDefinition{
 		Verb:    "gauges",
 		Summary: "Manage user-supplied gauge data and display policy.",
-		Usage:   "gauges <set|get|policy> ...",
+		Usage:   "gauges set <payload> | gauges get | gauges [style=<name>] [shape=<auto|linear|ring|arc|pie>] [show_labels=<true|false>] [label_tier=<auto|small|normal|large|fullsize>] [accent=<name|none>] [default_min=<float>] [default_max=<float>] [columns=<int>] [rows=<int>] [tile_gap_px=<int>] [padding_pct=<int>]",
 		Handle:  HandleConsoleCommand,
 	})
 }
 
-// HandleConsoleCommand handles the top-level gauges command.
+// cmdHandler is the uniform CmdHandler for the gauges mode's policy options.
+// Policy edits flow through it so applying key=value pairs fires
+// cmdutil.OnApplied, driving centralized PolicyStore capture (freeze policy
+// persistence). The data sub-verbs (set/get) are handled by HandleConsoleCommand
+// before delegating here.
+var cmdHandler = &cmdutil.CmdHandler{
+	Verb: "gauges",
+	Keys: []cmdutil.KeyDef{
+		{Name: "style", Validate: func(v string) string {
+			if v != "" && gaugesRegistry.Lookup(strings.ToLower(strings.TrimSpace(v))) == nil {
+				return fmt.Sprintf("must be one of [%s]", strings.Join(gaugesRegistry.RegisteredNames(), ", "))
+			}
+			return ""
+		}},
+		{Name: "shape", Validate: func(v string) string {
+			if !source.ValidShape(v) {
+				return fmt.Sprintf("must be one of [%s]", strings.Join(source.AllowedShapes, ", "))
+			}
+			return ""
+		}},
+		{Name: "show_labels", Validate: cmdutil.BoolValidator()},
+		{Name: "label_tier", Validate: func(v string) string {
+			if !source.ValidLabelTier(v) {
+				return fmt.Sprintf("must be one of [%s]", strings.Join(source.AllowedLabelTiers, ", "))
+			}
+			return ""
+		}},
+		{Name: "accent", Validate: func(v string) string {
+			if !source.ValidAccent(v) {
+				return fmt.Sprintf("must be one of [%s]", strings.Join(append(color.Names(), "none"), ", "))
+			}
+			return ""
+		}},
+		{Name: "default_min", Validate: floatValidator},
+		{Name: "default_max", Validate: floatValidator},
+		{Name: "columns", Validate: cmdutil.IntValidator(0)},
+		{Name: "rows", Validate: cmdutil.IntValidator(0)},
+		{Name: "tile_gap_px", Validate: cmdutil.IntValidator(0)},
+		{Name: "padding_pct", Validate: cmdutil.IntValidator(0)},
+	},
+	Get:   getPolicyValue,
+	Apply: applyPolicyValue,
+}
+
+// floatValidator accepts any value parseable as a float64.
+func floatValidator(v string) string {
+	if _, err := strconv.ParseFloat(strings.TrimSpace(v), 64); err != nil {
+		return fmt.Sprintf("must be a number, got %q", v)
+	}
+	return ""
+}
+
+// getPolicyValue returns the current value for a given policy key.
+func getPolicyValue(key string) string {
+	p := sourcePolicySnapshot()
+	switch key {
+	case "style":
+		return p.Style
+	case "shape":
+		return p.Shape
+	case "show_labels":
+		return strconv.FormatBool(p.ShowLabels)
+	case "label_tier":
+		return p.LabelTier
+	case "accent":
+		return p.Accent
+	case "default_min":
+		return strconv.FormatFloat(p.DefaultMin, 'g', -1, 64)
+	case "default_max":
+		return strconv.FormatFloat(p.DefaultMax, 'g', -1, 64)
+	case "columns":
+		return strconv.Itoa(p.Columns)
+	case "rows":
+		return strconv.Itoa(p.Rows)
+	case "tile_gap_px":
+		return strconv.Itoa(p.TileGapPx)
+	case "padding_pct":
+		return strconv.Itoa(p.PaddingPct)
+	default:
+		return ""
+	}
+}
+
+// applyPolicyValue sets a single policy key on the current policy and persists
+// it via SetPolicy (which normalizes). Values have already passed validation.
+func applyPolicyValue(key, value string) {
+	p := sourcePolicySnapshot()
+	value = strings.TrimSpace(value)
+	switch key {
+	case "style":
+		p.Style = strings.ToLower(value)
+	case "shape":
+		p.Shape = strings.ToLower(value)
+	case "show_labels":
+		if b, ok := cmdutil.ParseBool(value); ok {
+			p.ShowLabels = b
+		}
+	case "label_tier":
+		p.LabelTier = strings.ToLower(value)
+	case "accent":
+		p.Accent = strings.ToLower(value)
+	case "default_min":
+		if n, err := strconv.ParseFloat(value, 64); err == nil {
+			p.DefaultMin = n
+		}
+	case "default_max":
+		if n, err := strconv.ParseFloat(value, 64); err == nil {
+			p.DefaultMax = n
+		}
+	case "columns":
+		if n, err := strconv.Atoi(value); err == nil {
+			p.Columns = n
+		}
+	case "rows":
+		if n, err := strconv.Atoi(value); err == nil {
+			p.Rows = n
+		}
+	case "tile_gap_px":
+		if n, err := strconv.Atoi(value); err == nil {
+			p.TileGapPx = n
+		}
+	case "padding_pct":
+		if n, err := strconv.Atoi(value); err == nil {
+			p.PaddingPct = n
+		}
+	}
+	SetPolicy(p)
+}
+
+// HandleConsoleCommand handles the top-level gauges command. The data sub-verbs
+// "set" and "get" manage the externally-supplied gauge payload; everything else
+// is treated as policy key=value edits and delegated to the uniform
+// cmdutil.CmdHandler. A bare "gauges" with no args returns the policy query line.
 func HandleConsoleCommand(args []string) string {
 	if len(args) == 0 {
-		return "ERR usage: gauges <set|get|policy> ..."
+		return cmdHandler.Handle(args)
 	}
 
 	switch strings.ToLower(strings.TrimSpace(args[0])) {
@@ -62,99 +196,8 @@ func HandleConsoleCommand(args []string) string {
 			return fmt.Sprintf("ERR %s", err.Error())
 		}
 		return "OK\n" + data
-	case "policy":
-		if len(args) == 1 {
-			return source.FormatPolicyResponse(sourcePolicySnapshot())
-		}
-		next := sourcePolicySnapshot()
-		for _, token := range args[1:] {
-			kv := strings.SplitN(token, "=", 2)
-			if len(kv) != 2 {
-				return "ERR usage: gauges policy [style=<name>] [shape=<auto|linear|ring|arc|pie>] [show_labels=<true|false>] [label_tier=<auto|small|normal|large|fullsize>] [accent=<name|none>] [default_min=<float>] [default_max=<float>] [columns=<int>] [rows=<int>] [tile_gap_px=<int>] [padding_pct=<int>]"
-			}
-			key := strings.ToLower(strings.TrimSpace(kv[0]))
-			val := strings.TrimSpace(kv[1])
-			switch key {
-			case "style":
-				if val != "" && gaugesRegistry.Lookup(val) == nil {
-					return fmt.Sprintf("ERR style: must be one of [%s]", strings.Join(registeredStyleNames(), ", "))
-				}
-				next.Style = strings.ToLower(val)
-			case "shape":
-				if !source.ValidShape(val) {
-					return fmt.Sprintf("ERR shape: must be one of [%s]", strings.Join(source.AllowedShapes, ", "))
-				}
-				next.Shape = strings.ToLower(val)
-			case "show_labels":
-				b, ok := parseBool(val)
-				if !ok {
-					return "ERR show_labels: must be true or false"
-				}
-				next.ShowLabels = b
-			case "label_tier":
-				if !source.ValidLabelTier(val) {
-					return fmt.Sprintf("ERR label_tier: must be one of [%s]", strings.Join(source.AllowedLabelTiers, ", "))
-				}
-				next.LabelTier = strings.ToLower(val)
-			case "accent":
-				if !source.ValidAccent(val) {
-					return fmt.Sprintf("ERR accent: must be one of [%s]", strings.Join(append(color.Names(), "none"), ", "))
-				}
-				next.Accent = strings.ToLower(val)
-			case "default_min":
-				n, err := strconv.ParseFloat(val, 64)
-				if err != nil {
-					return fmt.Sprintf("ERR default_min must be a number, got %q", val)
-				}
-				next.DefaultMin = n
-			case "default_max":
-				n, err := strconv.ParseFloat(val, 64)
-				if err != nil {
-					return fmt.Sprintf("ERR default_max must be a number, got %q", val)
-				}
-				next.DefaultMax = n
-			case "columns":
-				n, err := strconv.Atoi(val)
-				if err != nil || n < 0 {
-					return fmt.Sprintf("ERR columns must be an integer >= 0, got %q", val)
-				}
-				next.Columns = n
-			case "rows":
-				n, err := strconv.Atoi(val)
-				if err != nil || n < 0 {
-					return fmt.Sprintf("ERR rows must be an integer >= 0, got %q", val)
-				}
-				next.Rows = n
-			case "tile_gap_px":
-				n, err := strconv.Atoi(val)
-				if err != nil || n < 0 {
-					return fmt.Sprintf("ERR tile_gap_px must be an integer >= 0, got %q", val)
-				}
-				next.TileGapPx = n
-			case "padding_pct":
-				n, err := strconv.Atoi(val)
-				if err != nil || n < 0 {
-					return fmt.Sprintf("ERR padding_pct must be an integer >= 0, got %q", val)
-				}
-				next.PaddingPct = n
-			default:
-				return fmt.Sprintf("ERR unknown gauges policy key %q", key)
-			}
-		}
-		SetPolicy(next)
-		return source.FormatPolicyResponse(sourcePolicySnapshot())
 	default:
-		return "ERR usage: gauges <set|get|policy> ..."
-	}
-}
-
-func parseBool(s string) (bool, bool) {
-	switch strings.ToLower(strings.TrimSpace(s)) {
-	case "true", "yes", "on", "1":
-		return true, true
-	case "false", "no", "off", "0":
-		return false, true
-	default:
-		return false, false
+		// Policy edits: style=... shape=... etc. — uniform key=value path.
+		return cmdHandler.Handle(args)
 	}
 }

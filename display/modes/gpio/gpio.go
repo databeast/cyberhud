@@ -3,7 +3,6 @@ package gpio
 import (
 	"image"
 	"image/color"
-	"strings"
 	"sync"
 
 	"github.com/databeast/cyberhud/display/modes/gpio/source"
@@ -28,19 +27,19 @@ var gpioRegistry = style.NewRegistry[source.GpioSnapshot, source.Policy](
 	styles.DashboardStyle,
 	styles.ActivityStyle,
 	// MonoSlow
-	styles.EinkStyle104x212,
-	styles.EinkStyle122x250,
-	styles.EinkStyle128x296,
-	styles.EinkStyle176x264,
-	styles.EinkStyle200x200,
-	styles.EinkStyle212x104,
-	styles.EinkStyle250x122,
-	styles.EinkStyle264x176,
-	styles.EinkStyle296x128,
-	styles.EinkStyle300x400,
-	styles.EinkStyle400x300,
-	styles.EinkStyle480x800,
-	styles.EinkStyle800x480,
+	styles.MonoSlow104x212Style,
+	styles.MonoSlow122x250Style,
+	styles.MonoSlow128x296Style,
+	styles.MonoSlow176x264Style,
+	styles.MonoSlow200x200Style,
+	styles.MonoSlow212x104Style,
+	styles.MonoSlow250x122Style,
+	styles.MonoSlow264x176Style,
+	styles.MonoSlow296x128Style,
+	styles.MonoSlow300x400Style,
+	styles.MonoSlow400x300Style,
+	styles.MonoSlow480x800Style,
+	styles.MonoSlow800x480Style,
 	styles.MonoSlow128x32Style,
 	styles.MonoSlow128x64Style,
 	styles.MonoSlow128x128Style,
@@ -208,17 +207,6 @@ func SetGPIOManager(mgr interface{ Snapshot() []gpiomgr.PinState }) {
 	source.SetGPIOManager(mgr)
 }
 
-// registeredStyleNames returns the list of style names from the registry.
-// Used by catalog registration and cmdHandler for allowed-value validation.
-func registeredStyleNames() []string {
-	styles := gpioRegistry.Enumerate()
-	names := make([]string, len(styles))
-	for i, s := range styles {
-		names[i] = s.Name()
-	}
-	return names
-}
-
 // Allowed style values for the GPIO mode.
 const (
 	StyleList      = "list"
@@ -279,15 +267,6 @@ func isAllowedAccent(value string) bool {
 		}
 	}
 	return false
-}
-
-// fontValidator rejects whitespace-only values; accepts "auto" and any non-empty trimmed string.
-func fontValidator(value string) string {
-	v := strings.TrimSpace(value)
-	if v == "" {
-		return "must be \"auto\" or a non-empty font ID"
-	}
-	return ""
 }
 
 // boolStr returns "true" or "false" for a bool value.

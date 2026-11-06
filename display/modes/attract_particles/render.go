@@ -13,8 +13,8 @@ import (
 	"github.com/databeast/cyberhud/display/widgets"
 )
 
-// buildView produces a complete particles frame as style.ViewData.
-func buildView(hints textlayout.TextHints) style.ViewData {
+// BuildView produces a complete particles frame as style.ViewData.
+func BuildView(hints textlayout.TextHints) style.ViewData {
 	p := GetPolicy()
 	panelWidth := hints.PixelWidth
 	panelHeight := hints.PixelHeight

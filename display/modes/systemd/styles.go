@@ -8,23 +8,23 @@ import (
 
 // systemdRegistry is the per-mode StyleRegistry for the systemd display mode.
 // Registration order: MonoSlow → MonoFast → GrayscaleSlow → GrayscaleFast → ColorSlow → ColorFast.
-// The first entry (EinkStyle104x212) is the default style.
+// The first entry (MonoSlow104x212Style) is the default style.
 var systemdRegistry = func() *style.StyleRegistry[source.Snapshot, source.Policy] {
 	r := style.NewRegistry[source.Snapshot, source.Policy](
 		// MonoSlow
-		styles.EinkStyle104x212,
-		styles.EinkStyle122x250,
-		styles.EinkStyle128x296,
-		styles.EinkStyle176x264,
-		styles.EinkStyle200x200,
-		styles.EinkStyle212x104,
-		styles.EinkStyle250x122,
-		styles.EinkStyle264x176,
-		styles.EinkStyle296x128,
-		styles.EinkStyle300x400,
-		styles.EinkStyle400x300,
-		styles.EinkStyle480x800,
-		styles.EinkStyle800x480,
+		styles.MonoSlow104x212Style,
+		styles.MonoSlow122x250Style,
+		styles.MonoSlow128x296Style,
+		styles.MonoSlow176x264Style,
+		styles.MonoSlow200x200Style,
+		styles.MonoSlow212x104Style,
+		styles.MonoSlow250x122Style,
+		styles.MonoSlow264x176Style,
+		styles.MonoSlow296x128Style,
+		styles.MonoSlow300x400Style,
+		styles.MonoSlow400x300Style,
+		styles.MonoSlow480x800Style,
+		styles.MonoSlow800x480Style,
 		styles.MonoSlow128x32Style,
 		styles.MonoSlow128x64Style,
 		styles.MonoSlow128x128Style,
@@ -40,8 +40,6 @@ var systemdRegistry = func() *style.StyleRegistry[source.Snapshot, source.Policy
 		styles.MonoSlow320x240Style,
 		styles.MonoSlow320x480Style,
 		styles.MonoSlow480x320Style,
-		styles.MonoSlow480x800Style,
-		styles.MonoSlow800x480Style,
 		// MonoFast
 		styles.MonoStyle128x32,
 		styles.MonoStyle128x64,
@@ -191,27 +189,3 @@ var systemdRegistry = func() *style.StyleRegistry[source.Snapshot, source.Policy
 
 	return r
 }()
-
-// allEmptyItems returns true if items is nil, empty, or contains only empty strings.
-func allEmptyItems(items []string) bool {
-	if len(items) == 0 {
-		return true
-	}
-	for _, item := range items {
-		if item != "" {
-			return false
-		}
-	}
-	return true
-}
-
-// registeredStyleNames returns the list of style names from the registry.
-// Used by catalog registration and cmdHandler for allowed-value validation.
-func registeredStyleNames() []string {
-	styles := systemdRegistry.Enumerate()
-	names := make([]string, len(styles))
-	for i, s := range styles {
-		names[i] = s.Name()
-	}
-	return names
-}

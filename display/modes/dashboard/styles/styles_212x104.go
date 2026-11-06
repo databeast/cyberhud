@@ -8,16 +8,14 @@ import "github.com/databeast/cyberhud/display/style"
 // adjust its Params layout selector or attach a bespoke BuildFn to tune the
 // dashboard's look for this specific display.
 
-var EinkStyle104x212 = styleDef{
-	name: "eink-104x212",
+var MonoSlow104x212Style = styleDef{
+	name: "mono-slow-104x212",
 	reqs: style.SurfaceRequirements{MinWidth: 104, MinHeight: 212, Capability: style.MonoSlow},
-	p:    Params{BuildFn: buildEinkStyle200x200},
 }
 
-var EinkStyle212x104 = styleDef{
-	name: "eink-212x104",
+var MonoSlow212x104Style = styleDef{
+	name: "mono-slow-212x104",
 	reqs: style.SurfaceRequirements{MinWidth: 212, MinHeight: 104, Capability: style.MonoSlow},
-	p:    Params{BuildFn: buildEinkStyle200x200},
 }
 
 var MonoFast104x212Style = styleDef{

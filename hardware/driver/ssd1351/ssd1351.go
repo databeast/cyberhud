@@ -10,6 +10,7 @@ import (
 	"periph.io/x/conn/v3/physic"
 	"periph.io/x/conn/v3/spi"
 
+	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/hardware/driver"
 )
 
@@ -43,6 +44,8 @@ func init() {
 		Title:      "SSD1351",
 		Summary:    "SPI 128x128 RGB color OLED controller.",
 		Monochrome: false,
+		ColorDepth: driver.DepthColor,
+		Capability: textlayout.CapColorFast,
 		OptionDefs: []driver.OptionDefinition{
 			{Key: "width", Type: "int", Summary: "Display width in pixels.", Default: "128"},
 			{Key: "height", Type: "int", Summary: "Display height in pixels.", Default: "128"},
@@ -95,6 +98,21 @@ func New(port spi.Port, dc, rst, bl gpio.PinOut, cfg driver.DriverConfig) (*SSD1
 
 func (d *SSD1351) Bounds() image.Rectangle {
 	return image.Rect(0, 0, d.cfg.Width, d.cfg.Height)
+}
+
+// TextHints advertises this panel as a fast color OLED. DrawImage packs RGB565,
+// so the full color a style emits reaches the panel; declaring color-fast lets
+// style selection offer the richest styles instead of mono fallbacks. Without
+// this method the driver silently defaulted to mono and under-drove the display.
+func (d *SSD1351) TextHints() textlayout.TextHints {
+	b := d.Bounds()
+	return textlayout.TextHints{
+		PixelWidth: b.Dx(), PixelHeight: b.Dy(),
+		SupportsVerticalScroll: true, SupportsHorizontalScroll: true, SupportsAutoScroll: true,
+		PreferEventRefresh:     false,
+		Capability:             textlayout.CapColorFast,
+		DefaultTickerDirection: textlayout.TickerDirectionVertical, DefaultLineMode: textlayout.LineModeTruncate,
+	}
 }
 
 // DrawImage writes 16-bit RGB565 pixel data to the OLED GDDRAM.

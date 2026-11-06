@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 	"github.com/databeast/cyberhud/display/surface/scale"
 	"github.com/databeast/cyberhud/display/widgets/textbox"
 	"pgregory.net/rapid"

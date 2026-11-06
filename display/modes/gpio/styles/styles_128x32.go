@@ -17,15 +17,13 @@ var MonoSlow32x128Style = def{
 }
 
 var MonoStyle128x32 = def{
-	name: "mono-128x32",
+	name: "mono-fast-128x32",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 32, Capability: style.MonoFast},
-	p:    Params{BuildFn: monoSummaryBuild},
 }
 
 var MonoStyle32x128 = def{
-	name: "mono-32x128",
+	name: "mono-fast-32x128",
 	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.MonoFast},
-	p:    Params{Layout: layoutMonoRows},
 }
 
 var GrayscaleSlow128x32Style = def{

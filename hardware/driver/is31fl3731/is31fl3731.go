@@ -7,6 +7,7 @@ import (
 
 	"periph.io/x/conn/v3/i2c"
 
+	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/hardware/driver"
 )
 
@@ -16,6 +17,8 @@ func init() {
 		Title:      "IS31FL3731",
 		Summary:    "Charlieplexed LED matrix controller (I2C)",
 		Monochrome: false,
+		ColorDepth: driver.DepthGray,
+		Capability: textlayout.CapGrayscaleFast,
 		OptionDefs: []driver.OptionDefinition{
 			{Key: "width", Type: "int", Summary: "Display width in pixels", Default: "15"},
 			{Key: "height", Type: "int", Summary: "Display height in pixels", Default: "7"},
@@ -227,6 +230,23 @@ func (d *IS31FL3731) writeBulk(startReg byte, data []byte) error {
 // Bounds returns the pixel dimensions of the LED matrix.
 func (d *IS31FL3731) Bounds() image.Rectangle {
 	return image.Rect(0, 0, d.cfg.Width, d.cfg.Height)
+}
+
+// TextHints reports this panel's layout and capability. The capability is
+// CapGrayscaleFast: DrawImage writes 8-bit PWM per LED, so emitted color is
+// preserved as a luminance level rather than thresholded to 1 bit. PixelWidth/
+// Height come from the live bounds since the controller serves several matrix
+// sizes (15x7, 16x8, and other layouts). Glyph/row metrics and PPI are left for
+// the Region to fill from its tier catalog, matching the other multi-size drivers.
+func (d *IS31FL3731) TextHints() textlayout.TextHints {
+	b := d.Bounds()
+	return textlayout.TextHints{
+		PixelWidth: b.Dx(), PixelHeight: b.Dy(),
+		SupportsVerticalScroll: false, SupportsHorizontalScroll: false, SupportsAutoScroll: false,
+		PreferEventRefresh:     false,
+		Capability:             textlayout.CapGrayscaleFast,
+		DefaultTickerDirection: textlayout.TickerDirectionNone, DefaultLineMode: textlayout.LineModeTruncate,
+	}
 }
 
 // DrawImage converts the source image pixels to grayscale brightness values using

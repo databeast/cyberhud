@@ -2,15 +2,7 @@ package displaymode
 
 import (
 	"github.com/databeast/cyberhud/display/style"
-	"github.com/databeast/cyberhud/display/style/layout"
-	"github.com/databeast/cyberhud/display/surface/textlayout"
 )
-
-// newDisplaymodeBridge constructs a LayoutBridge for the displaymode template.
-// The template mode uses no border, no title bar, and no hint bar.
-func newDisplaymodeBridge(hints textlayout.TextHints) layout.LayoutCalculator {
-	return layout.NewLayoutBridge(hints, layout.BridgeConfig{})
-}
 
 // ViewData is the mode-internal representation of rendering output.
 // In the template it contains only Items; real modes add domain-specific fields.

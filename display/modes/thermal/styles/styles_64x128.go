@@ -49,42 +49,42 @@ var MonoSlow64x128MinimalStyle = def{
 }
 
 var MonoFast64x128Style = def{
-	name: "mono-64x128",
+	name: "mono-fast-64x128",
 	reqs: style.SurfaceRequirements{MinWidth: 64, MinHeight: 128, Capability: style.MonoFast},
 }
 
 var MonoFast64x128ThermometerStyle = def{
-	name: "mono-64x128-thermometer",
+	name: "mono-fast-64x128-thermometer",
 	reqs: style.SurfaceRequirements{MinWidth: 64, MinHeight: 128, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildPortraitThermometerStyle},
 }
 
 var MonoFast64x128SparkStyle = def{
-	name: "mono-64x128-spark",
+	name: "mono-fast-64x128-spark",
 	reqs: style.SurfaceRequirements{MinWidth: 64, MinHeight: 128, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildPortraitSparkStyle},
 }
 
 var MonoFast64x128HeatmapStyle = def{
-	name: "mono-64x128-heatmap",
+	name: "mono-fast-64x128-heatmap",
 	reqs: style.SurfaceRequirements{MinWidth: 64, MinHeight: 128, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildPortraitHeatmapStyle},
 }
 
 var MonoFast64x128LEDsStyle = def{
-	name: "mono-64x128-leds",
+	name: "mono-fast-64x128-leds",
 	reqs: style.SurfaceRequirements{MinWidth: 64, MinHeight: 128, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildPortraitLEDsStyle},
 }
 
 var MonoFast64x128AvgThermoStyle = def{
-	name: "mono-64x128-avg-thermo",
+	name: "mono-fast-64x128-avg-thermo",
 	reqs: style.SurfaceRequirements{MinWidth: 64, MinHeight: 128, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildPortraitAvgThermoStyle},
 }
 
 var MonoFast64x128MinimalStyle = def{
-	name: "mono-64x128-minimal",
+	name: "mono-fast-64x128-minimal",
 	reqs: style.SurfaceRequirements{MinWidth: 64, MinHeight: 128, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildMinimalStyle},
 }

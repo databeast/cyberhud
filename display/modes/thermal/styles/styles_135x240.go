@@ -172,42 +172,42 @@ var ColorSlow135x240MinimalStyle = def{
 }
 
 var ColorFast135x240Style = def{
-	name: "color-135x240",
+	name: "color-fast-135x240",
 	reqs: style.SurfaceRequirements{MinWidth: 135, MinHeight: 240, Capability: style.ColorFast},
 }
 
 var ColorFast135x240ThermometerStyle = def{
-	name: "color-135x240-thermometer",
+	name: "color-fast-135x240-thermometer",
 	reqs: style.SurfaceRequirements{MinWidth: 135, MinHeight: 240, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildPortraitThermometerStyle},
 }
 
 var ColorFast135x240SparkStyle = def{
-	name: "color-135x240-spark",
+	name: "color-fast-135x240-spark",
 	reqs: style.SurfaceRequirements{MinWidth: 135, MinHeight: 240, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildPortraitSparkStyle},
 }
 
 var ColorFast135x240HeatmapStyle = def{
-	name: "color-135x240-heatmap",
+	name: "color-fast-135x240-heatmap",
 	reqs: style.SurfaceRequirements{MinWidth: 135, MinHeight: 240, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildPortraitHeatmapStyle},
 }
 
 var ColorFast135x240LEDsStyle = def{
-	name: "color-135x240-leds",
+	name: "color-fast-135x240-leds",
 	reqs: style.SurfaceRequirements{MinWidth: 135, MinHeight: 240, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildPortraitLEDsStyle},
 }
 
 var ColorFast135x240AvgThermoStyle = def{
-	name: "color-135x240-avg-thermo",
+	name: "color-fast-135x240-avg-thermo",
 	reqs: style.SurfaceRequirements{MinWidth: 135, MinHeight: 240, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildPortraitAvgThermoStyle},
 }
 
 var ColorFast135x240MinimalStyle = def{
-	name: "color-135x240-minimal",
+	name: "color-fast-135x240-minimal",
 	reqs: style.SurfaceRequirements{MinWidth: 135, MinHeight: 240, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildMinimalStyle},
 }

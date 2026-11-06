@@ -73,20 +73,20 @@ cyberhudctl display gauges set '{"gauges":[{"label":"CPU","value":42,"min":0,"ma
 Render a battery monitor with rings instead of bars:
 
 ```sh
-cyberhudctl display gauges policy shape=ring show_labels=true accent=green
+cyberhudctl display gauges shape=ring show_labels=true accent=green
 cyberhudctl display gauges set '{"gauges":[{"label":"Battery","value":64,"min":0,"max":100},{"label":"Load","value":18,"min":0,"max":100}]}'
 ```
 
 Use a compact 2-column layout for a small TFT panel:
 
 ```sh
-cyberhudctl display gauges policy columns=2 tile_gap_px=2 padding_pct=2
+cyberhudctl display gauges columns=2 tile_gap_px=2 padding_pct=2
 ```
 
 Hide labels for a very small panel:
 
 ```sh
-cyberhudctl display gauges policy show_labels=false
+cyberhudctl display gauges show_labels=false
 ```
 
 Drive a 3D printer dashboard from your own script:

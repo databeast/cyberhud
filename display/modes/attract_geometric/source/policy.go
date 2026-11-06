@@ -1,7 +1,10 @@
 package source
 
-import "fmt"
-import "github.com/databeast/cyberhud/display/catalog"
+import (
+	"fmt"
+
+	"github.com/databeast/cyberhud/display/catalog"
+)
 
 // Policy captures all runtime-configurable parameters for the geometric attract mode.
 type Policy struct {

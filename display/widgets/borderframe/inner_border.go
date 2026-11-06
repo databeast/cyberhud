@@ -23,30 +23,6 @@ func clampInnerOffset(offset int) int {
 	return offset
 }
 
-// contentInset returns the total content inset per side in pixels.
-// If InnerBorder is disabled or suppressed (content area < 8×8), returns 8 (primary border only).
-// If InnerBorder is enabled and not suppressed, returns 8 + InnerOffset.
-func contentInset(cfg Config) int {
-	if !cfg.InnerBorder {
-		return tileSize
-	}
-
-	offset := clampInnerOffset(cfg.InnerOffset)
-	w := cfg.Bounds.Dx()
-	h := cfg.Bounds.Dy()
-
-	// Content area after primary border (8px each side) and InnerOffset on each side.
-	// Per Req 12.6: suppress if content area < 8×8.
-	contentW := w - 2*(tileSize+offset)
-	contentH := h - 2*(tileSize+offset)
-
-	if contentW < tileSize || contentH < tileSize {
-		return tileSize
-	}
-
-	return tileSize + offset
-}
-
 // renderInnerBorder creates an RGBA image containing the inner border tiles.
 // Returns nil if InnerBorder is not enabled, or if the remaining content area
 // after both primary border inset and InnerOffset on each side is less than 8×8 pixels.

@@ -54,13 +54,13 @@ var ColorSlow80x160Style = styleDef{
 }
 
 var ColorSmall160x80Style = styleDef{
-	name: "color-160x80",
+	name: "color-fast-160x80",
 	reqs: style.SurfaceRequirements{MinWidth: 160, MinHeight: 80, Capability: style.ColorFast},
 	p:    Params{Fast: true, Color: true},
 }
 
 // ColorSmall80x160Style targets the 80×160 (portrait) color TFT panel.
 var ColorSmall80x160Style = styleDef{
-	name: "color-80x160",
+	name: "color-fast-80x160",
 	reqs: style.SurfaceRequirements{MinWidth: 80, MinHeight: 160, Capability: style.ColorFast},
 }

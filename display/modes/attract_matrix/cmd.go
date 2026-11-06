@@ -12,7 +12,7 @@ var cmdHandler = &cmdutil.CmdHandler{
 		{Name: "min_speed", Validate: floatPositiveValidator()},
 		{Name: "max_speed", Validate: floatPositiveValidator()},
 		{Name: "trail_length", Validate: intRangeValidator(1, 128)},
-		{Name: "density", Validate: floatRangeValidator(0.1, 1.0)},
+		{Name: "density", Validate: cmdutil.FloatRangeValidator(0.1, 1.0)},
 		{Name: "show_background", Validate: cmdutil.BoolValidator()},
 	},
 	Get:       getPolicy,

@@ -10,7 +10,7 @@ import (
 
 // GalleryEntry represents a single snapshot image for gallery fragment generation.
 type GalleryEntry struct {
-	Filename string // e.g. "color-240x240_0001.png"
+	Filename string // e.g. "color-fast-240x240_0001.png"
 	Width    int
 	Height   int
 }
@@ -76,7 +76,7 @@ func WriteGalleryFragmentFromPaths(outputDir, modeID string, pngPaths []string) 
 }
 
 // parseDimensionsFromFilename extracts width and height from filenames like
-// "color-240x240_0001.png" or "compact_128x128_0001.png".
+// "color-fast-240x240_0001.png" or "compact_128x128_0001.png".
 // It scans for the last occurrence of a NxM pattern before "_0001.png".
 func parseDimensionsFromFilename(filename string) (w, h int, ok bool) {
 	// Strip _NNNN.png suffix.

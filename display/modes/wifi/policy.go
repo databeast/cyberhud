@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/databeast/cyberhud/display/catalog"
+	"github.com/databeast/cyberhud/display/catalog/cmdutil"
 	"github.com/databeast/cyberhud/display/modes/wifi/source"
 )
 
@@ -46,29 +47,23 @@ func (wifiSnapshotter) RestorePolicy(data map[string]interface{}) error {
 		}
 	}
 	if v, ok := data["show_frequency"]; ok {
-		if b, ok := toBool(v); ok {
+		if b, ok := cmdutil.ToBool(v); ok {
 			p.ShowFrequency = b
 		}
 	}
 	if v, ok := data["show_interface"]; ok {
-		if b, ok := toBool(v); ok {
+		if b, ok := cmdutil.ToBool(v); ok {
 			p.ShowInterface = b
 		}
 	}
 	if v, ok := data["show_channel"]; ok {
-		if b, ok := toBool(v); ok {
+		if b, ok := cmdutil.ToBool(v); ok {
 			p.ShowChannel = b
 		}
 	}
 
 	SetPolicy(p)
 	return nil
-}
-
-// toBool extracts a bool from an interface value.
-func toBool(v interface{}) (bool, bool) {
-	b, ok := v.(bool)
-	return b, ok
 }
 
 func init() {

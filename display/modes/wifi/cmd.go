@@ -11,7 +11,7 @@ import (
 var cmdHandler = &cmdutil.CmdHandler{
 	Verb: "wifi",
 	Keys: []cmdutil.KeyDef{
-		{Name: "style", Validate: cmdutil.AllowedValidator(registeredStyleNames())},
+		{Name: "style", Validate: cmdutil.AllowedValidator(wifiRegistry.RegisteredNames())},
 		{Name: "fgcolor", Validate: cmdutil.AllowedValidator(source.AllowedFGColors)},
 		{Name: "signal_display", Validate: cmdutil.AllowedValidator(source.AllowedSignalDisplay)},
 		{Name: "show_frequency", Validate: cmdutil.BoolValidator()},

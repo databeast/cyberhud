@@ -395,7 +395,7 @@ func (rr *RegionRenderer) renderItems(surf *surface.Surface, v style.ViewData, b
 	_, contentY := bridge.ContentOrigin()
 	y := surf.Bounds().Min.Y
 	if v.OffsetY > 0 {
-		y = contentY + v.OffsetY
+		y = contentY + int(v.OffsetY) // TTY-block offset → world: add content origin
 	}
 
 	for i, item := range visible {
@@ -427,7 +427,7 @@ func (rr *RegionRenderer) renderItems(surf *surface.Surface, v style.ViewData, b
 
 		baseX := contentLeft
 		if v.LineOffsets != nil && absIdx < len(v.LineOffsets) {
-			baseX += v.LineOffsets[absIdx]
+			baseX += int(v.LineOffsets[absIdx]) // TTY → world
 		}
 		surf.DrawText(baseX, textY, item, fg)
 
@@ -459,7 +459,7 @@ func (rr *RegionRenderer) renderStaticItems(surf *surface.Surface, v style.ViewD
 	_, contentY := bridge.ContentOrigin()
 	y := surf.Bounds().Min.Y
 	if v.OffsetY > 0 {
-		y = contentY + v.OffsetY
+		y = contentY + int(v.OffsetY) // TTY-block offset → world: add content origin
 	}
 	contentLeft, _ := bridge.ContentOrigin()
 	contentWidth := bridge.AvailableContentWidth()
@@ -479,7 +479,7 @@ func (rr *RegionRenderer) renderStaticItems(surf *surface.Surface, v style.ViewD
 		surf.DrawRect(image.Rect(contentLeft, y, contentLeft+contentWidth, y+rh), colBackground)
 		baseX := contentLeft
 		if v.LineOffsets != nil && i < len(v.LineOffsets) {
-			baseX += v.LineOffsets[i]
+			baseX += int(v.LineOffsets[i]) // TTY → world
 		}
 		var fg color.Color = colText
 		if v.Colors != nil && i < len(v.Colors) && v.Colors[i] != nil {

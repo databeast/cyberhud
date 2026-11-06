@@ -7,11 +7,12 @@ import (
 	displaymodes "github.com/databeast/cyberhud/display/modes"
 )
 
-// attractModeIDs lists all seven attract mode IDs that must be registered.
+// attractModeIDs lists attract mode IDs that must be registered.
 var attractModeIDs = []string{
 	"attract_waveform",
 	"attract_particles",
 	"attract_plasma",
+	"attract_popsquares",
 	"attract_starfield",
 	"attract_bokeh",
 	"attract_matrix",

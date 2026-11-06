@@ -131,7 +131,7 @@ var ColorSlow320x240MinimalStyle = def{
 }
 
 var ColorFast320x240Style = def{
-	name: "color-320x240",
+	name: "color-fast-320x240",
 	reqs: style.SurfaceRequirements{MinWidth: 320, MinHeight: 240, Capability: style.ColorFast},
 }
 
@@ -139,19 +139,19 @@ var ColorFast320x240Style = def{
 // Add detail, graph, minimal here since they're not in the polished set.
 
 var ColorFast320x240DetailStyle = def{
-	name: "color-320x240-detail",
+	name: "color-fast-320x240-detail",
 	reqs: style.SurfaceRequirements{MinWidth: 320, MinHeight: 240, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildDetailStyle},
 }
 
 var ColorFast320x240GraphStyle = def{
-	name: "color-320x240-graph",
+	name: "color-fast-320x240-graph",
 	reqs: style.SurfaceRequirements{MinWidth: 320, MinHeight: 240, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildGraphStyle},
 }
 
 var ColorFast320x240MinimalStyle = def{
-	name: "color-320x240-minimal",
+	name: "color-fast-320x240-minimal",
 	reqs: style.SurfaceRequirements{MinWidth: 320, MinHeight: 240, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildMinimalStyle},
 }

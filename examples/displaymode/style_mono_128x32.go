@@ -8,7 +8,7 @@ import (
 // MonoSmall128x32Style targets the 128×32 monochrome OLED panel.
 type MonoSmall128x32Style struct{}
 
-func (s MonoSmall128x32Style) Name() string { return "mono-128x32" }
+func (s MonoSmall128x32Style) Name() string { return "mono-fast-128x32" }
 
 // Requirements returns SurfaceRequirements for the 128×32 panel.
 // Target: 128×32, 1-bit Mono packed, Deferred refresh.

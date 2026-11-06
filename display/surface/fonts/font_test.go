@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 )
 
 // --- From: draw_test.go ---

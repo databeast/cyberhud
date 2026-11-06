@@ -73,11 +73,10 @@ func computeActiveColumns(totalColumns int, density float64) []int {
 // their current scroll position, new strips start at phase 0 (entering from
 // the top of the screen).
 var (
-	stripCache            []*marquee.Strip
-	stripColumnMap        map[int]*marquee.Strip // colIdx → existing strip
-	lastPolicyFingerprint string
-	lastCacheKey          string
-	firstBuildDone        bool // tracks whether the initial staggered build has happened
+	stripCache     []*marquee.Strip
+	stripColumnMap map[int]*marquee.Strip // colIdx → existing strip
+	lastCacheKey   string
+	firstBuildDone bool // tracks whether the initial staggered build has happened
 )
 
 // buildCacheKey constructs a composite key from the layout-affecting parameters.
@@ -177,6 +176,5 @@ func GetOrRebuildStrips(p Policy, panelWidth, panelHeight, glyphAdvance, rowHeig
 		return stripCache
 	}
 	lastCacheKey = key
-	lastPolicyFingerprint = PolicyFingerprint(p)
 	return rebuildStrips(p, panelWidth, panelHeight, glyphAdvance, rowHeight, mono, seed, face)
 }

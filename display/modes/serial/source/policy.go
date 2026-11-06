@@ -17,11 +17,12 @@ type Policy struct {
 	ScanMS     int
 	Style      string // empty means auto-detect via style fitness
 	Font       string // "auto" or a specific font ID
+	Raw        bool   // true suppresses the instrument-panel chrome, showing data bytes only
 }
 
 // DefaultPolicy returns baseline serial monitor behavior.
 func DefaultPolicy() Policy {
-	return Policy{Port: "", Baud: DefaultBaud, MaxLines: DefaultMaxLines, AutoSelect: true, ScanMS: DefaultScanMS, Style: "", Font: "auto"}
+	return Policy{Port: "", Baud: DefaultBaud, MaxLines: DefaultMaxLines, AutoSelect: true, ScanMS: DefaultScanMS, Style: "", Font: "auto", Raw: false}
 }
 
 func (p Policy) Options() []catalog.OptionDefinition {
@@ -32,11 +33,12 @@ func (p Policy) Options() []catalog.OptionDefinition {
 		{Key: "autoselect", Type: "bool", Summary: "Auto-pick the best available USB serial port.", Default: "true", Allowed: []string{"true", "false"}},
 		{Key: "scan_ms", Type: "int", Summary: "Milliseconds between reconnect attempts.", Default: "500"},
 		{Key: "font", Type: "string", Summary: "Font selection (auto or a registered font ID).", Default: "auto"},
+		{Key: "raw", Type: "bool", Summary: "Show serial output bytes only, suppressing the connection/status chrome.", Default: "false", Allowed: []string{"true", "false"}},
 	}
 }
 
 func (p Policy) Fingerprint() string {
-	return fmt.Sprintf("%s|%d|%d|%t|%d|%s|%s", p.Port, p.Baud, p.MaxLines, p.AutoSelect, p.ScanMS, p.Style, p.Font)
+	return fmt.Sprintf("%s|%d|%d|%t|%d|%s|%s|%t", p.Port, p.Baud, p.MaxLines, p.AutoSelect, p.ScanMS, p.Style, p.Font, p.Raw)
 }
 
 func (p Policy) ToMap() map[string]interface{} {
@@ -48,6 +50,7 @@ func (p Policy) ToMap() map[string]interface{} {
 		"scan_ms":    p.ScanMS,
 		"style":      p.Style,
 		"font":       p.Font,
+		"raw":        p.Raw,
 	}
 }
 
@@ -80,10 +83,4 @@ const (
 	DefaultMaxLines    = 24
 	DefaultScanMS      = 500
 	DefaultReadTimeout = 500 * time.Millisecond
-
-	StyleDefault   = "default"
-	StyleRaw       = "raw"
-	StyleDashboard = "dashboard"
-	StyleCompact   = "compact"
-	StyleFramed    = "framed"
 )

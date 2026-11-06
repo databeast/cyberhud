@@ -31,7 +31,7 @@ func RenderEInkBokehPicture(panelWidth, panelHeight int, p Policy) style.ViewDat
 				Label:    "bokeh-eink",
 			},
 		},
-		StyleReport: style.StyleReport{Name: "eink-bokeh", Reason: "fitness"},
+		StyleReport: style.StyleReport{Name: "mono-slow-bokeh", Reason: "fitness"},
 	}
 }
 

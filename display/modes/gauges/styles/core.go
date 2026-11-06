@@ -153,7 +153,7 @@ func buildGaugeView(data source.GaugeSet, pol source.Policy, ctx style.StyleCont
 
 func placeholderView(ctx style.StyleContext, bridge layout.LayoutCalculator, text string) style.ViewData {
 	x, y := bridge.ContentOrigin()
-	h := bridge.RowHeight()
+	h := ctx.DefaultMetrics().RowHeight()
 	if h <= 0 {
 		h = 10
 	}

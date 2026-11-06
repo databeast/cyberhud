@@ -21,7 +21,7 @@ func init() {
 		Keys: []cmdutil.KeyDef{
 			{
 				Name:     "style",
-				Validate: cmdutil.AllowedValidator(registeredStyleNames()),
+				Validate: cmdutil.AllowedValidator(dashboardRegistry.RegisteredNames()),
 			},
 			{
 				Name:     "color_accent",

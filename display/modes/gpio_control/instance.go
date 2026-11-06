@@ -3,6 +3,7 @@ package gpio_control
 import (
 	displaymodes "github.com/databeast/cyberhud/display/modes"
 	"github.com/databeast/cyberhud/display/modes/gpio_control/source"
+	"github.com/databeast/cyberhud/display/region/modehints"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 	gpiomgr "github.com/databeast/cyberhud/hardware/gpio"
@@ -49,7 +50,7 @@ func (i *instance) BuildView() style.ViewData {
 	vd := BuildView(pins, i.hints, i.cursor)
 	// Apply scroll state clamping.
 	maxVisible := textlayout.MaxVisibleRows(i.hints, 0)
-	i.cursor, i.topRow = clampList(i.cursor, i.topRow, maxVisible, len(vd.Items))
+	i.cursor, i.topRow = style.ClampList(i.cursor, i.topRow, maxVisible, len(vd.Items))
 	vd.Cursor = i.cursor
 	vd.TopRow = i.topRow
 
@@ -65,32 +66,8 @@ func (i *instance) pins() []gpiomgr.PinState {
 }
 
 func initialHints() textlayout.TextHints {
-	if h, ok := getPanelHints(); ok {
+	if h, ok := modehints.Current(); ok {
 		return h
 	}
 	return textlayout.TextHints{}
-}
-
-// clampList constrains cursor and topRow so the cursor stays within
-// [0, itemCount) and within the visible window of maxVisible rows.
-func clampList(cursor, topRow, maxVisible, itemCount int) (int, int) {
-	if itemCount <= 0 {
-		return 0, 0
-	}
-	if cursor < 0 {
-		cursor = 0
-	}
-	if cursor >= itemCount {
-		cursor = itemCount - 1
-	}
-	if cursor < topRow {
-		topRow = cursor
-	}
-	if maxVisible > 0 && cursor >= topRow+maxVisible {
-		topRow = cursor - maxVisible + 1
-	}
-	if topRow < 0 {
-		topRow = 0
-	}
-	return cursor, topRow
 }

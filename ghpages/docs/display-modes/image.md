@@ -94,19 +94,19 @@ Image mode is non-interactive and works on all panels. Image rendering adapts to
 ### Color
 
 <figure>
-  <img src="../img/image/color-240x240-scale-bordered_0001.png" alt="color-240x240-scale-bordered 240x240" style="max-width:320px;width:100%;">
+  <img src="../img/image/color-fast-240x240-scale-bordered_0001.png" alt="color-fast-240x240-scale-bordered 240x240" style="max-width:320px;width:100%;">
   <figcaption>240x240</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/image/color-320x240-stretch_0001.png" alt="color-320x240-stretch 320x240" style="max-width:320px;width:100%;">
+  <img src="../img/image/color-fast-320x240-stretch_0001.png" alt="color-fast-320x240-stretch 320x240" style="max-width:320px;width:100%;">
   <figcaption>320x240</figcaption>
 </figure>
 
 ### Mono
 
 <figure>
-  <img src="../img/image/mono-128x64-truncate_0001.png" alt="mono-128x64-truncate 128x64" style="max-width:320px;width:100%;">
+  <img src="../img/image/mono-fast-128x64-truncate_0001.png" alt="mono-fast-128x64-truncate 128x64" style="max-width:320px;width:100%;">
   <figcaption>128x64</figcaption>
 </figure>
 

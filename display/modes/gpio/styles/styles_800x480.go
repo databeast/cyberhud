@@ -29,25 +29,21 @@ var GrayscaleSlow800x480Style = def{
 var GrayscaleFast800x480Style = def{
 	name: "grayscale-fast-800x480",
 	reqs: style.SurfaceRequirements{MinWidth: 800, MinHeight: 480, Capability: style.GrayscaleFast},
-	p:    Params{Layout: layoutGrayscaleFast},
 }
 
 var GrayscaleFast480x800Style = def{
 	name: "grayscale-fast-480x800",
 	reqs: style.SurfaceRequirements{MinWidth: 480, MinHeight: 800, Capability: style.GrayscaleFast},
-	p:    Params{Layout: layoutGrayscaleFast},
 }
 
-var EinkStyle800x480 = def{
-	name: "eink-800x480",
+var MonoSlow800x480Style = def{
+	name: "mono-slow-800x480",
 	reqs: style.SurfaceRequirements{MinWidth: 800, MinHeight: 480, Capability: style.MonoSlow},
-	p:    Params{BuildFn: einkFramed800Build},
 }
 
-var EinkStyle480x800 = def{
-	name: "eink-480x800",
+var MonoSlow480x800Style = def{
+	name: "mono-slow-480x800",
 	reqs: style.SurfaceRequirements{MinWidth: 480, MinHeight: 800, Capability: style.MonoSlow},
-	p:    Params{Layout: layoutEink},
 }
 
 var ColorSlow480x800Style = def{
@@ -61,13 +57,11 @@ var ColorSlow800x480Style = def{
 }
 
 var ColorStyle800x480 = def{
-	name: "color-800x480",
+	name: "color-fast-800x480",
 	reqs: style.SurfaceRequirements{MinWidth: 800, MinHeight: 480, Capability: style.ColorFast},
-	p:    Params{Layout: layoutColorFastRows},
 }
 
 var ColorStyle480x800 = def{
-	name: "color-480x800",
+	name: "color-fast-480x800",
 	reqs: style.SurfaceRequirements{MinWidth: 480, MinHeight: 800, Capability: style.ColorFast},
-	p:    Params{Layout: layoutColorFastRows},
 }

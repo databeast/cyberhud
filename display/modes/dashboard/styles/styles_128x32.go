@@ -9,13 +9,13 @@ import "github.com/databeast/cyberhud/display/style"
 // dashboard's look for this specific display.
 
 var MonoStyle32x128 = styleDef{
-	name: "mono-32x128",
+	name: "mono-fast-32x128",
 	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildMonoStyle32x128},
 }
 
 var MonoStyle128x32 = styleDef{
-	name: "mono-128x32",
+	name: "mono-fast-128x32",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 32, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildMonoStyle128x32},
 }

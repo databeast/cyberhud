@@ -3,6 +3,7 @@ package system
 import (
 	"fmt"
 	"image"
+	"strings"
 
 	"github.com/databeast/cyberhud/display/modes/system/source"
 	"github.com/databeast/cyberhud/display/region"
@@ -19,11 +20,14 @@ func BuildView(hints textlayout.TextHints, getIcon func(name string) (image.Imag
 	cpuSample := source.ConsumeCPUSample()
 	processes := source.ConsumeTopProcesses()
 
-	// For cores/top: if no stored sample, try sampling fresh.
-	if cpuSample == nil && p.Style == StyleCores {
+	// For cores/top: if no stored sample, try sampling fresh. The active
+	// variant is the trailing suffix of the resolution-qualified style name
+	// (e.g. "color-fast-240x240-cores" → "cores"), not the whole name.
+	variant := styleVariant(p.Style)
+	if cpuSample == nil && variant == StyleCores {
 		cpuSample = source.SampleCPU()
 	}
-	if processes == nil && p.Style == StyleTop {
+	if processes == nil && variant == StyleTop {
 		processes = source.TopProcesses()
 	}
 
@@ -46,17 +50,41 @@ func BuildView(hints textlayout.TextHints, getIcon func(name string) (image.Imag
 		FontIDs:     result.FontIDs,
 		LineOffsets: result.LineOffsets,
 		OffsetY:     result.OffsetY,
-		StyleReport: style.StyleReport{Name: s.Name(), Reason: reason},
+		StyleReport: style.ReportFor(s, reason, hints),
+	}
+}
+
+// styleVariant returns the content variant (default|compact|cores|top) encoded
+// as the trailing suffix of a resolution-qualified style name such as
+// "color-fast-240x240-cores". A bare legacy name ("cores") or a skeleton name with
+// no variant suffix ("color-fast-240x240") returns the whole-name / empty case:
+// for a skeleton the variant is "" (adaptiveBuild decides), and for a legacy
+// bare name the name itself is the variant.
+func styleVariant(styleName string) string {
+	switch {
+	case strings.HasSuffix(styleName, "-"+StyleCores):
+		return StyleCores
+	case strings.HasSuffix(styleName, "-"+StyleTop):
+		return StyleTop
+	case strings.HasSuffix(styleName, "-"+StyleDefault):
+		return StyleDefault
+	case strings.HasSuffix(styleName, "-"+StyleCompact):
+		return StyleCompact
+	case styleName == StyleCores, styleName == StyleTop,
+		styleName == StyleDefault, styleName == StyleCompact:
+		return styleName // legacy bare name
+	default:
+		return "" // skeleton (no variant suffix)
 	}
 }
 
 // RenderCacheKey returns a change-detection signature incorporating sampled data.
-// When style is "cores", it samples CPU data and includes the values.
-// When style is "top", it samples process data and includes a representation.
-// For other styles, it returns just the style name.
+// When the active variant is "cores", it samples CPU data and includes the
+// values. When "top", it samples process data. For other variants, it returns
+// just the style fingerprint.
 func RenderCacheKey() uint32 {
 	p := GetPolicy()
-	switch p.Style {
+	switch styleVariant(p.Style) {
 	case StyleCores:
 		sample := source.PrimeCPUSample()
 		if sample == nil {

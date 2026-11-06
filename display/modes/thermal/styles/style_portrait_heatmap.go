@@ -57,14 +57,15 @@ func buildPortraitHeatmapStyle(snapshot source.ThermalSnapshot, pol source.Polic
 	vd.Colors = append(vd.Colors, color.RGBA{R: 255, G: 255, B: 255, A: 255})
 
 	// Center the text vertically and horizontally using bridge methods.
-	offsetX := bridge.CenterX(len(tempText))
+	m := ctx.DefaultMetrics()
+	offsetX := bridge.CenterX(len(tempText), m)
 	height := bridge.AvailableContentHeight()
-	offsetY := (height - bridge.RowHeight()) / 2
+	offsetY := (height - m.RowHeight()) / 2
 	if offsetY < 0 {
 		offsetY = 0
 	}
-	vd.LineOffsets = []int{offsetX}
-	vd.OffsetY = offsetY
+	vd.LineOffsets = []layout.TTYX{offsetX}
+	vd.OffsetY = layout.TTYY(offsetY)
 
 	return vd
 }

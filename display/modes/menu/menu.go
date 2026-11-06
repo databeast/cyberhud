@@ -39,12 +39,13 @@ func SetPolicy(p source.Policy) {
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "menu",
-		Title:   "Menu",
-		Summary: "Interactive main menu for navigating top-level screens.",
-		Order:   10,
+		ID:       "menu",
+		Title:    "Menu",
+		Category: "Meta",
+		Summary:  "Interactive main menu for navigating top-level screens.",
+		Order:    10,
 		Options: []catalog.OptionDefinition{
-			{Key: "style", Type: "string", Summary: "Visual presentation style.", Default: "", Allowed: registeredStyleNames()},
+			{Key: "style", Type: "string", Summary: "Visual presentation style.", Default: "", Allowed: menuRegistry.RegisteredNames()},
 		},
 	})
 

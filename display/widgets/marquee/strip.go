@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"time"
 
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 	"github.com/databeast/cyberhud/display/widgets"
 )
 

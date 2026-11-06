@@ -14,7 +14,7 @@ var cmdHandler = &cmdutil.CmdHandler{
 		{Name: "poll_ms", Validate: cmdutil.IntValidator(100)},
 		{Name: "hold_unplugged_ms", Validate: cmdutil.IntValidator(0)},
 		{Name: "hide_root_hubs", Validate: cmdutil.BoolValidator()},
-		{Name: "style", Validate: cmdutil.AllowedValidator(registeredStyleNames())},
+		{Name: "style", Validate: cmdutil.AllowedValidator(usbRegistry.RegisteredNames())},
 	},
 	PostApply: fitnessNotesPostApply,
 	Get: func(key string) string {

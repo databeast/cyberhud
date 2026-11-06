@@ -26,8 +26,6 @@ func categoryFromStyleName(name string) testsnapshot.DisplayCategory {
 		return testsnapshot.CategoryEink
 	case strings.HasPrefix(name, "mono-"):
 		return testsnapshot.CategoryMono
-	case strings.HasPrefix(name, "eink-"):
-		return testsnapshot.CategoryEink
 	case strings.HasPrefix(name, "grayscale-slow-"):
 		return testsnapshot.CategoryGrayscale
 	case strings.HasPrefix(name, "grayscale-fast-"):

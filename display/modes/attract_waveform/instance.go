@@ -2,6 +2,7 @@ package attract_waveform
 
 import (
 	displaymodes "github.com/databeast/cyberhud/display/modes"
+	"github.com/databeast/cyberhud/display/region/modehints"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/runtime/action"
 )
@@ -26,7 +27,7 @@ func (i *instance) Deactivate() {} // waveform is frame-driven, no background wo
 func (i *instance) ActionHandler() action.Handler { return nil }
 
 func (i *instance) BuildView() style.ViewData {
-	if hints, ok := getPanelHints(); ok {
+	if hints, ok := modehints.Current(); ok {
 		return BuildView(hints)
 	}
 	return style.ViewData{Items: []string{"error"}}

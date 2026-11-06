@@ -29,7 +29,3 @@ func SetPolicy(p source.Policy) {
 }
 
 func DefaultPolicy() source.Policy { return source.DefaultPolicy() }
-
-func normalizePolicy(p source.Policy) source.Policy { return source.NormalizePolicy(p) }
-
-func policyFingerprint(p source.Policy) string { return p.Fingerprint() }

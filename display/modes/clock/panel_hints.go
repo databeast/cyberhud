@@ -2,15 +2,7 @@ package clock
 
 import (
 	"github.com/databeast/cyberhud/display/region/modehints"
-	"github.com/databeast/cyberhud/display/surface/textlayout"
 )
-
-// getPanelHints returns the process-wide panel hints.
-//
-// Deprecated for rendering. The clock instance reads its own Region's hints via the
-// embedded displaymodes.PanelHints (see instance.go); this remains only for the
-// CLI-time fitness-note path below, which has no instance to consult.
-func getPanelHints() (textlayout.TextHints, bool) { return modehints.Current() }
 
 // fitnessNotesPostApply generates fitness notes for the applied style
 // against the current panel hints when the "style" key changes.

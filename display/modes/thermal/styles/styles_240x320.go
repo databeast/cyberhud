@@ -175,7 +175,7 @@ var ColorSlow240x320MinimalStyle = def{
 }
 
 var ColorFast240x320Style = def{
-	name: "color-240x320",
+	name: "color-fast-240x320",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 320, Capability: style.ColorFast},
 }
 
@@ -183,7 +183,7 @@ var ColorFast240x320Style = def{
 // Add minimal variant here since it's not in the polished set.
 
 var ColorFast240x320MinimalStyle = def{
-	name: "color-240x320-minimal",
+	name: "color-fast-240x320-minimal",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 320, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildMinimalStyle},
 }

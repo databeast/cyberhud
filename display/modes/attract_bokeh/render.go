@@ -7,6 +7,7 @@ import (
 
 	"github.com/databeast/cyberhud/display/modes/attract_bokeh/source"
 	"github.com/databeast/cyberhud/display/region"
+	"github.com/databeast/cyberhud/display/region/modehints"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/display/widgets"
 )
@@ -19,7 +20,7 @@ var (
 
 // BuildView produces a complete bokeh frame as style.ViewData.
 func BuildView() style.ViewData {
-	hints, ok := getPanelHints()
+	hints, ok := modehints.Current()
 	if !ok {
 		log.Fatal("Could not find hints")
 		return style.ViewData{}

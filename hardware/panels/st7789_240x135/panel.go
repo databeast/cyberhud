@@ -24,12 +24,12 @@ func init() {
 	})
 
 	style.RegisterAliases("st7789-240x135", map[string]string{
-		"dashboard": "color-240x240",
-		"clock":     "color-240x135",
+		"dashboard": "color-fast-240x240",
+		"clock":     "color-fast-240x135",
 		"thermal":   "minimal",
-		"ticker":    "color-240x135",
-		"wifi":      "color-240x240",
-		"gpio":      "color-240x135",
-		"serial":    "color-240x135",
+		"ticker":    "color-fast-240x135",
+		"wifi":      "color-fast-240x240",
+		"gpio":      "color-fast-240x135",
+		"serial":    "color-fast-240x135",
 	})
 }

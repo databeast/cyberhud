@@ -10,27 +10,14 @@ import (
 	"github.com/databeast/cyberhud/display/modes/attract_hacking/source"
 )
 
-func floatRangeValidator(min, max float64) cmdutil.KeyValidator {
-	return func(value string) string {
-		f, err := strconv.ParseFloat(strings.TrimSpace(value), 64)
-		if err != nil {
-			return "must be a number"
-		}
-		if f < min || f > max {
-			return fmt.Sprintf("must be in [%.1f, %.1f]", min, max)
-		}
-		return ""
-	}
-}
-
 var cmdHandler = &cmdutil.CmdHandler{
 	Verb: "attract_hacking",
 	Keys: []cmdutil.KeyDef{
-		{Name: "speed", Validate: floatRangeValidator(0.1, 3.0)},
-		{Name: "density", Validate: floatRangeValidator(0.1, 1.0)},
-		{Name: "glitch", Validate: floatRangeValidator(0.0, 1.0)},
-		{Name: "intensity", Validate: floatRangeValidator(0.1, 1.0)},
-		{Name: "pulse", Validate: floatRangeValidator(0.1, 1.5)},
+		{Name: "speed", Validate: cmdutil.FloatRangeValidator(0.1, 3.0)},
+		{Name: "density", Validate: cmdutil.FloatRangeValidator(0.1, 1.0)},
+		{Name: "glitch", Validate: cmdutil.FloatRangeValidator(0.0, 1.0)},
+		{Name: "intensity", Validate: cmdutil.FloatRangeValidator(0.1, 1.0)},
+		{Name: "pulse", Validate: cmdutil.FloatRangeValidator(0.1, 1.5)},
 	},
 	Get:   getPolicyValue,
 	Apply: applyPolicyValue,
@@ -88,11 +75,12 @@ func HandleCommand(args []string) string {
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "attract_hacking",
-		Title:   "Hacking",
-		Summary: "Cinematic cyberpunk terminal intrusion sequence with neon overlays and fake-system logs.",
-		Order:   220,
-		Options: source.Policy{}.Options(),
+		ID:       "attract_hacking",
+		Title:    "Hacking",
+		Category: "Attract",
+		Summary:  "Cinematic cyberpunk terminal intrusion sequence with neon overlays and fake-system logs.",
+		Order:    220,
+		Options:  source.Policy{}.Options(),
 	})
 	catalog.RegisterCommand(catalog.CommandDefinition{
 		Verb:    "attract_hacking",

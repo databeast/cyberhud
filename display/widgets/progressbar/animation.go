@@ -158,9 +158,12 @@ func applyShimmerCircular(img *image.RGBA, cfg Config, geom RenderGeometry, bgAr
 		sweepRad = 2 * math.Pi
 		arcStart = geom.StartAngle
 	} else {
-		// Arc
+		// Arc. geom.StartAngle is in the shared standard-math convention; convert
+		// it into the atan2(dx, -dy) clockwise-from-12 convention used below with
+		// the same +π/2 shift render_arc.go applies, so the shimmer band tracks
+		// the same track the fill is drawn on.
 		sweepRad = cfg.SweepAngle * math.Pi / 180.0
-		arcStart = geom.StartAngle - sweepRad/2.0
+		arcStart = (geom.StartAngle + math.Pi/2.0) - sweepRad/2.0
 	}
 
 	// Filled arc angle.

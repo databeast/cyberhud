@@ -15,17 +15,6 @@ import (
 // and does NOT return Unsupported when hints.Capability >= reqs.Capability
 // (assuming dimensions are adequate).
 
-// bugfixMockStyle is a mock FitnessReporter for bug condition exploration.
-type bugfixMockStyle struct {
-	reqs style.SurfaceRequirements
-}
-
-func (m bugfixMockStyle) Name() string                            { return "bugfix-test" }
-func (m bugfixMockStyle) Requirements() style.SurfaceRequirements { return m.reqs }
-func (m bugfixMockStyle) Supports(hints textlayout.TextHints) style.Fitness {
-	return style.EvaluateFitness(m.reqs, hints)
-}
-
 // Test 1a: Capability Ordering - Panel meets requirement
 //
 // Generate SurfaceRequirements with a given Capability level and TextHints

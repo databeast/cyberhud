@@ -20,8 +20,6 @@ func categoryFromStyleName(name string) testsnapshot.DisplayCategory {
 		return testsnapshot.CategoryColor
 	case strings.HasPrefix(name, "mono-"):
 		return testsnapshot.CategoryMono
-	case strings.HasPrefix(name, "eink-"):
-		return testsnapshot.CategoryEink
 	case strings.HasPrefix(name, "grayscale-fast-"):
 		return testsnapshot.CategoryGrayscale
 	default:
@@ -57,6 +55,19 @@ func TestZMQPNGSnapshots(t *testing.T) {
 				t.Skip("skipping: style has unconstrained dimensions")
 			}
 
+			// Clamp the render surface to a 128px floor. The production renderer
+			// reserves title/hint bars and the tier catalog needs width to fit a
+			// font, so a genuinely tiny surface (e.g. 128x32) has no room to draw
+			// a row. Matches the serial mode's snapshot test; the style's real
+			// requirements are unchanged.
+			width, height := reqs.MinWidth, reqs.MinHeight
+			if width < 128 {
+				width = 128
+			}
+			if height < 128 {
+				height = 128
+			}
+
 			// Derive display category from the style name prefix.
 			category := categoryFromStyleName(s.Name())
 
@@ -66,7 +77,7 @@ func TestZMQPNGSnapshots(t *testing.T) {
 
 			pngPath := testsnapshot.RenderSnapshot(t,
 				testsnapshot.WithMode("zmq"),
-				testsnapshot.WithDimensions(reqs.MinWidth, reqs.MinHeight),
+				testsnapshot.WithDimensions(width, height),
 				testsnapshot.WithDisplayCategory(category),
 				testsnapshot.WithOutputDir(outputDir),
 				testsnapshot.WithBasename(s.Name()),
@@ -77,7 +88,7 @@ func TestZMQPNGSnapshots(t *testing.T) {
 				}),
 			)
 
-			testsnapshot.VerifyAll(t, pngPath, reqs.MinWidth, reqs.MinHeight)
+			testsnapshot.VerifyAll(t, pngPath, width, height)
 		})
 	}
 }

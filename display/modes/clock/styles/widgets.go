@@ -8,7 +8,7 @@ import (
 	"github.com/databeast/cyberhud/display/modes/clock/source"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/display/style/layout"
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/display/widgets"
 	"github.com/databeast/cyberhud/display/widgets/borderframe"
@@ -273,12 +273,14 @@ func ledIntersectsTextRows(ledRect image.Rectangle, vd *style.ViewData, hints te
 		spacing = 1
 	}
 
-	// Check each row's bounding rectangle against the LED rect.
-	currentY := vd.OffsetY
+	// Check each row's bounding rectangle against the LED rect. ledRect and the
+	// row rects are both in the TTY-block frame (content-origin relative), so the
+	// comparison stays in that space — no conversion to world pixels here.
+	currentY := int(vd.OffsetY)
 	for i, item := range vd.Items {
 		rowX := 0
 		if i < len(vd.LineOffsets) {
-			rowX = vd.LineOffsets[i]
+			rowX = int(vd.LineOffsets[i])
 		}
 
 		rowWidth := metrics.GlyphAdvance * len(item)

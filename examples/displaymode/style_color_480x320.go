@@ -8,7 +8,7 @@ import (
 // ColorLarge480x320Style targets the 480×320 color TFT panel.
 type ColorLarge480x320Style struct{}
 
-func (s ColorLarge480x320Style) Name() string { return "color-480x320" }
+func (s ColorLarge480x320Style) Name() string { return "color-fast-480x320" }
 
 // Requirements returns SurfaceRequirements for the 480×320 panel.
 // Target: 480×320, RGB565/RGB666, Continuous refresh.

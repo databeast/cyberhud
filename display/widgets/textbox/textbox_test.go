@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 	"github.com/databeast/cyberhud/display/widgets"
 	"pgregory.net/rapid"
 )

@@ -11,6 +11,7 @@ import (
 	"periph.io/x/conn/v3/physic"
 	"periph.io/x/conn/v3/spi"
 
+	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/hardware/driver"
 )
 
@@ -37,6 +38,11 @@ func init() {
 		Title:      "UC8179",
 		Summary:    "SPI tri-color e-ink controller (black/white/red, 400x300).",
 		Monochrome: false,
+		// Tri-color (black/white/red) carries hue, so the native depth is color.
+		// Slow refresh → color-slow. DrawImage drives the red plane separately from
+		// the B/W plane, so a style's hue survives to the panel.
+		ColorDepth: driver.DepthColor,
+		Capability: textlayout.CapColorSlow,
 		IsEPaper:   true,
 		OptionDefs: []driver.OptionDefinition{
 			{Key: "width", Type: "int", Summary: "Display width in pixels.", Default: "400"},
@@ -100,6 +106,21 @@ func (d *UC8179) Bounds() image.Rectangle {
 	return image.Rect(0, 0, d.cfg.Width, d.cfg.Height)
 }
 
+// TextHints advertises this panel as a slow color e-ink display. Its DrawImage
+// drives a separate red plane alongside black/white, so hue reaches the panel;
+// declaring color-slow lets selection offer color styles rather than treating
+// the panel as mono. E-ink semantics: no scrolling, event-driven refresh.
+func (d *UC8179) TextHints() textlayout.TextHints {
+	b := d.Bounds()
+	return textlayout.TextHints{
+		PixelWidth: b.Dx(), PixelHeight: b.Dy(),
+		SupportsVerticalScroll: false, SupportsHorizontalScroll: false, SupportsAutoScroll: false,
+		PreferEventRefresh:     true,
+		Capability:             textlayout.CapColorSlow,
+		DefaultTickerDirection: textlayout.TickerDirectionNone, DefaultLineMode: textlayout.LineModeTruncate,
+	}
+}
+
 // DrawImage converts pixels to B/W and red channel data for the tri-color panel.
 // Black/white is determined by luminance threshold. Red channel is extracted when
 // the red component dominates green and blue.
@@ -122,7 +143,7 @@ func (d *UC8179) DrawImage(src draw.Image) error {
 			bit := uint(7 - (x % 8))
 
 			isRed := isRedPixel(r, g, b)
-			isBlack := !isRed && luminanceOn(r, g, b)
+			isBlack := !isRed && driver.Luminance(r, g, b) < driver.MonoThreshold
 
 			if isBlack {
 				bwBuf[idx] &^= 1 << bit // set black
@@ -264,7 +285,3 @@ func isRedPixel(r, g, b uint32) bool {
 	return r > 0x8000 && g < 0x4000 && b < 0x4000
 }
 
-// luminanceOn returns true if the pixel is dark (for black marking).
-func luminanceOn(r, g, b uint32) bool {
-	return (299*r+587*g+114*b)/1000 < 0x3000
-}

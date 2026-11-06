@@ -8,6 +8,7 @@ import (
 	displaymodes "github.com/databeast/cyberhud/display/modes"
 	"github.com/databeast/cyberhud/display/modes/stemma/source"
 	"github.com/databeast/cyberhud/display/region"
+	"github.com/databeast/cyberhud/display/region/modehints"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/display/widgets/icons"
 	"github.com/databeast/cyberhud/runtime/action"
@@ -61,7 +62,7 @@ func (i *instance) Deactivate() {
 func (i *instance) ActionHandler() action.Handler { return Handler{} }
 
 func (i *instance) BuildView() style.ViewData {
-	if hints, ok := getPanelHints(); ok {
+	if hints, ok := modehints.Current(); ok {
 		return BuildView(i.devices(), hints, icons.Get, displaymodes.Warnings)
 	}
 	return style.ViewData{Items: []string{"error"}}

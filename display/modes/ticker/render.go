@@ -41,10 +41,7 @@ func BuildView(hints textlayout.TextHints) style.ViewData {
 	svd := s.Build(snap, p, ctx)
 
 	// Report style resolution metadata to the registry layer.
-	svd.StyleReport = style.StyleReport{
-		Name:   s.Name(),
-		Reason: reason,
-	}
+	svd.StyleReport = style.ReportFor(s, reason, hints)
 
 	// Guard: ensure Items always contains at least one non-empty string
 	// UNLESS there are sprites being rendered (horizontal scrolling).

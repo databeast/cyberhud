@@ -74,12 +74,6 @@ func NormalizePolicy(p Policy) Policy {
 	return p
 }
 
-// policyFingerprint returns a deterministic string representation of all policy
-// fields, used for change detection in RenderCacheKey.
-func policyFingerprint(p Policy) string {
-	return fmt.Sprintf("%v|%v|%v|%v", p.Speed, p.Density, p.SizeVariance, p.Saturation)
-}
-
 // DefaultPolicy returns the default bokeh policy with all fields initialized
 // within their valid ranges.
 func DefaultPolicy() Policy {

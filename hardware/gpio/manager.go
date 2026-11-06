@@ -8,10 +8,12 @@ package gpio
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 
 	"periph.io/x/conn/v3/gpio"
 	"periph.io/x/conn/v3/gpio/gpioreg"
+	"periph.io/x/conn/v3/pin"
 )
 
 // PinMode describes how a GPIO pin is currently configured.
@@ -43,6 +45,51 @@ type PinState struct {
 	Name   string
 	Mode   PinMode
 	Level  gpio.Level
+
+	// Func is the pin's current hardware function as reported by the driver
+	// (periph pin.Func), e.g. "SPI0_MOSI", "I2C1_SDA", "UART0_TX", "In", "Out",
+	// or "" when unknown/unavailable (non-RPi host). Unlike Mode — which
+	// collapses every alternate function to the single ModeAlt bucket — Func
+	// preserves WHICH peripheral an ALT pin is serving, so consumers can group
+	// pins belonging to the same bus (SPI0, I2C1, …) into one logical entity.
+	// This field is additive: existing consumers that read only Mode/Level are
+	// unaffected.
+	Func string
+}
+
+// BusGroup returns the bus/peripheral family a pin belongs to, derived from
+// Func, or "" when the pin is not serving a recognized multi-pin bus.
+//
+// The family is the Func prefix up to the first underscore for known bus
+// peripherals (SPI, I2C, UART, PWM, PCM, GPCLK, SMI). For example "SPI0_MOSI"
+// and "SPI0_SCLK" both return "SPI0", so a consumer can collapse every pin of
+// one bus into a single row. Plain digital functions ("In", "Out") and
+// unrecognized values return "" — those are standalone pins, displayed
+// individually.
+func (p PinState) BusGroup() string {
+	return busFamily(p.Func)
+}
+
+// busFamily extracts the bus/peripheral group name from a periph function
+// string. It returns the portion before the first underscore when that portion
+// names a known multi-pin bus, else "".
+func busFamily(fn string) string {
+	if fn == "" {
+		return ""
+	}
+	i := strings.IndexByte(fn, '_')
+	if i <= 0 {
+		return "" // no underscore → plain function like "In"/"Out"/"Low"/"High"
+	}
+	prefix := fn[:i]
+	// Recognize known bus/peripheral families. The trailing digits (bus index)
+	// are part of the group name so SPI0 and SPI1 stay distinct.
+	for _, fam := range []string{"SPI", "I2C", "UART", "PWM", "PCM", "GPCLK", "SMI", "DPI"} {
+		if strings.HasPrefix(prefix, fam) {
+			return prefix
+		}
+	}
+	return ""
 }
 
 func (p PinState) String() string {
@@ -64,9 +111,19 @@ type Manager struct {
 }
 
 type managedPin struct {
-	state PinState
-	out   gpio.PinOut
-	in    gpio.PinIn
+	state   PinState
+	out     gpio.PinOut
+	in      gpio.PinIn
+	pinfunc pin.PinFunc // non-nil when the driver reports pin function
+}
+
+// readFunc returns the pin's current function string via the PinFunc interface,
+// or "" when unavailable (nil pin, or a driver that does not implement it).
+func (mp *managedPin) readFunc() string {
+	if mp.pinfunc == nil {
+		return ""
+	}
+	return string(mp.pinfunc.Func())
 }
 
 // userPins lists the GPIO numbers available on the Cyberdeck HAT breakout that
@@ -99,13 +156,24 @@ func New() *Manager {
 	m := &Manager{pins: make(map[int]*managedPin)}
 	for _, num := range userPins {
 		name := fmt.Sprintf("GPIO%d", num)
-		pin := gpioreg.ByName(name)
+		p := gpioreg.ByName(name)
 		entry := &managedPin{
 			state: PinState{Number: num, Name: name, Mode: ModeUnknown},
 		}
-		if pin != nil {
-			entry.out = outputOf(pin)
-			entry.in = inputOf(pin)
+		if p != nil {
+			entry.out = outputOf(p)
+			entry.in = inputOf(p)
+			if pf, ok := p.(pin.PinFunc); ok {
+				entry.pinfunc = pf
+			}
+		}
+		// Capture the pin's function as the system has it configured RIGHT NOW.
+		// A pin already serving a bus (SPI/I2C/UART/…) at startup is live work
+		// the display must surface, even though nothing in this process set it;
+		// reflect that by marking it ModeAlt so it is not treated as idle.
+		entry.state.Func = entry.readFunc()
+		if busFamily(entry.state.Func) != "" {
+			entry.state.Mode = ModeAlt
 		}
 		m.pins[num] = entry
 	}
@@ -143,6 +211,7 @@ func (m *Manager) SetOutput(pinNum int, level gpio.Level) error {
 	}
 	p.state.Mode = ModeOutput
 	p.state.Level = level
+	p.state.Func = p.readFunc()
 	return nil
 }
 
@@ -164,6 +233,7 @@ func (m *Manager) SetInput(pinNum int, pull gpio.Pull) error {
 	}
 	p.state.Mode = ModeInput
 	p.state.Level = p.in.Read()
+	p.state.Func = p.readFunc()
 	return nil
 }
 

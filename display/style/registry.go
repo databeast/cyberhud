@@ -98,6 +98,17 @@ func (r *StyleRegistry[S, P]) Enumerate() []Style[S, P] {
 	return out
 }
 
+// RegisteredNames returns the names of all registered styles in registration
+// order. It is the canonical source for command-option "allowed value" lists
+// and validators.
+func (r *StyleRegistry[S, P]) RegisteredNames() []string {
+	names := make([]string, len(r.styles))
+	for i, s := range r.styles {
+		names[i] = s.Name()
+	}
+	return names
+}
+
 // Normalize returns the canonical form of a style name (lowercase, trimmed).
 // If the name matches a registered style, returns that style's Name().
 // If the name matches a legacy alias that resolves to a registered style,
@@ -214,15 +225,6 @@ func LookupCompound(product, screen, mode string) (string, bool) {
 	return Lookup(p, m)
 }
 
-// reset clears the alias registry. It is unexported and intended only for
-// test isolation — the registry is a package-level singleton and property
-// tests mutate global state.
-func reset() {
-	mu.Lock()
-	defer mu.Unlock()
-	aliases = map[aliasKey]string{}
-}
-
 // AliasEntry is a single (mode, style) pair for enumeration.
 type AliasEntry struct {
 	Mode  string
@@ -287,6 +289,22 @@ func ResolveStyle[S any, P catalog.ConfigPolicy](
 
 	// 3. Fitness-scored fallback.
 	return fitnessFallback[S, P](registry, hints)
+}
+
+// ReportFor builds a StyleReport for a resolved style, capturing the
+// capability-utilization gap between the panel and the chosen style (lever 2).
+// Modes that resolve through ResolveStyle should build their StyleReport with
+// this helper instead of the bare {Name, Reason} literal, so under-utilization
+// (e.g. a color panel driven by a mono style) becomes visible at runtime rather
+// than silently folded into the fitness score and discarded.
+func ReportFor[S any, P catalog.ConfigPolicy](s Style[S, P], reason string, hints textlayout.TextHints) StyleReport {
+	return StyleReport{
+		Name:       s.Name(),
+		Reason:     reason,
+		HasCapInfo: true,
+		PanelCap:   Capability(hints.Capability),
+		StyleCap:   s.Requirements().Capability,
+	}
 }
 
 // fitnessFallback iterates all styles in registration order, selecting the one with

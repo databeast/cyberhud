@@ -1,4 +1,5 @@
 cyberhudd usr/bin/
 cyberhudctl usr/bin/
+cyberhudweb usr/bin/
 systemd/cyberhudd.service lib/systemd/system/
-
+systemd/cyberhudweb.service lib/systemd/system/

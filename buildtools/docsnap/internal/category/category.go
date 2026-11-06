@@ -9,7 +9,6 @@ type Category string
 
 const (
 	Color     Category = "Color"
-	EInk      Category = "E-Ink"
 	Grayscale Category = "Grayscale"
 	Mono      Category = "Mono"
 )
@@ -31,7 +30,6 @@ var Prefixes = []PrefixMapping{
 	{Prefix: "mono-fast-", Category: Mono},
 	{Prefix: "color-", Category: Color},
 	{Prefix: "mono-", Category: Mono},
-	{Prefix: "eink-", Category: EInk},
 }
 
 // Match returns the category for a filename using longest-prefix matching.

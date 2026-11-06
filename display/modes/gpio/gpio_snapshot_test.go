@@ -15,6 +15,44 @@ import (
 // snapshotOutputDir is the persistent directory where GPIO snapshot PNGs are written.
 var snapshotOutputDir = filepath.Join("snapshots")
 
+// fakeGPIOManager is a deterministic, hardware-free GPIO source for snapshots.
+//
+// The real *gpiomgr.Manager sources pin state from the periph gpioreg registry,
+// which is empty on a dev/CI host with no Pi hardware: every pin comes back
+// ModeUnknown/Low, so BuildView takes its "GPIO unavailable"/"GPIO idle" path
+// and every snapshot renders the same empty message instead of a real layout.
+// This fake returns a fixed, representative roster so each style renders actual
+// content and the snapshot corpus is stable across runs and machines.
+type fakeGPIOManager struct{ pins []gpiomgr.PinState }
+
+func (f fakeGPIOManager) Snapshot() []gpiomgr.PinState { return f.pins }
+
+// snapshotPins is the deterministic pin roster used across all GPIO snapshots.
+// It models a realistic headless deployment so the live-functions view is fully
+// exercised by a single render: a few STANDALONE digital pins (outputs and
+// inputs, HIGH and LOW) that render individually, plus two active BUSES — I2C1
+// (2 pins) and SPI0 (5 pins) — that must COLLAPSE to one row each, plus DEAD
+// unconfigured pins that must be dropped entirely. Pin numbers and bus
+// assignments follow the real BCM pinmux (I2C1 on 2/3, SPI0 on 7–11).
+var snapshotPins = []gpiomgr.PinState{
+	// Active I2C1 bus (two pins → one "I2C1 up" row).
+	{Number: 2, Name: "GPIO2", Mode: gpiomgr.ModeAlt, Func: "I2C1_SDA"},
+	{Number: 3, Name: "GPIO3", Mode: gpiomgr.ModeAlt, Func: "I2C1_SCL"},
+	// Active SPI0 bus (five pins → one "SPI0 up" row).
+	{Number: 7, Name: "GPIO7", Mode: gpiomgr.ModeAlt, Func: "SPI0_CE1"},
+	{Number: 8, Name: "GPIO8", Mode: gpiomgr.ModeAlt, Func: "SPI0_CE0"},
+	{Number: 9, Name: "GPIO9", Mode: gpiomgr.ModeAlt, Func: "SPI0_MISO"},
+	{Number: 10, Name: "GPIO10", Mode: gpiomgr.ModeAlt, Func: "SPI0_MOSI"},
+	{Number: 11, Name: "GPIO11", Mode: gpiomgr.ModeAlt, Func: "SPI0_SCLK"},
+	// Standalone digital pins (each its own row, level is the signal).
+	{Number: 17, Name: "GPIO17", Mode: gpiomgr.ModeOutput, Level: true, Func: "Out"},
+	{Number: 22, Name: "GPIO22", Mode: gpiomgr.ModeOutput, Level: false, Func: "Out"},
+	{Number: 27, Name: "GPIO27", Mode: gpiomgr.ModeInput, Level: true, Func: "In"},
+	// Dead/unconfigured pins (must be dropped — no row).
+	{Number: 4, Name: "GPIO4", Mode: gpiomgr.ModeUnknown},
+	{Number: 23, Name: "GPIO23", Mode: gpiomgr.ModeUnknown},
+}
+
 // testGpioPolicy returns the deterministic policy used across all GPIO snapshot tests.
 func testGpioPolicy() Policy {
 	return Policy{
@@ -30,8 +68,6 @@ func categoryFromStyle(name string, reqs style.SurfaceRequirements) testsnapshot
 	switch {
 	case strings.HasPrefix(name, "color-"):
 		return testsnapshot.CategoryColor
-	case strings.HasPrefix(name, "eink-"):
-		return testsnapshot.CategoryEink
 	case strings.HasPrefix(name, "mono-slow-"):
 		return testsnapshot.CategoryEink
 	case strings.HasPrefix(name, "mono-"):
@@ -101,8 +137,6 @@ func TestGpioPNGSnapshots(t *testing.T) {
 
 	styles := Registry().Enumerate()
 
-	gm := gpiomgr.New()
-
 	for _, s := range styles {
 		s := s
 		reqs := s.Requirements()
@@ -123,8 +157,15 @@ func TestGpioPNGSnapshots(t *testing.T) {
 				testsnapshot.WithMode("gpio"),
 				testsnapshot.WithOutputDir(snapshotOutputDir),
 				testsnapshot.WithDisplayCategory(category),
-				testsnapshot.WithGPIOManager(gm),
 				testsnapshot.WithBasename(basename),
+				// Register the deterministic fake BEFORE the instance is
+				// constructed. RenderSnapshot runs WithReset prior to SetMode,
+				// and the gpio instance captures source.GPIOManager() at
+				// construction into i.mgr; a fake set later (in WithPreRender)
+				// would be too late to affect that captured reference.
+				testsnapshot.WithReset(func() {
+					SetGPIOManager(fakeGPIOManager{pins: snapshotPins})
+				}),
 				testsnapshot.WithPreRender(func() {
 					SetPolicy(policy)
 				}),

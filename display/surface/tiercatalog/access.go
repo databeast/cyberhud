@@ -1,6 +1,6 @@
 package tiercatalog
 
-import "github.com/databeast/cyberhud/display/surface/fonts"
+import font "github.com/databeast/cyberhud/display/surface/fonts"
 
 // Infallible catalog access.
 //

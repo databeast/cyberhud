@@ -19,7 +19,7 @@
       "accent": "white"
     },
     "clock": {
-      "style": "mono-128x32",
+      "style": "mono-fast-128x32",
       "show_seconds": true,
       "time_format": "24h",
       "date_format": "none",

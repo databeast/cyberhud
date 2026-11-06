@@ -37,7 +37,7 @@ var ColorSlow800x480Style = styleDef{
 
 // ColorLarge800x480Style targets the 800×480 color TFT panel.
 var ColorLarge800x480Style = styleDef{
-	name: "color-800x480",
+	name: "color-fast-800x480",
 	reqs: style.SurfaceRequirements{MinWidth: 800, MinHeight: 480, Capability: style.ColorFast},
 }
 
@@ -147,9 +147,9 @@ func einkPoster800x480(data source.ClockData, pol source.Policy, ctx style.Style
 	}
 
 	// Step 8 (Centering): horizontal per-tier, vertical center.
-	offsets := make([]int, len(visibleRows))
+	offsets := make([]style.TTYX, len(visibleRows))
 	for i, r := range visibleRows {
-		offsets[i] = bridge.CenterXWith(len([]rune(r.text)), r.entry.GlyphAdvance)
+		offsets[i] = bridge.CenterX(len([]rune(r.text)), layout.NewMetrics(r.entry.GlyphAdvance, r.entry.RowHeight, r.entry.FontID))
 	}
 
 	var blockHeight int
@@ -159,7 +159,7 @@ func einkPoster800x480(data source.ClockData, pol source.Policy, ctx style.Style
 	if includeSecondary && len(visibleRows) > len(header) {
 		blockHeight += groupGap
 	}
-	offsetY := (bridge.AvailableContentHeight() - blockHeight) / 2
+	offsetY := layout.TTYY((bridge.AvailableContentHeight() - blockHeight) / 2)
 	if offsetY < 0 {
 		offsetY = 0
 	}

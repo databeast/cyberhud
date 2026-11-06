@@ -28,6 +28,6 @@ var ColorSlow480x800Style = styleDef{
 }
 
 var ColorLarge480x800Style = styleDef{
-	name: "color-480x800",
+	name: "color-fast-480x800",
 	reqs: style.SurfaceRequirements{MinWidth: 480, MinHeight: 800, Capability: style.ColorFast},
 }

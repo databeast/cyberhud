@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Graphify search guard",
+      "trigger": "PreToolUse",
+      "description": "Before a blind grep/file search, nudge to use (or build) the graphify knowledge graph when it is missing.",
+      "matcher": "grep_search|file_search",
+      "action": {
+        "type": "command",
+        "command": "test -f graphify-out/graph.json || printf '{\"hookSpecificOutput\":{\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"No graphify-out/graph.json. Prefer the graph: run \\\"$(go env GOPATH)/bin/graphify\\\" build . then use graphify query/explain instead of searching blind.\"}}'"
+      }
+    }
+  ]
+}

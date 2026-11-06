@@ -21,8 +21,8 @@ var (
 	isEinkPanel  bool    // tracks whether the current panel is e-ink
 )
 
-// buildView produces a complete plasma frame as style.ViewData.
-func buildView(hints textlayout.TextHints) style.ViewData {
+// BuildView produces a complete plasma frame as style.ViewData.
+func BuildView(hints textlayout.TextHints) style.ViewData {
 	// Compute elapsed time since last frame, capped to avoid visual jumps.
 	var elapsed time.Duration
 	if !lastTick.IsZero() {

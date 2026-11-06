@@ -47,6 +47,8 @@ func init() {
 		Title:      "ST7735S",
 		Summary:    "SPI color LCD controller used by compact TFT panels such as 128x128 and 160x80 displays.",
 		Monochrome: false,
+		ColorDepth: driver.DepthColor,
+		Capability: textlayout.CapColorFast,
 		OptionDefs: []driver.OptionDefinition{
 			{Key: "width", Type: "int", Summary: "Logical panel width in pixels.", Default: "128"},
 			{Key: "height", Type: "int", Summary: "Logical panel height in pixels.", Default: "128"},
@@ -55,7 +57,6 @@ func init() {
 			{Key: "x_offset", Type: "int", Summary: "Physical framebuffer X offset applied to window commands.", Default: "2"},
 			{Key: "y_offset", Type: "int", Summary: "Physical framebuffer Y offset applied to window commands.", Default: "1"},
 		},
-		DefaultText: textlayout.DefaultTextHints(image.Rect(0, 0, 128, 128)),
 		NewSPI: func(port spi.Port, dc, rst, bl gpio.PinOut, _ gpio.PinIn, cfg driver.DriverConfig) (driver.DrawTarget, error) {
 			return New(port, dc, rst, bl, cfg)
 		},

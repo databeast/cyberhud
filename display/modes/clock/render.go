@@ -28,7 +28,7 @@ func BuildView(now time.Time, hints textlayout.TextHints) style.ViewData {
 	ctx := style.NewStyleContext(hints)
 	vd := s.Build(data, p, ctx)
 
-	vd.StyleReport = style.StyleReport{Name: s.Name(), Reason: reason}
+	vd.StyleReport = style.ReportFor(s, reason, hints)
 	vd.Static = true
 
 	return vd

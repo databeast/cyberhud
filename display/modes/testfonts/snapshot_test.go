@@ -29,9 +29,9 @@ func renderDiagnosticSnapshots(t *testing.T, mode string, reset func(), preRende
 		height   int
 		category testsnapshot.DisplayCategory
 	}{
-		{"mono-128x64", 128, 64, testsnapshot.CategoryMono},
-		{"color-240x240", 240, 240, testsnapshot.CategoryColor},
-		{"color-320x240", 320, 240, testsnapshot.CategoryColor},
+		{"mono-fast-128x64", 128, 64, testsnapshot.CategoryMono},
+		{"color-fast-240x240", 240, 240, testsnapshot.CategoryColor},
+		{"color-fast-320x240", 320, 240, testsnapshot.CategoryColor},
 	}
 
 	if err := os.RemoveAll(snapshotOutputDir); err != nil {

@@ -10,28 +10,14 @@ import (
 	"github.com/databeast/cyberhud/display/modes/attract_bokeh/source"
 )
 
-// floatRangeValidator returns a KeyValidator that accepts float values in [min, max].
-func floatRangeValidator(min, max float64) cmdutil.KeyValidator {
-	return func(value string) string {
-		f, err := strconv.ParseFloat(strings.TrimSpace(value), 64)
-		if err != nil {
-			return "must be a number"
-		}
-		if f < min || f > max {
-			return fmt.Sprintf("must be in [%.1f, %.1f]", min, max)
-		}
-		return ""
-	}
-}
-
 // cmdHandler is the declarative CmdHandler for the "attract_bokeh" command verb.
 var cmdHandler = &cmdutil.CmdHandler{
 	Verb: "attract_bokeh",
 	Keys: []cmdutil.KeyDef{
-		{Name: "speed", Validate: floatRangeValidator(0.1, 10.0)},
-		{Name: "density", Validate: floatRangeValidator(0.1, 1.0)},
-		{Name: "size_variance", Validate: floatRangeValidator(0.0, 1.0)},
-		{Name: "saturation", Validate: floatRangeValidator(0.0, 1.0)},
+		{Name: "speed", Validate: cmdutil.FloatRangeValidator(0.1, 10.0)},
+		{Name: "density", Validate: cmdutil.FloatRangeValidator(0.1, 1.0)},
+		{Name: "size_variance", Validate: cmdutil.FloatRangeValidator(0.0, 1.0)},
+		{Name: "saturation", Validate: cmdutil.FloatRangeValidator(0.0, 1.0)},
 	},
 	Get:       getPolicy,
 	Apply:     applyPolicy,
@@ -87,10 +73,11 @@ func HandleCommand(args []string) string {
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "attract_bokeh",
-		Title:   "Bokeh",
-		Summary: "Soft out-of-focus light circles drifting with gentle color variation.",
-		Order:   200,
+		ID:       "attract_bokeh",
+		Title:    "Bokeh",
+		Category: "Attract",
+		Summary:  "Soft out-of-focus light circles drifting with gentle color variation.",
+		Order:    200,
 		Options: []catalog.OptionDefinition{
 			{Key: "speed", Type: "float", Summary: "Drift speed multiplier.", Default: "1.0", Allowed: []string{}},
 			{Key: "density", Type: "float", Summary: "Circle count scaling from 0.1 to 1.0.", Default: "0.5", Allowed: []string{}},

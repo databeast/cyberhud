@@ -160,9 +160,8 @@ func adaptiveBuild(data source.ClockData, pol source.Policy, ctx style.StyleCont
 		items[i] = r.text
 		tiers[i] = r.tier
 		rowInputs[i] = layout.RowInput{
-			TextLen:      len(r.text),
-			GlyphAdvance: r.entry.GlyphAdvance,
-			RowHeight:    r.entry.RowHeight,
+			TextLen: len(r.text),
+			Font:    layout.NewMetrics(r.entry.GlyphAdvance, r.entry.RowHeight, r.entry.FontID),
 		}
 	}
 
@@ -194,7 +193,7 @@ func adaptiveBuild(data source.ClockData, pol source.Policy, ctx style.StyleCont
 		Colors:       colors,
 		Static:       true,
 	}
-	guardEmptyItems(&vd)
+	style.GuardEmptyItems(&vd)
 
 	reqs := style.SurfaceRequirements{
 		MinWidth:   hints.PixelWidth,
@@ -253,9 +252,8 @@ func fastBuild(data source.ClockData, pol source.Policy, ctx style.StyleContext,
 		items[i] = r.text
 		tiers[i] = r.tier
 		rowInputs[i] = layout.RowInput{
-			TextLen:      len(r.text),
-			GlyphAdvance: r.entry.GlyphAdvance,
-			RowHeight:    r.entry.RowHeight,
+			TextLen: len(r.text),
+			Font:    layout.NewMetrics(r.entry.GlyphAdvance, r.entry.RowHeight, r.entry.FontID),
 		}
 	}
 

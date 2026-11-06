@@ -130,36 +130,36 @@ var ColorSlow800x480MinimalStyle = def{
 }
 
 var ColorFast800x480Style = def{
-	name: "color-800x480",
+	name: "color-fast-800x480",
 	reqs: style.SurfaceRequirements{MinWidth: 800, MinHeight: 480, Capability: style.ColorFast},
 }
 
 var ColorFast800x480OverviewStyle = def{
-	name: "color-800x480-overview",
+	name: "color-fast-800x480-overview",
 	reqs: style.SurfaceRequirements{MinWidth: 800, MinHeight: 480, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildOverviewStyle},
 }
 
 var ColorFast800x480TimegraphStyle = def{
-	name: "color-800x480-timegraph",
+	name: "color-fast-800x480-timegraph",
 	reqs: style.SurfaceRequirements{MinWidth: 800, MinHeight: 480, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildTimegraphStyle},
 }
 
 var ColorFast800x480DetailStyle = def{
-	name: "color-800x480-detail",
+	name: "color-fast-800x480-detail",
 	reqs: style.SurfaceRequirements{MinWidth: 800, MinHeight: 480, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildDetailStyle},
 }
 
 var ColorFast800x480GraphStyle = def{
-	name: "color-800x480-graph",
+	name: "color-fast-800x480-graph",
 	reqs: style.SurfaceRequirements{MinWidth: 800, MinHeight: 480, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildGraphStyle},
 }
 
 var ColorFast800x480MinimalStyle = def{
-	name: "color-800x480-minimal",
+	name: "color-fast-800x480-minimal",
 	reqs: style.SurfaceRequirements{MinWidth: 800, MinHeight: 480, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildMinimalStyle},
 }

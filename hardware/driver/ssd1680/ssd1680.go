@@ -45,6 +45,8 @@ func init() {
 		Summary:    "SPI monochrome e-ink controller used by 2.13-inch panels with busy-pin driven refresh cycles.",
 		Monochrome: true,
 		IsEPaper:   true,
+		ColorDepth: driver.DepthMono1,
+		Capability: textlayout.CapMonoSlow,
 		OptionDefs: []driver.OptionDefinition{
 			{Key: "width", Type: "int", Summary: "Logical panel width in pixels.", Default: "250"},
 			{Key: "height", Type: "int", Summary: "Logical panel height in pixels.", Default: "122"},
@@ -52,13 +54,6 @@ func init() {
 			{Key: "busy_high", Type: "bool", Summary: "Whether the busy pin reads high while the controller is refreshing.", Default: "true"},
 			{Key: "busy_timeout", Type: "duration", Summary: "Maximum time to wait for busy-pin refresh completion.", Default: "8s"},
 			{Key: "full_refresh_every", Type: "int", Summary: "Number of partial refreshes before a maintenance full refresh.", Default: "20"},
-		},
-		DefaultText: textlayout.TextHints{
-			PixelWidth: ssd1680Width, PixelHeight: ssd1680Height,
-			SupportsVerticalScroll: false, SupportsHorizontalScroll: false, SupportsAutoScroll: false,
-			PreferEventRefresh:     true,
-			Capability:             textlayout.CapMonoSlow,
-			DefaultTickerDirection: textlayout.TickerDirectionNone, DefaultLineMode: textlayout.LineModeTruncate,
 		},
 		NewSPI: func(port spi.Port, dc, rst, _ gpio.PinOut, busy gpio.PinIn, cfg driver.DriverConfig) (driver.DrawTarget, error) {
 			return New(port, dc, rst, busy, cfg)
@@ -213,7 +208,7 @@ func (d *SSD1680) packFrame(src draw.Image) []byte {
 	for y := b.Min.Y; y < b.Max.Y; y++ {
 		for x := b.Min.X; x < b.Max.X; x++ {
 			r, g, bl, _ := src.At(x, y).RGBA()
-			on := luminanceOn(r, g, bl)
+			on := driver.Luminance(r, g, bl) > driver.MonoThreshold
 			lx := x - b.Min.X
 			ly := y - b.Min.Y
 			rx, ry := lx, ly
@@ -336,4 +331,4 @@ func ssd1680RAMLayout(cfg driver.DriverConfig) (width int, height int, rotate90 
 	return width, height, rotate90
 }
 
-func luminanceOn(r, g, b uint32) bool { luma := (299*r + 587*g + 114*b) / 1000; return luma > 0x3000 }
+

@@ -3,6 +3,7 @@ package source
 import (
 	"github.com/databeast/cyberhud/display/style/layout"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
+	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 )
 
 // computeOffsetY determines the vertical centering offset for ticker content.
@@ -10,9 +11,11 @@ import (
 //   - Auto-scroll active and content overflows available rows
 //   - Horizontal direction with marquee strips active
 //   - Content block height >= available content height (CenterBlockY returns 0 naturally)
-func ComputeOffsetY(formatted []FormattedLine, hints textlayout.TextHints, effective Policy) int {
+func ComputeOffsetY(formatted []FormattedLine, hints textlayout.TextHints, effective Policy) layout.TTYY {
 	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{})
-	maxRows := bridge.MaxVisibleRows()
+	e := hints.Catalog.Entry(tiercatalog.TierNormal)
+	m := layout.NewMetrics(e.GlyphAdvance, e.RowHeight, e.FontID)
+	maxRows := bridge.MaxVisibleRows(m)
 
 	// Disable centering when scrolling is active and content overflows.
 	if effective.AutoScrollMS > 0 && effective.Direction != textlayout.TickerDirectionNone {

@@ -68,18 +68,3 @@ func QualityColor(barLevel int, accent color.RGBA) color.RGBA {
 		return color.RGBA{255, 0, 0, 255}
 	}
 }
-
-// formatSignalText returns a text-only representation of signal strength
-// for grayscale-fast styles that cannot render bar sprites or color-coded indicators.
-// Output varies based on the snapshot's SignalDisplay policy setting.
-func FormatSignalText(snap WifiData, pol Policy) string {
-	switch pol.SignalDisplay {
-	case "dbm":
-		return FormatDbm(snap.SignalStrength)
-	case "percentage", "percent":
-		return fmt.Sprintf("%d%%", SignalPercent(snap.SignalStrength))
-	default: // "bars" — show as text level since bar sprites aren't available
-		level := SignalToBarLevel(snap.SignalStrength)
-		return fmt.Sprintf("Signal: %d/4", level)
-	}
-}

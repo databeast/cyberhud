@@ -6,7 +6,7 @@ package tiercatalog
 import (
 	"strings"
 
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 )
 
 // Tier is a semantic size name.

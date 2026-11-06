@@ -52,13 +52,13 @@ var ColorSlow128x160Style = styleDef{
 }
 
 var ColorSmall160x128Style = styleDef{
-	name: "color-160x128",
+	name: "color-fast-160x128",
 	reqs: style.SurfaceRequirements{MinWidth: 160, MinHeight: 128, Capability: style.ColorFast},
 	p:    Params{Fast: true, Color: true},
 }
 
 var ColorSmall128x160Style = styleDef{
-	name: "color-128x160",
+	name: "color-fast-128x160",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 160, Capability: style.ColorFast},
 	p:    Params{Fast: true, Color: true},
 }

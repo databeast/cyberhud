@@ -3,17 +3,11 @@ package system
 import (
 	"github.com/databeast/cyberhud/display/catalog"
 	displaymodes "github.com/databeast/cyberhud/display/modes"
+	"github.com/databeast/cyberhud/display/region/modehints"
 	"github.com/databeast/cyberhud/display/style"
-	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 	"github.com/databeast/cyberhud/display/widgets/icons"
 	"github.com/databeast/cyberhud/runtime/action"
 )
-
-// Font configuration for the system mode.
-// Previously stored in modeFontConfig["system"] = {Family: "spleen", Tier: TierNormal}.
-const systemFontFamily = "spleen"
-
-var systemFontTier = tiercatalog.TierNormal
 
 func init() {
 	displaymodes.RegisterFactory("system", newInstance)
@@ -32,7 +26,7 @@ func (i *instance) Deactivate()                   {} // system has no background
 func (i *instance) ActionHandler() action.Handler { return Handler{} }
 
 func (i *instance) BuildView() style.ViewData {
-	hints, ok := getPanelHints()
+	hints, ok := modehints.Current()
 	if !ok {
 		return style.ViewData{Items: []string{"error"}}
 	}
@@ -53,12 +47,13 @@ func (i *instance) RenderCacheKey() uint32 {
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "system",
-		Title:   "System",
-		Summary: "Host, uptime, and IP address information.",
-		Order:   50,
+		ID:       "system",
+		Title:    "System",
+		Category: "System",
+		Summary:  "Host, uptime, and IP address information.",
+		Order:    50,
 		Options: []catalog.OptionDefinition{
-			{Key: "style", Type: "string", Summary: "Visual presentation style.", Default: "", Allowed: registeredStyleNames()},
+			{Key: "style", Type: "string", Summary: "Visual presentation style.", Default: "", Allowed: systemRegistry.RegisteredNames()},
 			{Key: "font", Type: "string", Summary: "Font selection (auto or a registered font ID).", Default: "auto"},
 		},
 	})

@@ -66,6 +66,32 @@ func (ctx StyleContext) Entry(tier tiercatalog.Tier) tiercatalog.Entry {
 	return ctx.catalog.Entry(tier)
 }
 
+// Metrics returns the layout.Metrics for the given tier — the glyph advance and
+// row height of the exact font the renderer will draw a row declaring that tier
+// with. This is the measuring handle to pass into LayoutCalculator methods
+// (CenterX, MaxChars, MaxVisibleRows, LayoutRows via RowInput.Font, ...).
+//
+// It is the correct-by-construction path: because the renderer resolves the same
+// tier to the same catalog Entry, measuring with ctx.Metrics(tier) and emitting
+// ViewData.Tiers=[tier] guarantees layout and drawing agree on one font. A style
+// cannot measure with a font it is not going to draw.
+func (ctx StyleContext) Metrics(tier tiercatalog.Tier) layout.Metrics {
+	e := ctx.catalog.Entry(tier)
+	return layout.NewMetrics(e.GlyphAdvance, e.RowHeight, e.FontID)
+}
+
+// DefaultMetrics returns the Metrics of the region's baseline face (the font the
+// renderer draws a row in when it declares no tier — TierNormal's resolved
+// entry, which setBaselineFont uses).
+//
+// This is the DELIBERATE, greppable "I am laying out against the region default
+// face, not a tier I declared" escape hatch. Reach for it only when a style
+// genuinely emits bare rows with no Tiers/FontIDs; for anything that declares a
+// tier, use Metrics(tier) so measurement is bound to the drawn font.
+func (ctx StyleContext) DefaultMetrics() layout.Metrics {
+	return ctx.Metrics(tiercatalog.TierNormal)
+}
+
 // Face returns the concrete font face for tier, or nil in degraded mode where no
 // catalog was built for this region.
 //

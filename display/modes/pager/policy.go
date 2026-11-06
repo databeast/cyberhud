@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/databeast/cyberhud/display/catalog"
+	"github.com/databeast/cyberhud/display/catalog/cmdutil"
 	"github.com/databeast/cyberhud/display/modes/pager/source"
 )
 
@@ -28,12 +29,6 @@ func SetPolicy(p source.Policy) {
 	policyState.Lock()
 	defer policyState.Unlock()
 	policyState.policy = normalizePolicy(p)
-}
-
-// policyFingerprint returns a deterministic string representation of all policy
-// fields, used for change detection in RenderCacheKey.
-func policyFingerprint(p Policy) string {
-	return p.Fingerprint()
 }
 
 type Policy = source.Policy
@@ -85,17 +80,17 @@ func (pagerSnapshotter) RestorePolicy(data map[string]interface{}) error {
 		}
 	}
 	if v, ok := data["scroll_speed"]; ok {
-		if n, ok := toInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.ScrollSpeed = n
 		}
 	}
 	if v, ok := data["max_lines"]; ok {
-		if n, ok := toInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.MaxLines = n
 		}
 	}
 	if v, ok := data["scan_ms"]; ok {
-		if n, ok := toInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.ScanMS = n
 		}
 	}
@@ -110,43 +105,28 @@ func (pagerSnapshotter) RestorePolicy(data map[string]interface{}) error {
 		}
 	}
 	if v, ok := data["fade_out_ms"]; ok {
-		if n, ok := toInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.FadeOutMS = n
 		}
 	}
 	if v, ok := data["fade_in_ms"]; ok {
-		if n, ok := toInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.FadeInMS = n
 		}
 	}
 	if v, ok := data["line_time_ms"]; ok {
-		if n, ok := toInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.LineTimeMS = n
 		}
 	}
 	if v, ok := data["max_wait_s"]; ok {
-		if n, ok := toInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.MaxWaitS = n
 		}
 	}
 
 	SetPolicy(p)
 	return nil
-}
-
-// toInt extracts an int from an interface value, handling both float64
-// (JSON numbers decode as float64) and direct int types.
-func toInt(v interface{}) (int, bool) {
-	switch n := v.(type) {
-	case float64:
-		return int(n), true
-	case int:
-		return n, true
-	case int64:
-		return int(n), true
-	default:
-		return 0, false
-	}
 }
 
 func init() {

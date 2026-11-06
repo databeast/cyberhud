@@ -52,18 +52,6 @@ func (p *mockSPIPort) Connect(f physic.Frequency, mode spi.Mode, bits int) (spi.
 	return p.conn, nil
 }
 
-// mockI2CBus implements i2c.Bus for testing.
-type mockI2CBus struct {
-	txBuf []byte
-}
-
-func (b *mockI2CBus) String() string { return "mock-i2c-bus" }
-func (b *mockI2CBus) Tx(addr uint16, w, r []byte) error {
-	b.txBuf = append(b.txBuf, w...)
-	return nil
-}
-func (b *mockI2CBus) SetSpeed(f physic.Frequency) error { return nil }
-
 // --- Tests ---
 
 func TestDriverRegistration(t *testing.T) {

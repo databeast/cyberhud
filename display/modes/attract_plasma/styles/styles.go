@@ -17,7 +17,7 @@ type ColorFastStyle struct {
 	Height int
 }
 
-func (s ColorFastStyle) Name() string { return fmt.Sprintf("color-%dx%d", s.Width, s.Height) }
+func (s ColorFastStyle) Name() string { return fmt.Sprintf("color-fast-%dx%d", s.Width, s.Height) }
 
 func (s ColorFastStyle) Requirements() style.SurfaceRequirements {
 	return style.SurfaceRequirements{
@@ -47,7 +47,7 @@ type MonoFastStyle struct {
 	Height int
 }
 
-func (s MonoFastStyle) Name() string { return fmt.Sprintf("mono-%dx%d", s.Width, s.Height) }
+func (s MonoFastStyle) Name() string { return fmt.Sprintf("mono-fast-%dx%d", s.Width, s.Height) }
 
 func (s MonoFastStyle) Requirements() style.SurfaceRequirements {
 	return style.SurfaceRequirements{

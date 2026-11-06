@@ -7,30 +7,17 @@ import (
 
 	"github.com/databeast/cyberhud/display/catalog"
 	"github.com/databeast/cyberhud/display/catalog/cmdutil"
+	"github.com/databeast/cyberhud/display/modes/attract_geometric/source"
 )
-
-// floatRangeValidator returns a KeyValidator that accepts float values in [min, max].
-func floatRangeValidator(min, max float64) cmdutil.KeyValidator {
-	return func(value string) string {
-		f, err := strconv.ParseFloat(strings.TrimSpace(value), 64)
-		if err != nil {
-			return "must be a number"
-		}
-		if f < min || f > max {
-			return fmt.Sprintf("must be in [%.1f, %.1f]", min, max)
-		}
-		return ""
-	}
-}
 
 // cmdHandler is the declarative CmdHandler for the "attract_geometric" command verb.
 var cmdHandler = &cmdutil.CmdHandler{
 	Verb: "attract_geometric",
 	Keys: []cmdutil.KeyDef{
-		{Name: "speed", Validate: floatRangeValidator(0.1, 10.0)},
-		{Name: "density", Validate: floatRangeValidator(0.1, 1.0)},
-		{Name: "glow_intensity", Validate: floatRangeValidator(0.0, 1.0)},
-		{Name: "fragment_rate", Validate: floatRangeValidator(0.0, 2.0)},
+		{Name: "speed", Validate: cmdutil.FloatRangeValidator(0.1, 10.0)},
+		{Name: "density", Validate: cmdutil.FloatRangeValidator(0.1, 1.0)},
+		{Name: "glow_intensity", Validate: cmdutil.FloatRangeValidator(0.0, 1.0)},
+		{Name: "fragment_rate", Validate: cmdutil.FloatRangeValidator(0.0, 2.0)},
 	},
 	Get:       getPolicy,
 	Apply:     applyPolicy,
@@ -76,7 +63,7 @@ func applyPolicy(key, value string) {
 			policyState.policy.FragmentRate = f
 		}
 	}
-	policyState.policy = normalizePolicy(policyState.policy)
+	policyState.policy = source.NormalizePolicy(policyState.policy)
 }
 
 // HandleCommand is the catalog command handler for the "attract_geometric" verb.
@@ -86,10 +73,11 @@ func HandleCommand(args []string) string {
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "attract_geometric",
-		Title:   "Geometric",
-		Summary: "Rotating semi-transparent rectangles with sinusoidal fades and drifting pseudocode fragments.",
-		Order:   200,
+		ID:       "attract_geometric",
+		Title:    "Geometric",
+		Category: "Attract",
+		Summary:  "Rotating semi-transparent rectangles with sinusoidal fades and drifting pseudocode fragments.",
+		Order:    200,
 		Options: []catalog.OptionDefinition{
 			{Key: "speed", Type: "float", Summary: "Animation speed multiplier.", Default: "1.0", Allowed: []string{}},
 			{Key: "density", Type: "float", Summary: "Cluster count scaling from 0.1 to 1.0.", Default: "0.5", Allowed: []string{}},

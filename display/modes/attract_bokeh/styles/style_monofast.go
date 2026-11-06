@@ -17,7 +17,7 @@ type BokehMonoFastStyle struct {
 }
 
 func (s BokehMonoFastStyle) Name() string {
-	return fmt.Sprintf("mono-%dx%d", s.Width, s.Height)
+	return fmt.Sprintf("mono-fast-%dx%d", s.Width, s.Height)
 }
 
 func (s BokehMonoFastStyle) Requirements() style.SurfaceRequirements {

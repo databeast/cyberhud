@@ -136,7 +136,7 @@ func TestProperty_CommandHandler_ValidSetResponse(t *testing.T) {
 // --- From: matrix_compositor_prop_test.go ---
 
 // TestProperty_StyleBehavior_ByPanelType verifies that for any panel dimensions:
-// - EinkStyle.Build produces ViewData with Static=true (snapshot.Eink=true)
+// - MonoSlowStyle.Build produces ViewData with Static=true (snapshot.Eink=true)
 // - ColorStyle.Build produces ViewData with Static=false (snapshot.Eink=false)
 // - MonoStyle.Build produces ViewData with Static=false (snapshot.Eink=false)
 
@@ -161,11 +161,11 @@ func TestProperty_StyleBehavior_ByPanelType(t *testing.T) {
 		// E-ink style → Static = true
 		einkSnap := snap
 		einkSnap.Eink = true
-		einkStyle := styles.EinkStyle{Width: width, Height: height}
+		einkStyle := styles.MonoSlowStyle{Width: width, Height: height}
 		ctx := style.NewStyleContext(hints)
 		einkResult := einkStyle.Build(einkSnap, attract_matrix.DefaultPolicy(), ctx)
 		if !einkResult.Static {
-			t.Fatalf("EinkStyle.Build(%dx%d) produced Static=false, want true",
+			t.Fatalf("MonoSlowStyle.Build(%dx%d) produced Static=false, want true",
 				width, height)
 		}
 

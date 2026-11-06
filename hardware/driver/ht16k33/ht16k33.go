@@ -7,6 +7,7 @@ import (
 
 	"periph.io/x/conn/v3/i2c"
 
+	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/hardware/driver"
 )
 
@@ -31,6 +32,10 @@ func init() {
 		Title:      "HT16K33",
 		Summary:    "I2C LED matrix/segment controller (up to 16x8 LEDs).",
 		Monochrome: true,
+		// DrawImage drives 1-bit per pixel (the chip's 16 global dimming levels are
+		// not per-pixel gray), so the native depth is mono1.
+		ColorDepth: driver.DepthMono1,
+		Capability: textlayout.CapMonoFast,
 		OptionDefs: []driver.OptionDefinition{
 			{Key: "width", Type: "int", Summary: "Display width in pixels/segments.", Default: "16"},
 			{Key: "height", Type: "int", Summary: "Display height in pixels/rows.", Default: "8"},
@@ -88,7 +93,7 @@ func (d *HT16K33) DrawImage(src draw.Image) error {
 		var word uint16
 		for col := 0; col < w && col < 16; col++ {
 			r, g, b, _ := src.At(col, row).RGBA()
-			if luminanceOn(r, g, b) {
+			if driver.Luminance(r, g, b) > driver.MonoThreshold {
 				word |= 1 << uint(col)
 			}
 		}
@@ -128,8 +133,4 @@ func (d *HT16K33) init() error {
 	}
 
 	return nil
-}
-
-func luminanceOn(r, g, b uint32) bool {
-	return (299*r+587*g+114*b)/1000 > 0x3000
 }

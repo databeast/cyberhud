@@ -9,79 +9,79 @@ import "github.com/databeast/cyberhud/display/style"
 // bespoke BuildFn for fully custom rendering.
 
 var ColorStyle128x128 = def{
-	name: "color-128x128",
+	name: "color-fast-128x128",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.ColorFast},
 	p:    Params{Gradient: true},
 }
 
 var ColorStyle128x160 = def{
-	name: "color-128x160",
+	name: "color-fast-128x160",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 160, Capability: style.ColorFast},
 	p:    Params{Gradient: true},
 }
 
 var ColorStyle135x240 = def{
-	name: "color-135x240",
+	name: "color-fast-135x240",
 	reqs: style.SurfaceRequirements{MinWidth: 135, MinHeight: 240, Capability: style.ColorFast},
 	p:    Params{Gradient: true},
 }
 
 var ColorStyle160x128 = def{
-	name: "color-160x128",
+	name: "color-fast-160x128",
 	reqs: style.SurfaceRequirements{MinWidth: 160, MinHeight: 128, Capability: style.ColorFast},
 	p:    Params{Gradient: true},
 }
 
 var ColorStyle160x80 = def{
-	name: "color-160x80",
+	name: "color-fast-160x80",
 	reqs: style.SurfaceRequirements{MinWidth: 160, MinHeight: 80, Capability: style.ColorFast},
 	p:    Params{Gradient: true},
 }
 
 var ColorStyle240x135 = def{
-	name: "color-240x135",
+	name: "color-fast-240x135",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 135, Capability: style.ColorFast},
 	p:    Params{Gradient: true},
 }
 
 var ColorStyle240x240 = def{
-	name: "color-240x240",
+	name: "color-fast-240x240",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 240, Capability: style.ColorFast},
 	p:    Params{Gradient: true},
 }
 
 var ColorStyle240x320 = def{
-	name: "color-240x320",
+	name: "color-fast-240x320",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 320, Capability: style.ColorFast},
 	p:    Params{Gradient: true},
 }
 
 var ColorStyle320x240 = def{
-	name: "color-320x240",
+	name: "color-fast-320x240",
 	reqs: style.SurfaceRequirements{MinWidth: 320, MinHeight: 240, Capability: style.ColorFast},
 	p:    Params{Gradient: true},
 }
 
 var ColorStyle320x480 = def{
-	name: "color-320x480",
+	name: "color-fast-320x480",
 	reqs: style.SurfaceRequirements{MinWidth: 320, MinHeight: 480, Capability: style.ColorFast},
 	p:    Params{Gradient: true},
 }
 
 var ColorStyle480x320 = def{
-	name: "color-480x320",
+	name: "color-fast-480x320",
 	reqs: style.SurfaceRequirements{MinWidth: 480, MinHeight: 320, Capability: style.ColorFast},
 	p:    Params{Gradient: true},
 }
 
 var ColorStyle480x800 = def{
-	name: "color-480x800",
+	name: "color-fast-480x800",
 	reqs: style.SurfaceRequirements{MinWidth: 480, MinHeight: 800, Capability: style.ColorFast},
 	p:    Params{Gradient: true},
 }
 
 var ColorStyle800x480 = def{
-	name: "color-800x480",
+	name: "color-fast-800x480",
 	reqs: style.SurfaceRequirements{MinWidth: 800, MinHeight: 480, Capability: style.ColorFast},
 	p:    Params{Gradient: true},
 }
@@ -344,82 +344,82 @@ var ColorSlow480x320Style = def{
 	p:    Params{ColorText: true},
 }
 
-var EinkStyle104x212 = def{
-	name: "eink-104x212",
+var MonoSlow104x212Style = def{
+	name: "mono-slow-104x212",
 	reqs: style.SurfaceRequirements{MinWidth: 104, MinHeight: 212, Capability: style.MonoSlow},
 	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
 }
 
-var EinkStyle122x250 = def{
-	name: "eink-122x250",
+var MonoSlow122x250Style = def{
+	name: "mono-slow-122x250",
 	reqs: style.SurfaceRequirements{MinWidth: 122, MinHeight: 250, Capability: style.MonoSlow},
 	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
 }
 
-var EinkStyle128x296 = def{
-	name: "eink-128x296",
+var MonoSlow128x296Style = def{
+	name: "mono-slow-128x296",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 296, Capability: style.MonoSlow},
 	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
 }
 
-var EinkStyle176x264 = def{
-	name: "eink-176x264",
+var MonoSlow176x264Style = def{
+	name: "mono-slow-176x264",
 	reqs: style.SurfaceRequirements{MinWidth: 176, MinHeight: 264, Capability: style.MonoSlow},
 	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
 }
 
-var EinkStyle200x200 = def{
-	name: "eink-200x200",
+var MonoSlow200x200Style = def{
+	name: "mono-slow-200x200",
 	reqs: style.SurfaceRequirements{MinWidth: 200, MinHeight: 200, Capability: style.MonoSlow},
 	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
 }
 
-var EinkStyle212x104 = def{
-	name: "eink-212x104",
+var MonoSlow212x104Style = def{
+	name: "mono-slow-212x104",
 	reqs: style.SurfaceRequirements{MinWidth: 212, MinHeight: 104, Capability: style.MonoSlow},
 	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
 }
 
-var EinkStyle250x122 = def{
-	name: "eink-250x122",
+var MonoSlow250x122Style = def{
+	name: "mono-slow-250x122",
 	reqs: style.SurfaceRequirements{MinWidth: 250, MinHeight: 122, Capability: style.MonoSlow},
 	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
 }
 
-var EinkStyle264x176 = def{
-	name: "eink-264x176",
+var MonoSlow264x176Style = def{
+	name: "mono-slow-264x176",
 	reqs: style.SurfaceRequirements{MinWidth: 264, MinHeight: 176, Capability: style.MonoSlow},
 	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
 }
 
-var EinkStyle296x128 = def{
-	name: "eink-296x128",
+var MonoSlow296x128Style = def{
+	name: "mono-slow-296x128",
 	reqs: style.SurfaceRequirements{MinWidth: 296, MinHeight: 128, Capability: style.MonoSlow},
 	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
 }
 
-var EinkStyle300x400 = def{
-	name: "eink-300x400",
+var MonoSlow300x400Style = def{
+	name: "mono-slow-300x400",
 	reqs: style.SurfaceRequirements{MinWidth: 300, MinHeight: 400, Capability: style.MonoSlow},
 	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
 }
 
-var EinkStyle400x300 = def{
-	name: "eink-400x300",
+var MonoSlow400x300Style = def{
+	name: "mono-slow-400x300",
 	reqs: style.SurfaceRequirements{MinWidth: 400, MinHeight: 300, Capability: style.MonoSlow},
 	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
 }
 
-var EinkStyle480x800 = def{
-	name: "eink-480x800",
+var MonoSlow480x800Style = def{
+	name: "mono-slow-480x800",
 	reqs: style.SurfaceRequirements{MinWidth: 480, MinHeight: 800, Capability: style.MonoSlow},
 	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
 }
 
-var EinkStyle800x480 = def{
-	name: "eink-800x480",
+var MonoSlow800x480Style = def{
+	name: "mono-slow-800x480",
 	reqs: style.SurfaceRequirements{MinWidth: 800, MinHeight: 480, Capability: style.MonoSlow},
-	p:    Params{BuildFn: einkPoster800x480},
+	p:    Params{BuildFn: monoSlowPoster800x480},
 }
 
 var GrayscaleFast128x128Style = def{
@@ -716,28 +716,28 @@ var GrayscaleSlow480x320Style = def{
 }
 
 var MonoStyle128x128 = def{
-	name: "mono-128x128",
+	name: "mono-fast-128x128",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.MonoFast},
 }
 
 var MonoStyle128x32 = def{
-	name: "mono-128x32",
+	name: "mono-fast-128x32",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 32, Capability: style.MonoFast},
 	p:    Params{Summary: true},
 }
 
 var MonoStyle128x64 = def{
-	name: "mono-128x64",
+	name: "mono-fast-128x64",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 64, Capability: style.MonoFast},
 }
 
 var MonoStyle32x128 = def{
-	name: "mono-32x128",
+	name: "mono-fast-32x128",
 	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.MonoFast},
 }
 
 var MonoStyle64x128 = def{
-	name: "mono-64x128",
+	name: "mono-fast-64x128",
 	reqs: style.SurfaceRequirements{MinWidth: 64, MinHeight: 128, Capability: style.MonoFast},
 }
 
@@ -931,12 +931,6 @@ var MonoSlow480x320Style = def{
 	reqs: style.SurfaceRequirements{MinWidth: 480, MinHeight: 320, Capability: style.MonoSlow},
 }
 
-var MonoSlow480x800Style = def{
-	name: "mono-slow-480x800",
-	reqs: style.SurfaceRequirements{MinWidth: 480, MinHeight: 800, Capability: style.MonoSlow},
-}
-
-var MonoSlow800x480Style = def{
-	name: "mono-slow-800x480",
-	reqs: style.SurfaceRequirements{MinWidth: 800, MinHeight: 480, Capability: style.MonoSlow},
-}
+// (mono-slow-480x800 and mono-slow-800x480 are defined above via the renamed
+// slow-panel styles that carry the real suppression params / poster builder;
+// the earlier empty-skeleton duplicates were removed.)

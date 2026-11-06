@@ -9,6 +9,7 @@ import (
 	"github.com/databeast/cyberhud/display/modes/stemma"
 	"github.com/databeast/cyberhud/display/modes/stemma/source"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
+	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 	"pgregory.net/rapid"
 )
 
@@ -63,19 +64,17 @@ var deviceListGen = rapid.Custom(func(t *rapid.T) []*source.Device {
 })
 
 // hintsGen generates representative TextHints for testing BuildView.
+// hintsGen builds realistic region hints the way production does: via
+// DefaultTextHints, which attaches a tier catalog derived from the panel
+// dimensions. A style measures (and the renderer draws) with the catalog's
+// resolved TierNormal font, so hints must carry that catalog for the row-fit
+// arithmetic to match what actually renders. (The earlier generator set bare
+// GlyphAdvance/RowHeight with no catalog, which the engine no longer consults
+// for measurement.)
 var hintsGen = rapid.Custom(func(t *rapid.T) textlayout.TextHints {
 	pixelWidth := rapid.IntRange(48, 480).Draw(t, "pixelWidth")
 	pixelHeight := rapid.IntRange(32, 320).Draw(t, "pixelHeight")
-	glyphAdvance := rapid.IntRange(4, 12).Draw(t, "glyphAdvance")
-	rowHeight := rapid.IntRange(8, 20).Draw(t, "rowHeight")
-	return textlayout.TextHints{
-		PixelWidth:   pixelWidth,
-		PixelHeight:  pixelHeight,
-		GlyphWidth:   5,
-		GlyphHeight:  7,
-		GlyphAdvance: glyphAdvance,
-		RowHeight:    rowHeight,
-	}
+	return textlayout.DefaultTextHints(image.Rect(0, 0, pixelWidth, pixelHeight))
 })
 
 // TestPreservation_ScanResultsDeviceInventory verifies that when a scanner is
@@ -173,10 +172,13 @@ func TestPreservation_BuildViewMatchesDeviceConfig(t *testing.T) {
 			}
 		} else {
 			// List style truncates to maxVisibleRows based on display dimensions.
-			// Calculate expected visible count the same way the code does.
+			// Compute the expected visible count the same way the code does: from
+			// the TierNormal font the renderer draws (the catalog entry), not a
+			// bare hints row height.
+			rowH := hints.Catalog.Entry(tiercatalog.TierNormal).RowHeight
 			maxRows := 0
-			if hints.RowHeight > 0 {
-				maxRows = hints.PixelHeight / hints.RowHeight
+			if rowH > 0 {
+				maxRows = hints.PixelHeight / rowH
 			}
 			expectedVisible := len(devs)
 			if maxRows > 0 && expectedVisible > maxRows {
@@ -219,12 +221,13 @@ func TestPreservation_BuildViewMatchesDeviceConfig(t *testing.T) {
 					len(vd.Sprites), expectedVisible)
 			}
 
-			// Verify sprite positioning: each sprite Y = rowIndex * RowHeight.
+			// Verify sprite positioning: each sprite Y = rowIndex * RowHeight,
+			// where RowHeight is the TierNormal font's height (what the style uses).
 			for i, sp := range vd.Sprites {
-				expectedY := i * hints.RowHeight
+				expectedY := i * rowH
 				if sp.Position.Y != expectedY {
 					t.Fatalf("Sprite[%d] Y=%d, want %d (rowHeight=%d)",
-						i, sp.Position.Y, expectedY, hints.RowHeight)
+						i, sp.Position.Y, expectedY, rowH)
 				}
 				if sp.Position.X != 0 {
 					t.Fatalf("Sprite[%d] X=%d, want 0", i, sp.Position.X)
@@ -289,10 +292,12 @@ func TestPreservation_ReactivationCycleProducesCorrectResults(t *testing.T) {
 		stemma.SetPolicy(stemma.Policy{Style: "list"})
 		defer stemma.SetPolicy(stemma.DefaultPolicy())
 
-		// Calculate expected visible count based on display truncation.
+		// Calculate expected visible count from the TierNormal font the renderer
+		// draws (the catalog entry), matching how the style measures.
+		rowH := hints.Catalog.Entry(tiercatalog.TierNormal).RowHeight
 		maxRows := 0
-		if hints.RowHeight > 0 {
-			maxRows = hints.PixelHeight / hints.RowHeight
+		if rowH > 0 {
+			maxRows = hints.PixelHeight / rowH
 		}
 		expectedVisible := len(devs)
 		if maxRows > 0 && expectedVisible > maxRows {

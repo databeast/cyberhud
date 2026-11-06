@@ -137,7 +137,7 @@ Cycle mode works on all panels. It produces a static placeholder display and doe
 ### Mono
 
 <figure>
-  <img src="../img/cycle/mono-128x64-placeholder_0001.png" alt="mono-128x64-placeholder 128x64" style="max-width:320px;width:100%;">
+  <img src="../img/cycle/mono-fast-128x64-placeholder_0001.png" alt="mono-fast-128x64-placeholder 128x64" style="max-width:320px;width:100%;">
   <figcaption>128x64</figcaption>
 </figure>
 

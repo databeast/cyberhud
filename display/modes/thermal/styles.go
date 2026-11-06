@@ -11,7 +11,7 @@ import (
 
 // styleNamePattern is the regex that all registered thermal style names must match.
 // Format: <category_prefix><WxH>[-<variant>]
-var styleNamePattern = regexp.MustCompile(`^(color-|color-slow-|mono-|mono-slow-|grayscale-fast-|grayscale-slow-)\d+x\d+(-[a-z0-9-]+)?$`)
+var styleNamePattern = regexp.MustCompile(`^(mono-fast-|mono-slow-|grayscale-fast-|grayscale-slow-|color-fast-|color-slow-)\d+x\d+(-[a-z0-9-]+)?$`)
 
 func init() {
 	for _, s := range thermalRegistry.Enumerate() {

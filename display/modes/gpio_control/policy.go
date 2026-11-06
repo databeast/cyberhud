@@ -90,12 +90,3 @@ func normalizePolicy(p Policy) Policy {
 	}
 	return p
 }
-
-// fontValidator accepts "auto" or any non-empty trimmed string for the font option.
-// Invalid font IDs are handled at render time by falling back to auto.
-func fontValidator(value string) string {
-	if strings.TrimSpace(value) == "" {
-		return "must be \"auto\" or a non-empty font ID"
-	}
-	return ""
-}

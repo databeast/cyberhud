@@ -133,10 +133,6 @@ func SerializeFeed() (string, error) {
 	return string(data), nil
 }
 
-func FormatPolicyResponse(p Policy) string {
-	return fmt.Sprintf("OK ticker policy style=%s font=%s font_tier=%s line_mode=%s direction=%s auto_scroll_ms=%d accent=%s show_border=%v show_glow=%v", p.Style, p.Font, p.FontTier, p.LineMode, p.Direction, p.AutoScrollMS, p.Accent, p.ShowBorder, p.ShowGlow)
-}
-
 // CheckAdvance updates auto-scroll state if sufficient time has passed.
 // Returns the effective scroll offset (line index for vertical) constrained by panel capabilities.
 // For horizontal direction, advances marquee pixel offsets (side effect) and returns 0.

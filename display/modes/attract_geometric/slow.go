@@ -36,7 +36,7 @@ func BuildSlowView(hints textlayout.TextHints) style.ViewData {
 	}
 
 	policy := tunePolicyForUltraLowRes(GetPolicy(), panelWidth, panelHeight)
-	fp := policyFingerprint(policy)
+	fp := policy.Fingerprint()
 
 	slowRefreshState.Lock()
 	defer slowRefreshState.Unlock()
@@ -98,5 +98,5 @@ func BuildSlowView(hints textlayout.TextHints) style.ViewData {
 
 // SlowRenderCacheKey returns a cache key that only changes on policy fingerprint change.
 func SlowRenderCacheKey() uint32 {
-	return region.CalcRegionCacheKey(0, policyFingerprint(GetPolicy()))
+	return region.CalcRegionCacheKey(0, GetPolicy().Fingerprint())
 }

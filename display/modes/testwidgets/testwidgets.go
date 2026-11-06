@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/databeast/cyberhud/display/catalog"
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 	"github.com/databeast/cyberhud/display/widgets"
@@ -26,10 +26,11 @@ import (
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "testwidgets",
-		Title:   "Test Widgets",
-		Summary: "Cycles through all registered widget types showing a demo preview of each.",
-		Order:   93,
+		ID:       "testwidgets",
+		Title:    "Test Widgets",
+		Category: "Test",
+		Summary:  "Cycles through all registered widget types showing a demo preview of each.",
+		Order:    93,
 	})
 }
 

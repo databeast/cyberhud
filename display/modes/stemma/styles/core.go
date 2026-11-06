@@ -82,12 +82,10 @@ func listBuild(snapshot source.StemmaSnapshot, ctx style.StyleContext, p Params)
 
 	hints := ctx.Hints()
 	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	maxRows := bridge.MaxVisibleRows()
-	maxChars := 0
-	if bridge.GlyphAdvance() > 0 {
-		maxChars = bridge.AvailableContentWidth() / bridge.GlyphAdvance()
-	}
-	iconCells := iconWidthInGlyphs(bridge.GlyphAdvance())
+	m := ctx.DefaultMetrics()
+	maxRows := bridge.MaxVisibleRows(m)
+	maxChars := bridge.MaxChars(m)
+	iconCells := iconWidthInGlyphs(m.Advance())
 
 	visibleDevs := snapshot.Devices
 	if maxRows > 0 && len(visibleDevs) > maxRows {
@@ -106,7 +104,7 @@ func listBuild(snapshot source.StemmaSnapshot, ctx style.StyleContext, p Params)
 	vd := style.ViewData{Items: items, Colors: BuildColors(visibleDevs, ColorPresent, ColorAbsent)}
 	if snapshot.GetIcon != nil {
 		ox, oy := bridge.ContentOrigin()
-		rowH := bridge.RowHeight()
+		rowH := m.RowHeight()
 		suppCtx := widgets.SuppressionContext{
 			IsEink:          false,
 			AvailableWidth:  bridge.AvailableContentWidth(),
@@ -207,9 +205,9 @@ func posterBuild(snapshot source.StemmaSnapshot, ctx style.StyleContext, p Param
 		}
 	}
 
-	offsets := make([]int, len(visibleRows))
+	offsets := make([]style.TTYX, len(visibleRows))
 	for i, r := range visibleRows {
-		offsets[i] = bridge.CenterXWith(len([]rune(r.text)), r.entry.GlyphAdvance)
+		offsets[i] = bridge.CenterX(len([]rune(r.text)), layout.NewMetrics(r.entry.GlyphAdvance, r.entry.RowHeight, r.entry.FontID))
 	}
 
 	var blockHeight int
@@ -219,7 +217,7 @@ func posterBuild(snapshot source.StemmaSnapshot, ctx style.StyleContext, p Param
 	if includeSecondary && len(visibleRows) > len(header) {
 		blockHeight += groupGap
 	}
-	offsetY := (bridge.AvailableContentHeight() - blockHeight) / 2
+	offsetY := layout.TTYY((bridge.AvailableContentHeight() - blockHeight) / 2)
 	if offsetY < 0 {
 		offsetY = 0
 	}

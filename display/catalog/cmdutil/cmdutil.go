@@ -3,6 +3,7 @@ package cmdutil
 import (
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -172,6 +173,68 @@ func ParseBool(s string) (bool, bool) {
 		return false, true
 	default:
 		return false, false
+	}
+}
+
+// ToInt extracts an int from a JSON-decoded interface value, accepting the
+// numeric kinds a wire-format map may carry (float64, int, int64).
+func ToInt(v interface{}) (int, bool) {
+	switch n := v.(type) {
+	case float64:
+		return int(n), true
+	case int:
+		return n, true
+	case int64:
+		return int(n), true
+	default:
+		return 0, false
+	}
+}
+
+// ToFloat64 extracts a float64 from a JSON-decoded interface value, accepting
+// float64, int, and int64.
+func ToFloat64(v interface{}) (float64, bool) {
+	switch n := v.(type) {
+	case float64:
+		return n, true
+	case int:
+		return float64(n), true
+	case int64:
+		return float64(n), true
+	default:
+		return 0, false
+	}
+}
+
+// ToBool extracts a bool from a JSON-decoded interface value.
+func ToBool(v interface{}) (bool, bool) {
+	b, ok := v.(bool)
+	return b, ok
+}
+
+// FloatRangeValidator returns a KeyValidator that accepts float values within
+// the inclusive range [min, max].
+func FloatRangeValidator(min, max float64) KeyValidator {
+	return func(value string) string {
+		f, err := strconv.ParseFloat(strings.TrimSpace(value), 64)
+		if err != nil {
+			return "must be a number"
+		}
+		if f < min || f > max {
+			return fmt.Sprintf("must be in [%.1f, %.1f]", min, max)
+		}
+		return ""
+	}
+}
+
+// FontValidator returns a KeyValidator that accepts "auto" or any non-empty
+// font ID, rejecting only the empty string.
+func FontValidator() KeyValidator {
+	return func(value string) string {
+		if strings.TrimSpace(value) == "" {
+			return "must be \"auto\" or a registered font ID"
+		}
+		return ""
 	}
 }
 

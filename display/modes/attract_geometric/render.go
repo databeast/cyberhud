@@ -7,13 +7,14 @@ import (
 	"github.com/databeast/cyberhud/display/modes/attract_geometric/source"
 	"github.com/databeast/cyberhud/display/modes/attract_geometric/styles"
 	"github.com/databeast/cyberhud/display/region"
+	"github.com/databeast/cyberhud/display/region/modehints"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/display/widgets"
 )
 
 // BuildView produces a complete geometric frame as style.ViewData.
 func BuildView() style.ViewData {
-	hints, ok := getPanelHints()
+	hints, ok := modehints.Current()
 	if !ok {
 		return style.ViewData{Items: []string{"error"}}
 	}
@@ -71,11 +72,11 @@ func BuildView() style.ViewData {
 
 // RenderCacheKey returns a change-detection string for the display runtime.
 func RenderCacheKey() uint32 {
-	hints, ok := getPanelHints()
+	hints, ok := modehints.Current()
 	if ok && strings.Contains(styles.ResolveBestStyleName(hints), "-slow-") {
 		return SlowRenderCacheKey()
 	}
 	animState.Lock()
 	defer animState.Unlock()
-	return region.CalcRegionCacheKey(animState.frameCount, policyFingerprint(GetPolicy()))
+	return region.CalcRegionCacheKey(animState.frameCount, GetPolicy().Fingerprint())
 }

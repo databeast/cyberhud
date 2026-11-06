@@ -22,12 +22,12 @@ var MonoSlow64x128Style = styleDef{
 }
 
 var MonoSmall128x64Style = styleDef{
-	name: "mono-128x64",
+	name: "mono-fast-128x64",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 64, Capability: style.MonoFast},
 }
 
 var MonoSmall64x128Style = styleDef{
-	name: "mono-64x128",
+	name: "mono-fast-64x128",
 	reqs: style.SurfaceRequirements{MinWidth: 64, MinHeight: 128, Capability: style.MonoFast},
 }
 

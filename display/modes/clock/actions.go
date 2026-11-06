@@ -1,6 +1,9 @@
 package clock
 
-import "github.com/databeast/cyberhud/runtime/action"
+import (
+	"github.com/databeast/cyberhud/display/region/modehints"
+	"github.com/databeast/cyberhud/runtime/action"
+)
 
 // HandleAction processes joystick and button inputs for the clock mode.
 // Left/Right cycle through styles; Primary toggles the border.
@@ -26,7 +29,7 @@ func cycleStyle(delta int) action.Result {
 	policyState.Lock()
 	defer policyState.Unlock()
 
-	hints, _ := getPanelHints()
+	hints, _ := modehints.Current()
 	next := clockRegistry.Cycle(policyState.policy.Style, delta, hints)
 	if next == nil {
 		return action.Result{}

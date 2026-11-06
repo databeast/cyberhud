@@ -1,6 +1,6 @@
 # Serial Monitor
 
-Live serial communication monitor. Displays incoming serial data as scrolling text lines with ANSI color support, throughput visualization, and error guidance. Connects automatically to USB serial devices and provides five visual styles ranging from minimal raw output to full dashboard views with sparklines and progress indicators.
+Live serial communication monitor. Displays incoming serial data as scrolling text lines with ANSI color support, throughput visualization, and error guidance. Connects automatically to USB serial devices and presents a single console instrument panel that adapts to the panel's capability and size, with a `raw` toggle for chrome-free output.
 
 ## Quick Start
 
@@ -26,7 +26,7 @@ Once connected, incoming data is read from the serial port continuously:
 
 - **ANSI color codes** (SGR sequences, codes 30–37 and 90–97) in the serial output are interpreted and rendered with corresponding foreground colors on the display. Unrecognized codes are silently ignored. Reset codes (ESC[0m) revert to the default foreground.
 - **Line buffer** — the mode maintains the last N lines of output (configurable via the `lines` option). Older lines scroll off the top as new data arrives.
-- **Throughput tracking** — a sliding window of 32 one-second samples records bytes received per second, used by the dashboard style for sparkline visualization.
+- **Throughput tracking** — a sliding window of 32 one-second samples records bytes received per second, shown as a sparkline on panels tall enough to carry it.
 - **Auto-scroll** — by default the display follows new output, always showing the most recent lines.
 - **Error categorization** — when connection issues occur, the mode classifies the failure and displays actionable guidance text on the panel.
 
@@ -35,37 +35,33 @@ Once connected, incoming data is read from the serial port continuously:
 
 ## Styles
 
-The `style` option controls the visual layout and information density:
+Serial has a single visual intent — a console instrument panel — that adapts to
+the panel it runs on rather than splitting into separate named looks. A style is
+selected automatically by panel capability and resolution; the `style` option
+lets you pin a specific per-panel variant by name (e.g. `color-fast-320x240`,
+`mono-slow-400x300`), but the default auto-selection is almost always what you
+want.
 
-### default
+### The instrument panel
 
-A header row showing port path, baud rate, and connection state with an LED indicator (green = connected, red = disconnected), followed by scrollable serial output lines rendered as textlabel widgets. Best for general monitoring where you want connection status visible at all times.
+A connection LED (green = connected, red = disconnected), a header row showing
+port path and baud rate, a connection-state line, and the ANSI-colored serial
+output below. On panels with enough vertical room, a throughput sparkline
+(bytes-per-second over the last 32 seconds) and a buffer-fill gauge appear above
+the output; on smaller panels these drop away so the data keeps the space. On
+slow-refresh (e-paper) panels the panel renders statically with no animated
+widgets, so it stays crisp under 1-bit refresh.
 
-**Widgets:** LED, textlabel
+**Widgets:** LED, textlabel, sparkline, progressbar
 
-### raw
+### Raw output
 
-Only serial buffer lines — no header, no widgets, no status information. Every pixel of panel space is dedicated to serial data. Best for maximum data density when connection status isn't needed, or when you want minimal rendering overhead.
+Setting `raw=true` suppresses the instrument panel entirely — no LED, header, or
+status — leaving only the serial output bytes. Best for maximum data density
+when connection status isn't needed. The toggle is honored identically at every
+panel size.
 
 **Widgets:** None
-
-### dashboard
-
-A non-scrolling composite view with connection LED, port/baud text label, a sparkline graph showing bytes-per-second throughput over the last 32 seconds, a progress bar showing buffer fill percentage, and serial output lines with a scrollbar. Best for monitoring throughput and buffer fill at a glance — useful during long-running data captures.
-
-**Widgets:** LED, textlabel, sparkline, progressbar, scrollbar
-
-### compact
-
-A single-row status bar (LED + port + baud) followed by serial output rendered in the smallest available font to maximize visible line count within the available pixel height. Best for small panels where you need to see as many lines as possible while retaining minimal status information.
-
-**Widgets:** LED, textlabel
-
-### framed
-
-Serial output lines inside a decorative 8-pixel tile border with a scrollbar on the right edge. Content is inset by 8 pixels on each edge to avoid overlap with border tiles. Best for presentations or kiosk displays where visual aesthetics matter.
-
-**Widgets:** borderframe, textlabel, scrollbar
 
 ## Options
 
@@ -76,8 +72,9 @@ Serial output lines inside a decorative 8-pixel tile border with a scrollbar on 
 | lines | int | Number of lines to keep in the scroll buffer | 24 | any integer >= 1 |
 | autoselect | bool | Automatically select first available serial port | true | true, false |
 | scan_ms | int | Interval in ms between port scans when autoselect is enabled | 500 | any integer >= 1 |
-| style | string | Visual style for serial output | default | default, raw, dashboard, compact, framed |
+| style | string | Per-panel style name (empty auto-selects by panel) | (empty) | empty, or a registered per-panel style name |
 | font | string | Font for rendering serial text | auto | auto, or any registered font ID |
+| raw | bool | Show serial output bytes only, suppressing the connection/status chrome | false | true, false |
 
 Configure options via the CLI:
 
@@ -108,34 +105,16 @@ Use a specific serial port:
 cyberhudctl display serial port=/dev/ttyUSB0
 ```
 
-Switch to the raw style for maximum data density:
+Suppress the chrome and show serial output bytes only:
 
 ```sh
-cyberhudctl display serial style=raw
+cyberhudctl display serial raw=true
 ```
 
-Switch to the dashboard style for throughput monitoring:
+Restore the full instrument panel:
 
 ```sh
-cyberhudctl display serial style=dashboard
-```
-
-Switch to the compact style on a small panel:
-
-```sh
-cyberhudctl display serial style=compact
-```
-
-Switch to the framed style for a presentation display:
-
-```sh
-cyberhudctl display serial style=framed
-```
-
-Switch back to the default style:
-
-```sh
-cyberhudctl display serial style=default
+cyberhudctl display serial raw=false
 ```
 
 Increase the scroll buffer to 48 lines:
@@ -153,7 +132,7 @@ cyberhudctl display serial scan_ms=1000
 Combine multiple options in a single command:
 
 ```sh
-cyberhudctl display serial port=/dev/ttyACM0 baud=115200 style=dashboard lines=32
+cyberhudctl display serial port=/dev/ttyACM0 baud=115200 lines=32
 ```
 
 Re-enable auto-select with a custom scan interval:
@@ -171,7 +150,7 @@ The `font` option controls which bitmap font is used for text rendering:
 
 Font selection is recalculated on every `BuildView` call using the current panel dimensions. When `TextHints.PixelHeight` or `TextHints.RowHeight` is 0 (uninitialized panel), the mode uses the default ASCII 4×6 font without adaptive selection.
 
-The compact style overrides font selection to always use the smallest registered font, maximizing visible line count regardless of the `font` policy value.
+On small panels the instrument panel drops its throughput sparkline and buffer gauge so the serial output keeps the available rows.
 
 ## Error Handling
 
@@ -212,7 +191,7 @@ The serial mode optimizes rendering automatically:
 - **Row limits** — if the line buffer exceeds the panel's visible row capacity, only the most recent visible lines are rendered. The scrollbar indicates position within the full buffer.
 - **Scrollbar visibility** — a scrollbar widget appears only when the buffer contains more lines than can be displayed and the view is not already scrolled to the tail (most recent) position.
 - **Graceful degradation** — if widget rendering fails (panel too small for LED diameter, sparkline bounds, or border frame minimum 16×16 pixels), the mode omits the affected widget and continues rendering remaining content.
-- **Style switching** — changing the style via policy update takes effect on the next render cycle without requiring a mode restart or reconnection.
+- **Raw toggle** — setting `raw=true` via policy update drops the instrument-panel chrome on the next render cycle, without a mode restart or reconnection.
 
 ## Panel Compatibility
 
@@ -229,7 +208,7 @@ Works on all panels. The serial mode adapts its rendering to the connected displ
 
 | Input | Action |
 |-------|--------|
-| K1 | Switch to dashboard style |
+| K1 / Primary | Navigate to the dashboard mode |
 | K2 / Up | Scroll up through buffer |
 | K3 / Down | Scroll down through buffer |
 | JOY / Primary | Clear scroll buffer |
@@ -239,7 +218,7 @@ The mode functions in read-only auto-scroll on panels without input controls —
 !!! tip
     Scrolling pauses auto-scroll. New data continues to buffer in the background. Press JOY to clear the buffer and resume auto-scroll at the latest output.
 
-The dashboard style sets `Static=true` (non-scrollable panel content) while all other styles are scrollable with `Static=false`.
+On fast-refresh panels the instrument panel renders continuously (the LED and throughput sparkline animate); on slow-refresh e-paper panels it renders as a static frame that updates only when new serial data arrives.
 
 ## Related Pages
 
@@ -265,12 +244,12 @@ The dashboard style sets `Static=true` (non-scrollable panel content) while all 
 </figure>
 
 <figure>
-  <img src="../img/serial/color-128x128_0001.png" alt="color-128x128 128x128" style="max-width:320px;width:100%;">
+  <img src="../img/serial/color-fast-128x128_0001.png" alt="color-fast-128x128 128x128" style="max-width:320px;width:100%;">
   <figcaption>128x128</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/serial/color-160x80_0001.png" alt="color-160x80 160x80" style="max-width:320px;width:100%;">
+  <img src="../img/serial/color-fast-160x80_0001.png" alt="color-fast-160x80 160x80" style="max-width:320px;width:100%;">
   <figcaption>160x80</figcaption>
 </figure>
 
@@ -285,27 +264,27 @@ The dashboard style sets `Static=true` (non-scrollable panel content) while all 
 </figure>
 
 <figure>
-  <img src="../img/serial/color-240x135_0001.png" alt="color-240x135 240x135" style="max-width:320px;width:100%;">
+  <img src="../img/serial/color-fast-240x135_0001.png" alt="color-fast-240x135 240x135" style="max-width:320px;width:100%;">
   <figcaption>240x135</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/serial/color-240x240_0001.png" alt="color-240x240 240x240" style="max-width:320px;width:100%;">
+  <img src="../img/serial/color-fast-240x240_0001.png" alt="color-fast-240x240 240x240" style="max-width:320px;width:100%;">
   <figcaption>240x240</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/serial/color-240x320_0001.png" alt="color-240x320 240x320" style="max-width:320px;width:100%;">
+  <img src="../img/serial/color-fast-240x320_0001.png" alt="color-fast-240x320 240x320" style="max-width:320px;width:100%;">
   <figcaption>240x320</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/serial/color-320x240_0001.png" alt="color-320x240 320x240" style="max-width:320px;width:100%;">
+  <img src="../img/serial/color-fast-320x240_0001.png" alt="color-fast-320x240 320x240" style="max-width:320px;width:100%;">
   <figcaption>320x240</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/serial/color-320x480_0001.png" alt="color-320x480 320x480" style="max-width:320px;width:100%;">
+  <img src="../img/serial/color-fast-320x480_0001.png" alt="color-fast-320x480 320x480" style="max-width:320px;width:100%;">
   <figcaption>320x480</figcaption>
 </figure>
 
@@ -315,17 +294,17 @@ The dashboard style sets `Static=true` (non-scrollable panel content) while all 
 </figure>
 
 <figure>
-  <img src="../img/serial/color-480x320_0001.png" alt="color-480x320 480x320" style="max-width:320px;width:100%;">
+  <img src="../img/serial/color-fast-480x320_0001.png" alt="color-fast-480x320 480x320" style="max-width:320px;width:100%;">
   <figcaption>480x320</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/serial/color-480x800_0001.png" alt="color-480x800 480x800" style="max-width:320px;width:100%;">
+  <img src="../img/serial/color-fast-480x800_0001.png" alt="color-fast-480x800 480x800" style="max-width:320px;width:100%;">
   <figcaption>480x800</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/serial/color-800x480_0001.png" alt="color-800x480 800x480" style="max-width:320px;width:100%;">
+  <img src="../img/serial/color-fast-800x480_0001.png" alt="color-fast-800x480 800x480" style="max-width:320px;width:100%;">
   <figcaption>800x480</figcaption>
 </figure>
 

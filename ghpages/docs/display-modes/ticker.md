@@ -40,7 +40,7 @@ Visual effects are controlled by policy fields:
 Configure options via the CLI:
 
 ```sh
-cyberhudctl display ticker policy <key>=<value>
+cyberhudctl display ticker <key>=<value>
 ```
 
 ### Font Tier
@@ -85,13 +85,13 @@ cyberhudctl display ticker set 'Hello|World|CyberHUD'
 Set the font tier to large with an amber accent:
 
 ```sh
-cyberhudctl display ticker policy font_tier=large accent=amber
+cyberhudctl display ticker font_tier=large accent=amber
 ```
 
 Enable auto-scroll every 2 seconds with a border:
 
 ```sh
-cyberhudctl display ticker policy auto_scroll_ms=2000 show_border=true
+cyberhudctl display ticker auto_scroll_ms=2000 show_border=true
 ```
 
 Query the current ticker policy:
@@ -131,7 +131,7 @@ Returns the current feed buffer as pretty-printed JSON. See [ticker get response
 ### Set global rendering policy
 
 ```sh
-cyberhudctl display ticker policy <key>=<value> [<key>=<value> ...]
+cyberhudctl display ticker <key>=<value> [<key>=<value> ...]
 ```
 
 Sets global rendering policy values that apply to all lines unless overridden by a per-line directive. Supported keys: `style`, `font`, `font_tier`, `line_mode`, `direction`, `auto_scroll_ms`, `accent`, `show_border`, `show_glow`.
@@ -139,22 +139,22 @@ Sets global rendering policy values that apply to all lines unless overridden by
 Multiple keys can be set in a single command:
 
 ```sh
-cyberhudctl display ticker policy font_tier=large accent=amber
+cyberhudctl display ticker font_tier=large accent=amber
 ```
 
 On success, the response includes all current policy values:
 
 ```
-OK ticker policy style= font=auto font_tier=large line_mode=truncate direction=vertical auto_scroll_ms=0 accent=amber show_border=false show_glow=false
+OK ticker style= font=auto font_tier=large line_mode=truncate direction=vertical auto_scroll_ms=0 accent=amber show_border=false show_glow=false
 ```
 
 Invalid values return an error without modifying the policy:
 
 ```sh
-cyberhudctl display ticker policy font_tier=huge
+cyberhudctl display ticker font_tier=huge
 # ERR font_tier: must be one of [auto, small, normal, large, fullsize]
 
-cyberhudctl display ticker policy accent=purple
+cyberhudctl display ticker accent=purple
 # ERR accent: must be one of [amber, cyan, green, red, white]
 ```
 
@@ -182,7 +182,7 @@ Each element in the JSON array is a **Line Directive** object:
 Field details:
 
 - **`text`** — the display content for this line. Required and must be non-empty.
-- **`font`** — selects a specific bitmap font by its registry ID. Use `"auto"` to let the adaptive font selection algorithm choose based on panel dimensions. When omitted, the font configured in `ticker policy` is used.
+- **`font`** — selects a specific bitmap font by its registry ID. Use `"auto"` to let the adaptive font selection algorithm choose based on panel dimensions. When omitted, the font configured in the global ticker policy is used.
 - **`line_mode`** — controls overflow behavior. `"truncate"` appends an ellipsis when text exceeds panel width. `"clip"` cuts off without any indicator. Inherits from the global policy when omitted.
 - **`scaling`** — `"fixed"` renders at the specified font size. `"fit"` ignores the font directive and selects the largest available font where the full text fits within panel width. If no font fits, the smallest font is used with truncation applied.
 - **`scroll`** — `"normal"` lines participate in auto-scroll advancement. `"pinned"` lines stay at their declared position and never scroll. If all lines are pinned, auto-scroll is disabled entirely.
@@ -231,7 +231,7 @@ Plain-text pipe-delimited input continues to work exactly as before:
 cyberhudctl display ticker set "alpha|beta|gamma"
 ```
 
-This creates three lines that inherit all rendering settings from `ticker policy`. The response format is the same for both input types: `OK ticker lines=<n>`.
+This creates three lines that inherit all rendering settings from the global ticker policy. The response format is the same for both input types: `OK ticker lines=<n>`.
 
 ### Policy Interaction
 
@@ -245,7 +245,7 @@ You can set the global policy as a baseline and override individual fields per l
 
 ```sh
 # Set a default font for all lines
-cyberhudctl display ticker policy font=ascii-5x7
+cyberhudctl display ticker font=ascii-5x7
 
 # Override font only for the first line
 cyberhudctl display ticker set '[{"text":"TITLE","font":"mono-16px"},{"text":"detail line 1"},{"text":"detail line 2"}]'
@@ -281,7 +281,7 @@ The output is a valid JSON array of line directives. Optional fields with empty/
 
 ## Styles
 
-The ticker uses a fitness-based style registry — it automatically selects the best display-profile style for the connected panel based on capability and resolution. Style names follow the `<category-prefix><WxH>` convention (e.g., `mono-slow-122x250`, `color-240x135`).
+The ticker uses a fitness-based style registry — it automatically selects the best display-profile style for the connected panel based on capability and resolution. Style names follow the `<category-prefix><WxH>` convention (e.g., `mono-slow-122x250`, `color-fast-240x135`).
 
 ### Style Selection
 
@@ -359,7 +359,7 @@ Centering is disabled when auto-scroll is active and content exceeds the availab
 <div class="grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
 
 <figure>
-  <img src="../img/ticker/color-80x160_0001.png" alt="color-80x160 80x160" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/color-fast-80x160_0001.png" alt="color-fast-80x160 80x160" style="max-width:320px;width:100%;">
   <figcaption>80x160</figcaption>
 </figure>
 
@@ -374,12 +374,12 @@ Centering is disabled when auto-scroll is active and content exceeds the availab
 </figure>
 
 <figure>
-  <img src="../img/ticker/color-128x128_0001.png" alt="color-128x128 128x128" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/color-fast-128x128_0001.png" alt="color-fast-128x128 128x128" style="max-width:320px;width:100%;">
   <figcaption>128x128</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/ticker/color-128x160_0001.png" alt="color-128x160 128x160" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/color-fast-128x160_0001.png" alt="color-fast-128x160 128x160" style="max-width:320px;width:100%;">
   <figcaption>128x160</figcaption>
 </figure>
 
@@ -389,17 +389,17 @@ Centering is disabled when auto-scroll is active and content exceeds the availab
 </figure>
 
 <figure>
-  <img src="../img/ticker/color-135x240_0001.png" alt="color-135x240 135x240" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/color-fast-135x240_0001.png" alt="color-fast-135x240 135x240" style="max-width:320px;width:100%;">
   <figcaption>135x240</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/ticker/color-160x80_0001.png" alt="color-160x80 160x80" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/color-fast-160x80_0001.png" alt="color-fast-160x80 160x80" style="max-width:320px;width:100%;">
   <figcaption>160x80</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/ticker/color-160x128_0001.png" alt="color-160x128 160x128" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/color-fast-160x128_0001.png" alt="color-fast-160x128 160x128" style="max-width:320px;width:100%;">
   <figcaption>160x128</figcaption>
 </figure>
 
@@ -419,17 +419,17 @@ Centering is disabled when auto-scroll is active and content exceeds the availab
 </figure>
 
 <figure>
-  <img src="../img/ticker/color-240x135_0001.png" alt="color-240x135 240x135" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/color-fast-240x135_0001.png" alt="color-fast-240x135 240x135" style="max-width:320px;width:100%;">
   <figcaption>240x135</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/ticker/color-240x240_0001.png" alt="color-240x240 240x240" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/color-fast-240x240_0001.png" alt="color-fast-240x240 240x240" style="max-width:320px;width:100%;">
   <figcaption>240x240</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/ticker/color-240x320_0001.png" alt="color-240x320 240x320" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/color-fast-240x320_0001.png" alt="color-fast-240x320 240x320" style="max-width:320px;width:100%;">
   <figcaption>240x320</figcaption>
 </figure>
 
@@ -454,12 +454,12 @@ Centering is disabled when auto-scroll is active and content exceeds the availab
 </figure>
 
 <figure>
-  <img src="../img/ticker/color-320x240_0001.png" alt="color-320x240 320x240" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/color-fast-320x240_0001.png" alt="color-fast-320x240 320x240" style="max-width:320px;width:100%;">
   <figcaption>320x240</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/ticker/color-320x480_0001.png" alt="color-320x480 320x480" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/color-fast-320x480_0001.png" alt="color-fast-320x480 320x480" style="max-width:320px;width:100%;">
   <figcaption>320x480</figcaption>
 </figure>
 
@@ -469,12 +469,12 @@ Centering is disabled when auto-scroll is active and content exceeds the availab
 </figure>
 
 <figure>
-  <img src="../img/ticker/color-480x320_0001.png" alt="color-480x320 480x320" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/color-fast-480x320_0001.png" alt="color-fast-480x320 480x320" style="max-width:320px;width:100%;">
   <figcaption>480x320</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/ticker/color-480x800_0001.png" alt="color-480x800 480x800" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/color-fast-480x800_0001.png" alt="color-fast-480x800 480x800" style="max-width:320px;width:100%;">
   <figcaption>480x800</figcaption>
 </figure>
 
@@ -484,7 +484,7 @@ Centering is disabled when auto-scroll is active and content exceeds the availab
 </figure>
 
 <figure>
-  <img src="../img/ticker/color-800x480_0001.png" alt="color-800x480 800x480" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/color-fast-800x480_0001.png" alt="color-fast-800x480 800x480" style="max-width:320px;width:100%;">
   <figcaption>800x480</figcaption>
 </figure>
 
@@ -641,12 +641,12 @@ Centering is disabled when auto-scroll is active and content exceeds the availab
 <div class="grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
 
 <figure>
-  <img src="../img/ticker/mono-32x128_0001.png" alt="mono-32x128 32x128" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/mono-fast-32x128_0001.png" alt="mono-fast-32x128 32x128" style="max-width:320px;width:100%;">
   <figcaption>32x128</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/ticker/mono-64x128_0001.png" alt="mono-64x128 64x128" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/mono-fast-64x128_0001.png" alt="mono-fast-64x128 64x128" style="max-width:320px;width:100%;">
   <figcaption>64x128</figcaption>
 </figure>
 
@@ -661,17 +661,17 @@ Centering is disabled when auto-scroll is active and content exceeds the availab
 </figure>
 
 <figure>
-  <img src="../img/ticker/mono-128x32_0001.png" alt="mono-128x32 128x32" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/mono-fast-128x32_0001.png" alt="mono-fast-128x32 128x32" style="max-width:320px;width:100%;">
   <figcaption>128x32</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/ticker/mono-128x64_0001.png" alt="mono-128x64 128x64" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/mono-fast-128x64_0001.png" alt="mono-fast-128x64 128x64" style="max-width:320px;width:100%;">
   <figcaption>128x64</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/ticker/mono-128x128_0001.png" alt="mono-128x128 128x128" style="max-width:320px;width:100%;">
+  <img src="../img/ticker/mono-fast-128x128_0001.png" alt="mono-fast-128x128 128x128" style="max-width:320px;width:100%;">
   <figcaption>128x128</figcaption>
 </figure>
 

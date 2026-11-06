@@ -213,27 +213,27 @@ The ticker display mode supports runtime policy configuration via the console co
 
 ### CLI Example
 
-Set ticker policy fields at runtime using `cyberhudctl display ticker policy` with key=value pairs:
+Set ticker policy fields at runtime by passing key=value pairs to the mode verb:
 
 ```sh
-cyberhudctl display ticker policy font_tier=large accent=green
+cyberhudctl display ticker font_tier=large accent=green
 ```
 
 Response:
 
 ```
-OK ticker policy style= font=auto font_tier=large line_mode=truncate direction=vertical auto_scroll_ms=0 accent=green show_border=false show_glow=false
+OK ticker style= font=auto font_tier=large line_mode=truncate direction=vertical auto_scroll_ms=0 accent=green show_border=false show_glow=false
 ```
 
 Invalid values return an error with allowed options:
 
 ```sh
-cyberhudctl display ticker policy font_tier=huge
+cyberhudctl display ticker font_tier=huge
 # ERR font_tier: must be one of [auto, small, normal, large, fullsize]
 ```
 
 ```sh
-cyberhudctl display ticker policy accent=purple
+cyberhudctl display ticker accent=purple
 # ERR accent: must be one of [amber, cyan, green, red, white]
 ```
 

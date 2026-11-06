@@ -41,33 +41,3 @@ func DefaultPolicy() Policy {
 		Layers:  4,
 	}
 }
-
-// ToFloat64 extracts a float64 from an interface value, handling both
-// float64 (native JSON number) and int/int64 conversions.
-func ToFloat64(v interface{}) (float64, bool) {
-	switch n := v.(type) {
-	case float64:
-		return n, true
-	case int:
-		return float64(n), true
-	case int64:
-		return float64(n), true
-	default:
-		return 0, false
-	}
-}
-
-// ToInt extracts an int from an interface value, handling both float64
-// (JSON numbers decode as float64) and direct int types.
-func ToInt(v interface{}) (int, bool) {
-	switch n := v.(type) {
-	case float64:
-		return int(n), true
-	case int:
-		return n, true
-	case int64:
-		return int(n), true
-	default:
-		return 0, false
-	}
-}

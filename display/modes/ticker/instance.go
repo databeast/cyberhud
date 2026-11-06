@@ -2,14 +2,10 @@ package ticker
 
 import (
 	displaymodes "github.com/databeast/cyberhud/display/modes"
+	"github.com/databeast/cyberhud/display/region/modehints"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/runtime/action"
 )
-
-// defaultFontFamily is the preferred font family when policy.Font is "auto".
-// The tier catalog priority system (spleen > terminus > cozette) determines
-// the actual face; this default ensures backward compatibility.
-const defaultFontFamily = "spleen"
 
 func init() {
 	displaymodes.RegisterFactory("ticker", newInstance)
@@ -28,7 +24,7 @@ func (i *instance) Deactivate()                   {} // ticker has no background
 func (i *instance) ActionHandler() action.Handler { return Handler{} }
 
 func (i *instance) BuildView() style.ViewData {
-	if hints, ok := getPanelHints(); ok {
+	if hints, ok := modehints.Current(); ok {
 		return BuildView(hints)
 	}
 	return style.ViewData{Items: []string{"error"}}

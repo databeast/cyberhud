@@ -28,7 +28,7 @@ type GeometricColorFastStyle struct {
 }
 
 func (s GeometricColorFastStyle) Name() string {
-	return fmt.Sprintf("color-%dx%d", s.Width, s.Height)
+	return fmt.Sprintf("color-fast-%dx%d", s.Width, s.Height)
 }
 
 func (s GeometricColorFastStyle) Requirements() style.SurfaceRequirements {
@@ -58,7 +58,7 @@ type GeometricMonoFastStyle struct {
 }
 
 func (s GeometricMonoFastStyle) Name() string {
-	return fmt.Sprintf("mono-%dx%d", s.Width, s.Height)
+	return fmt.Sprintf("mono-fast-%dx%d", s.Width, s.Height)
 }
 
 func (s GeometricMonoFastStyle) Requirements() style.SurfaceRequirements {

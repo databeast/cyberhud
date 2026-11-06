@@ -40,11 +40,12 @@ func HandleCommand(args []string) string {
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "stemma",
-		Title:   "STEMMA",
-		Scope:   "any",
-		Summary: "Detected STEMMA QT / QWIIC device list or compact device summary.",
-		Order:   30,
+		ID:       "stemma",
+		Title:    "STEMMA",
+		Category: "Data",
+		Scope:    "any",
+		Summary:  "Detected STEMMA QT / QWIIC device list or compact device summary.",
+		Order:    30,
 		Options: []catalog.OptionDefinition{
 			{Key: "style", Type: "string", Summary: "Visual presentation style.", Default: "", Allowed: registryStyleNames()},
 		},

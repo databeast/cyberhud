@@ -4,6 +4,7 @@ import (
 	"github.com/databeast/cyberhud/display/catalog"
 	displaymodes "github.com/databeast/cyberhud/display/modes"
 	"github.com/databeast/cyberhud/display/modes/attract_matrix/source"
+	"github.com/databeast/cyberhud/display/region/modehints"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/runtime/action"
 )
@@ -29,7 +30,7 @@ func (i *instance) Deactivate() {} // matrix has no background work
 func (i *instance) ActionHandler() action.Handler { return nil }
 
 func (i *instance) BuildView() style.ViewData {
-	if hints, ok := getPanelHints(); ok {
+	if hints, ok := modehints.Current(); ok {
 		return BuildView(hints)
 	}
 	return style.ViewData{Items: []string{"error"}}
@@ -41,10 +42,11 @@ func (i *instance) RenderCacheKey() uint32 {
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "attract_matrix",
-		Title:   "Matrix",
-		Summary: "Animated matrix digital rain effect with scrolling columns of pseudorandom glyphs.",
-		Order:   200,
-		Options: source.Policy{}.Options(),
+		ID:       "attract_matrix",
+		Title:    "Matrix",
+		Category: "Attract",
+		Summary:  "Animated matrix digital rain effect with scrolling columns of pseudorandom glyphs.",
+		Order:    200,
+		Options:  source.Policy{}.Options(),
 	})
 }

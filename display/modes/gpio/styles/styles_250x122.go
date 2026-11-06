@@ -36,16 +36,14 @@ var GrayscaleFast250x122Style = def{
 	reqs: style.SurfaceRequirements{MinWidth: 250, MinHeight: 122, Capability: style.GrayscaleFast},
 }
 
-var EinkStyle250x122 = def{
-	name: "eink-250x122",
+var MonoSlow250x122Style = def{
+	name: "mono-slow-250x122",
 	reqs: style.SurfaceRequirements{MinWidth: 250, MinHeight: 122, Capability: style.MonoSlow},
-	p:    Params{Layout: layoutEink},
 }
 
-var EinkStyle122x250 = def{
-	name: "eink-122x250",
+var MonoSlow122x250Style = def{
+	name: "mono-slow-122x250",
 	reqs: style.SurfaceRequirements{MinWidth: 122, MinHeight: 250, Capability: style.MonoSlow},
-	p:    Params{Layout: layoutEink},
 }
 
 var ColorSlow122x250Style = def{

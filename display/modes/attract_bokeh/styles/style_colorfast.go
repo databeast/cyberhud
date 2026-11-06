@@ -17,7 +17,7 @@ type BokehColorFastStyle struct {
 }
 
 func (s BokehColorFastStyle) Name() string {
-	return fmt.Sprintf("color-%dx%d", s.Width, s.Height)
+	return fmt.Sprintf("color-fast-%dx%d", s.Width, s.Height)
 }
 
 func (s BokehColorFastStyle) Requirements() style.SurfaceRequirements {

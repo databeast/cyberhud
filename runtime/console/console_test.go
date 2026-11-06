@@ -391,15 +391,15 @@ func TestConsoleServer_TickerPolicy(t *testing.T) {
 	sc := bufio.NewScanner(conn)
 	sc.Scan() // greeting
 
-	conn.Write([]byte("display ticker policy\n"))
+	conn.Write([]byte("display ticker\n"))
 	if !sc.Scan() {
 		t.Fatal("expected ticker policy response")
 	}
-	if got := sc.Text(); !strings.HasPrefix(got, "OK ticker policy") {
+	if got := sc.Text(); !strings.HasPrefix(got, "OK ticker ") {
 		t.Fatalf("unexpected ticker policy response: %q", got)
 	}
 
-	conn.Write([]byte("display ticker policy line_mode=clip direction=none auto_scroll_ms=1500\n"))
+	conn.Write([]byte("display ticker line_mode=clip direction=none auto_scroll_ms=1500\n"))
 	if !sc.Scan() {
 		t.Fatal("expected ticker policy set response")
 	}
@@ -445,15 +445,15 @@ func TestConsoleServer_ImagePolicy(t *testing.T) {
 	sc := bufio.NewScanner(conn)
 	sc.Scan() // greeting
 
-	conn.Write([]byte("display image policy\n"))
+	conn.Write([]byte("display image\n"))
 	if !sc.Scan() {
 		t.Fatal("expected image policy response")
 	}
-	if got := sc.Text(); !strings.HasPrefix(got, "OK image policy") {
+	if got := sc.Text(); !strings.HasPrefix(got, "OK image ") {
 		t.Fatalf("unexpected image policy response: %q", got)
 	}
 
-	conn.Write([]byte("display image policy fit=truncate\n"))
+	conn.Write([]byte("display image fit=truncate\n"))
 	if !sc.Scan() {
 		t.Fatal("expected image policy set response")
 	}

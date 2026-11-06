@@ -46,11 +46,11 @@ func AllStyles() []style.Style[source.StemmaSnapshot, source.Policy] {
 		MonoSlow800x480Style,
 
 		// MonoFast
-		listProfile("mono-128x32", 128, 32, style.MonoFast),
-		listProfile("mono-128x64", 128, 64, style.MonoFast),
-		listProfile("mono-128x128", 128, 128, style.MonoFast),
-		listProfile("mono-32x128", 32, 128, style.MonoFast),
-		listProfile("mono-64x128", 64, 128, style.MonoFast),
+		listProfile("mono-fast-128x32", 128, 32, style.MonoFast),
+		listProfile("mono-fast-128x64", 128, 64, style.MonoFast),
+		listProfile("mono-fast-128x128", 128, 128, style.MonoFast),
+		listProfile("mono-fast-32x128", 32, 128, style.MonoFast),
+		listProfile("mono-fast-64x128", 64, 128, style.MonoFast),
 
 		// GrayscaleSlow
 		listProfile("grayscale-slow-32x128", 32, 128, style.GrayscaleSlow),
@@ -131,12 +131,12 @@ func AllStyles() []style.Style[source.StemmaSnapshot, source.Policy] {
 		listProfile("color-slow-800x480", 800, 480, style.ColorSlow),
 
 		// ColorFast
-		listProfile("color-80x160", 80, 160, style.ColorFast),
-		listProfile("color-128x128", 128, 128, style.ColorFast),
-		listProfile("color-128x160", 128, 160, style.ColorFast),
+		listProfile("color-fast-80x160", 80, 160, style.ColorFast),
+		listProfile("color-fast-128x128", 128, 128, style.ColorFast),
+		listProfile("color-fast-128x160", 128, 160, style.ColorFast),
 		listProfile("color-medium-135x240", 135, 240, style.ColorFast),
-		listProfile("color-160x80", 160, 80, style.ColorFast),
-		listProfile("color-160x128", 160, 128, style.ColorFast),
+		listProfile("color-fast-160x80", 160, 80, style.ColorFast),
+		listProfile("color-fast-160x128", 160, 128, style.ColorFast),
 		listProfile("color-medium-240x135", 240, 135, style.ColorFast),
 		listProfile("color-medium-240x240", 240, 240, style.ColorFast),
 		listProfile("color-medium-240x320", 240, 320, style.ColorFast),

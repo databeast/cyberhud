@@ -15,7 +15,7 @@ func BuildView(hints textlayout.TextHints) style.ViewData {
 	s, reason := style.ResolveStyle(systemdRegistry, hints, "systemd", p.Style)
 	ctx := style.NewStyleContext(hints)
 	svd := s.Build(snap, p, ctx)
-	svd.StyleReport = style.StyleReport{Name: s.Name(), Reason: reason}
+	svd.StyleReport = style.ReportFor(s, reason, hints)
 	return svd
 }
 

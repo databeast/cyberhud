@@ -23,12 +23,3 @@ func selectTier(pixelHeight int) tiercatalog.Tier {
 func secondaryTier(primary tiercatalog.Tier) tiercatalog.Tier {
 	return style.SecondaryTier(primary)
 }
-
-// guardEmptyItems ensures vd.Items is never empty. If Items has length 0,
-// it is replaced with a single-element slice containing one empty string.
-// A non-empty Items slice is left unchanged.
-func guardEmptyItems(vd *style.ViewData) {
-	if len(vd.Items) == 0 {
-		vd.Items = []string{""}
-	}
-}

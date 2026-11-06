@@ -3,6 +3,7 @@ package usb
 import (
 	displaymodes "github.com/databeast/cyberhud/display/modes"
 	styles2 "github.com/databeast/cyberhud/display/modes/usb/styles"
+	"github.com/databeast/cyberhud/display/region/modehints"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/display/widgets/icons"
 	"github.com/databeast/cyberhud/runtime/action"
@@ -34,7 +35,7 @@ func (i *instance) BuildView() style.ViewData {
 	// (getPanelHints) for instances constructed outside a Region (tests, tooling).
 	hints, ok := i.Hints()
 	if !ok {
-		hints, ok = getPanelHints()
+		hints, ok = modehints.Current()
 		if !ok {
 			return style.ViewData{Items: []string{"error"}}
 		}

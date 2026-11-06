@@ -1,7 +1,6 @@
 package source
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -58,9 +57,4 @@ func SetPayload(payload string) error {
 
 func SerializeSnapshotNow() (string, error) {
 	return SerializeSnapshot(Snapshot())
-}
-
-func FormatPolicyResponse(p Policy) string {
-	return fmt.Sprintf("OK gauges policy style=%s shape=%s show_labels=%t label_tier=%s accent=%s default_min=%g default_max=%g columns=%d rows=%d tile_gap_px=%d padding_pct=%d",
-		p.Style, p.Shape, p.ShowLabels, p.LabelTier, p.Accent, p.DefaultMin, p.DefaultMax, p.Columns, p.Rows, p.TileGapPx, p.PaddingPct)
 }

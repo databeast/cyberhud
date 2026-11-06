@@ -33,12 +33,12 @@ func init() {
 	})
 
 	style.RegisterAliases("waveshare-1.3hat", map[string]string{
-		"dashboard": "color-240x240",
-		"clock":     "color-240x240",
+		"dashboard": "color-fast-240x240",
+		"clock":     "color-fast-240x240",
 		"thermal":   "overview",
-		"ticker":    "color-240x240",
-		"wifi":      "color-240x240",
-		"gpio":      "color-240x240",
-		"serial":    "color-240x240",
+		"ticker":    "color-fast-240x240",
+		"wifi":      "color-fast-240x240",
+		"gpio":      "color-fast-240x240",
+		"serial":    "color-fast-240x240",
 	})
 }

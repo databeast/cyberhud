@@ -131,9 +131,9 @@ func monoSlow800x480Build(snap source.Data, _ source.Policy, ctx style.StyleCont
 	}
 
 	// Step 8: Centering — horizontal per-tier, vertical center
-	offsets := make([]int, len(visibleRows))
+	offsets := make([]style.TTYX, len(visibleRows))
 	for i, r := range visibleRows {
-		offsets[i] = bridge.CenterXWith(len([]rune(r.text)), r.entry.GlyphAdvance)
+		offsets[i] = bridge.CenterX(len([]rune(r.text)), layout.NewMetrics(r.entry.GlyphAdvance, r.entry.RowHeight, r.entry.FontID))
 	}
 
 	var blockHeight int
@@ -143,7 +143,7 @@ func monoSlow800x480Build(snap source.Data, _ source.Policy, ctx style.StyleCont
 	if includeSecondary && len(visibleRows) > len(header) {
 		blockHeight += groupGap
 	}
-	offsetY := (bridge.AvailableContentHeight() - blockHeight) / 2
+	offsetY := layout.TTYY((bridge.AvailableContentHeight() - blockHeight) / 2)
 	if offsetY < 0 {
 		offsetY = 0
 	}

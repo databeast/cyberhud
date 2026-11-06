@@ -102,15 +102,6 @@ var starfieldRegistry = func() *style.StyleRegistry[source.Snapshot, source.Poli
 	)
 }()
 
-func registeredStyleNames() []string {
-	styles := starfieldRegistry.Enumerate()
-	names := make([]string, len(styles))
-	for i, s := range styles {
-		names[i] = s.Name()
-	}
-	return names
-}
-
 func resolveIsEink(hints textlayout.TextHints) bool {
 	s, _ := style.ResolveStyle(starfieldRegistry, hints, "attract_starfield", "")
 	if s == nil {

@@ -4,10 +4,11 @@ import "github.com/databeast/cyberhud/display/catalog"
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "cycle",
-		Title:   "Cycle",
-		Summary: "Auto-cycles through configured display modes on one or more regions at a configurable interval.",
-		Order:   90,
+		ID:       "cycle",
+		Title:    "Cycle",
+		Category: "Meta",
+		Summary:  "Auto-cycles through configured display modes on one or more regions at a configurable interval.",
+		Order:    90,
 		Options: []catalog.OptionDefinition{
 			{Key: "interval", Type: "duration", Summary: "Time between automatic mode switches.", Default: "30s"},
 			{Key: "modes", Type: "string-list", Summary: "Ordered list of mode IDs to cycle through.", Default: ""},

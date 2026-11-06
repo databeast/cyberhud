@@ -30,9 +30,9 @@ func TestImagePNGSnapshots(t *testing.T) {
 		category testsnapshot.DisplayCategory
 		policy   Policy
 	}{
-		{"mono-128x64-truncate", 128, 64, testsnapshot.CategoryMono, Policy{Fit: FitTruncate, Style: StyleDefault}},
-		{"color-240x240-scale-bordered", 240, 240, testsnapshot.CategoryColor, Policy{Fit: FitScale, Style: StyleBordered}},
-		{"color-320x240-stretch", 320, 240, testsnapshot.CategoryColor, Policy{Fit: FitStretch, Style: StyleDefault}},
+		{"mono-fast-128x64-truncate", 128, 64, testsnapshot.CategoryMono, Policy{Fit: FitTruncate, Style: StyleDefault}},
+		{"color-fast-240x240-scale-bordered", 240, 240, testsnapshot.CategoryColor, Policy{Fit: FitScale, Style: StyleBordered}},
+		{"color-fast-320x240-stretch", 320, 240, testsnapshot.CategoryColor, Policy{Fit: FitStretch, Style: StyleDefault}},
 	}
 
 	if err := os.RemoveAll(snapshotOutputDir); err != nil {

@@ -21,10 +21,9 @@ var GrayscaleFast200x200Style = def{
 	reqs: style.SurfaceRequirements{MinWidth: 200, MinHeight: 200, Capability: style.GrayscaleFast},
 }
 
-var EinkStyle200x200 = def{
-	name: "eink-200x200",
+var MonoSlow200x200Style = def{
+	name: "mono-slow-200x200",
 	reqs: style.SurfaceRequirements{MinWidth: 200, MinHeight: 200, Capability: style.MonoSlow},
-	p:    Params{Layout: layoutEink},
 }
 
 var ColorSlow200x200Style = def{

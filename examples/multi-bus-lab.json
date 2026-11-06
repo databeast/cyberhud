@@ -11,7 +11,7 @@
   },
   "policies": {
     "dashboard": {
-      "style": "color-240x240",
+      "style": "color-fast-240x240",
       "color_accent": "green"
     },
     "stemma": {},

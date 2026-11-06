@@ -7,7 +7,7 @@ import (
 	"time"
 
 	stylecolor "github.com/databeast/cyberhud/display/style/color"
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 	"pgregory.net/rapid"
 )
 

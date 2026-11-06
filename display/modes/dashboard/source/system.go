@@ -2,73 +2,19 @@ package source
 
 import (
 	"fmt"
-	"net"
-	"os"
-	"runtime"
-	"strconv"
-	"strings"
 	"time"
+
+	"github.com/databeast/cyberhud/runtime/host"
 )
 
-// getUptime returns the system uptime. On Linux it reads /proc/uptime;
-// on other platforms it returns 0.
-func getUptime() string {
-	if runtime.GOOS != "linux" {
-		return formatUptime(0)
-	}
-	data, err := os.ReadFile("/proc/uptime")
-	if err != nil {
-		return formatUptime(0)
-	}
-	fields := strings.Fields(string(data))
-	if len(fields) < 1 {
-		return formatUptime(0)
-	}
-	seconds, err := strconv.ParseFloat(fields[0], 64)
-	if err != nil {
-		return formatUptime(0)
-	}
-	return formatUptime(time.Duration(seconds * float64(time.Second)))
-}
+// GetUptime returns the formatted system uptime string, composing the shared
+// host read with the dashboard's formatter.
+func GetUptime() string { return FormatUptime(host.Uptime()) }
 
-func GetUptime() string { return getUptime() }
-
-// getHostname returns the system hostname.
-func getHostname() string {
-	if h, err := os.Hostname(); err == nil && strings.TrimSpace(h) != "" {
-		return h
-	}
-	return "unknown"
-}
-
-// getPrimaryIP returns the first non-loopback IPv4 address.
-func getPrimaryIP() string {
-	ifaces, err := net.Interfaces()
-	if err != nil {
-		return ""
-	}
-	for _, iface := range ifaces {
-		if iface.Flags&net.FlagUp == 0 || iface.Flags&net.FlagLoopback != 0 {
-			continue
-		}
-		ifAddrs, err := iface.Addrs()
-		if err != nil {
-			continue
-		}
-		for _, a := range ifAddrs {
-			ip, _, err := net.ParseCIDR(a.String())
-			if err != nil || ip == nil {
-				continue
-			}
-			if v4 := ip.To4(); v4 != nil {
-				return v4.String()
-			}
-		}
-	}
-	return ""
-}
-
-func formatUptime(d time.Duration) string {
+// FormatUptime renders a duration as a compact "Nd Nh" / "Nh Nm" / "Nm" string.
+// Host facts (hostname, uptime, IP) now come from runtime/host; this formatter
+// is the one dashboard-specific presentation concern that remains here.
+func FormatUptime(d time.Duration) string {
 	if d < 0 {
 		d = 0
 	}
@@ -87,5 +33,3 @@ func formatUptime(d time.Duration) string {
 		return fmt.Sprintf("%dm", minutes)
 	}
 }
-
-func FormatUptime(d time.Duration) string { return formatUptime(d) }

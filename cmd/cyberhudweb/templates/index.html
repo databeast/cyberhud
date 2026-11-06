@@ -1,0 +1,176 @@
+{{define "index.html"}}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>cyberhud control</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>cyberhud<span class="accent">·</span>control</h1>
+    <div class="topbar-actions">
+      <form method="get" action="/" class="refresh">
+        <button type="submit" title="Reload state from the daemon">refresh</button>
+      </form>
+      {{if .State}}
+      <form method="post" action="/freeze" class="freeze">
+        <button type="submit" title="Persist all current mode settings to the daemon config file so they survive a restart">save to config</button>
+      </form>
+      {{end}}
+    </div>
+  </header>
+
+  {{if .Err}}
+  <div class="banner banner-error">
+    <strong>daemon unreachable.</strong> {{.Err}}
+  </div>
+  {{end}}
+
+  {{if .Notice}}
+  <div class="banner banner-notice">{{.Notice}}</div>
+  {{end}}
+
+  {{if .State}}
+  <main>
+    {{if and .Layout .Layout.Scaled}}
+    <section class="panel layout">
+      <h2>layout</h2>
+      <svg class="vd" viewBox="0 0 {{.Layout.ViewW}} {{.Layout.ViewH}}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="virtual display layout">
+        <rect class="vd-outline" x="{{.Layout.OutlineX}}" y="{{.Layout.OutlineY}}" width="{{.Layout.OutlineW}}" height="{{.Layout.OutlineH}}"></rect>
+        {{range .Layout.Regions}}
+        <a href="#region-{{.Name}}">
+          <rect class="vd-region" x="{{.X}}" y="{{.Y}}" width="{{.W}}" height="{{.H}}" rx="3"></rect>
+          <text class="vd-label name" x="{{.X}}" y="{{.Y}}" dx="6" dy="16">{{.Name}}</text>
+          <text class="vd-label mode" x="{{.X}}" y="{{.Y}}" dx="6" dy="32">{{.Current}}</text>
+        </a>
+        {{end}}
+      </svg>
+    </section>
+    {{end}}
+
+    <section class="regions">
+      <h2>regions</h2>
+      {{range .State.Regions}}
+      <article class="panel region" id="region-{{.Name}}">
+        <div class="region-head">
+          <div>
+            <span class="region-name">{{.Name}}</span>
+            <span class="region-id">{{.ID}}</span>
+            {{if .Controller}}<span class="region-ctrl">{{.Controller}}</span>{{end}}
+          </div>
+          <div class="region-current">
+            <span class="label">mode</span>
+            <span class="value">{{.Current}}</span>
+          </div>
+        </div>
+
+        {{if .Modes}}
+        {{$rid := .ID}}
+        {{$cur := lower .Current}}
+        {{$carousel := printf "car-%s" .Name}}
+        {{$panel := printf "cfg-%s" .Name}}
+
+        {{if gt (len .Categories) 1}}
+        <nav class="cat-jump" aria-label="jump to mode category">
+          {{range .Categories}}
+          <button type="button" class="cat-chip" data-carousel="{{$carousel}}" data-cat="{{.}}">{{.}}</button>
+          {{end}}
+        </nav>
+        {{end}}
+
+        <!-- Compact selector carousel: small cards, one config panel below. -->
+        <div class="carousel" data-carousel="{{$carousel}}">
+          <button type="button" class="car-arrow car-prev" data-carousel="{{$carousel}}" aria-label="scroll modes left">&#8249;</button>
+          <div class="car-track" id="{{$carousel}}" role="tablist">
+            {{range .Modes}}
+            <button type="button"
+                    class="mode-chip{{if eq (lower .ID) $cur}} active{{end}}"
+                    data-cat="{{.Cat}}"
+                    data-panel="{{$panel}}"
+                    data-mode="{{.ID}}"
+                    id="{{$carousel}}-{{.ID}}"
+                    title="{{if .Summary}}{{.Summary}}{{else}}{{.ID}}{{end}}">
+              <span class="chip-title">{{if .Title}}{{.Title}}{{else}}{{.ID}}{{end}}</span>
+              <span class="chip-cat">{{.Cat}}</span>
+              {{if eq (lower .ID) $cur}}<span class="chip-dot" title="active"></span>{{end}}
+            </button>
+            {{end}}
+          </div>
+          <button type="button" class="car-arrow car-next" data-carousel="{{$carousel}}" aria-label="scroll modes right">&#8250;</button>
+        </div>
+
+        <!-- Single config card per region; the selected mode's block is shown. -->
+        <div class="config-card panel" id="{{$panel}}">
+          {{range .Modes}}
+          {{$active := eq (lower .ID) $cur}}
+          <section class="mode-config" data-mode="{{.ID}}"{{if not $active}} hidden{{end}}>
+            <div class="config-head">
+              <div>
+                <span class="config-mode-title">{{if .Title}}{{.Title}}{{else}}{{.ID}}{{end}}</span>
+                <span class="config-mode-id">{{.ID}}</span>
+                <span class="mode-cat">{{.Cat}}</span>
+              </div>
+              <div class="config-switch">
+                {{if $active}}
+                <span class="mode-active-badge">active on {{$rid}}</span>
+                {{else}}
+                <form method="post" action="/region/{{$rid}}/set">
+                  <input type="hidden" name="mode" value="{{.ID}}">
+                  <button type="submit" class="switch-btn">switch {{$rid}} to this</button>
+                </form>
+                {{end}}
+              </div>
+            </div>
+            {{if .Summary}}<p class="config-mode-summary">{{.Summary}}</p>{{end}}
+
+            {{$fields := .EditFields}}
+            {{if $fields}}
+            <form method="post" action="/config" class="config">
+              <input type="hidden" name="mode" value="{{.ID}}">
+              <div class="config-grid">
+                {{range $fields}}
+                <label class="field" title="{{.Summary}}">
+                  <span class="field-key">{{.Key}}</span>
+                  {{if eq .Type "bool"}}
+                    <input type="hidden" name="bool.{{.Key}}" value="1">
+                    <input type="checkbox" name="opt.{{.Key}}" value="true"{{if eq (lower .Value) "true"}} checked{{end}}>
+                  {{else if .Allowed}}
+                    <select name="opt.{{.Key}}">
+                      {{$v := .Value}}
+                      {{range .Allowed}}
+                      <option value="{{.}}"{{if eq . $v}} selected{{end}}>{{.}}</option>
+                      {{end}}
+                    </select>
+                  {{else if or (eq .Type "int") (eq .Type "float")}}
+                    <input type="number" name="opt.{{.Key}}" value="{{.Value}}"{{if eq .Type "float"}} step="any"{{end}}>
+                  {{else}}
+                    <input type="text" name="opt.{{.Key}}" value="{{.Value}}">
+                  {{end}}
+                  {{if .Summary}}<span class="field-help">{{.Summary}}</span>{{end}}
+                </label>
+                {{end}}
+              </div>
+              <div class="config-actions">
+                <button type="submit">apply options</button>
+              </div>
+            </form>
+            {{else}}
+            <p class="config-none">This mode has no configurable options.</p>
+            {{end}}
+          </section>
+          {{end}}
+        </div>
+        {{end}}
+      </article>
+      {{end}}
+    </section>
+  </main>
+  {{else}}
+  <main>
+    <p class="empty">No state available. Is the daemon running?</p>
+  </main>
+  {{end}}
+  <script src="/static/carousel.js" defer></script>
+</body>
+</html>{{end}}

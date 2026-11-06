@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/databeast/cyberhud/display/catalog"
+	"github.com/databeast/cyberhud/display/catalog/cmdutil"
 	"github.com/databeast/cyberhud/display/modes/clock/source"
 )
 
@@ -110,7 +111,7 @@ func (clockSnapshotter) RestorePolicy(data map[string]interface{}) error {
 		}
 	}
 	if v, ok := data["show_seconds"]; ok {
-		if b, ok := toBool(v); ok {
+		if b, ok := cmdutil.ToBool(v); ok {
 			p.ShowSeconds = b
 		}
 	}
@@ -130,12 +131,12 @@ func (clockSnapshotter) RestorePolicy(data map[string]interface{}) error {
 		}
 	}
 	if v, ok := data["show_weekday"]; ok {
-		if b, ok := toBool(v); ok {
+		if b, ok := cmdutil.ToBool(v); ok {
 			p.ShowWeekday = b
 		}
 	}
 	if v, ok := data["blink_colon"]; ok {
-		if b, ok := toBool(v); ok {
+		if b, ok := cmdutil.ToBool(v); ok {
 			p.BlinkColon = b
 		}
 	}
@@ -145,7 +146,7 @@ func (clockSnapshotter) RestorePolicy(data map[string]interface{}) error {
 		}
 	}
 	if v, ok := data["show_led"]; ok {
-		if b, ok := toBool(v); ok {
+		if b, ok := cmdutil.ToBool(v); ok {
 			p.ShowLED = b
 		}
 	}
@@ -155,12 +156,12 @@ func (clockSnapshotter) RestorePolicy(data map[string]interface{}) error {
 		}
 	}
 	if v, ok := data["show_daybar"]; ok {
-		if b, ok := toBool(v); ok {
+		if b, ok := cmdutil.ToBool(v); ok {
 			p.ShowDaybar = b
 		}
 	}
 	if v, ok := data["show_border"]; ok {
-		if b, ok := toBool(v); ok {
+		if b, ok := cmdutil.ToBool(v); ok {
 			p.ShowBorder = b
 		}
 	}
@@ -172,12 +173,6 @@ func (clockSnapshotter) RestorePolicy(data map[string]interface{}) error {
 
 	SetPolicy(p)
 	return nil
-}
-
-// toBool extracts a bool from an interface value.
-func toBool(v interface{}) (bool, bool) {
-	b, ok := v.(bool)
-	return b, ok
 }
 
 func init() {

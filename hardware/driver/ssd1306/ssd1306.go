@@ -7,6 +7,7 @@ import (
 
 	"periph.io/x/conn/v3/i2c"
 
+	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/hardware/driver"
 )
 
@@ -42,6 +43,8 @@ func init() {
 		Title:      "SSD1306",
 		Summary:    "I2C monochrome OLED controller (128x64 or 128x32).",
 		Monochrome: true,
+		ColorDepth: driver.DepthMono1,
+		Capability: textlayout.CapMonoFast,
 		OptionDefs: []driver.OptionDefinition{
 			{Key: "width", Type: "int", Summary: "Display width in pixels.", Default: "128"},
 			{Key: "height", Type: "int", Summary: "Display height in pixels.", Default: "64"},
@@ -107,7 +110,7 @@ func (d *SSD1306) DrawImage(src draw.Image) error {
 			for bit := 0; bit < 8; bit++ {
 				y := page*8 + bit
 				r, g, bl, _ := src.At(col, y).RGBA()
-				if luminanceOn(r, g, bl) {
+				if driver.Luminance(r, g, bl) > driver.MonoThreshold {
 					b |= 1 << uint(bit)
 				}
 			}
@@ -172,8 +175,4 @@ func (d *SSD1306) data(buf []byte) error {
 	out[0] = 0x40
 	copy(out[1:], buf)
 	return d.dev.Tx(out, nil)
-}
-
-func luminanceOn(r, g, b uint32) bool {
-	return (299*r+587*g+114*b)/1000 > 0x3000
 }

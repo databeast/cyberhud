@@ -7,7 +7,7 @@
   },
   "policies": {
     "clock": {
-      "style": "color-128x128",
+      "style": "color-fast-128x128",
       "show_seconds": true,
       "time_format": "12h",
       "date_format": "DD-MM-YYYY",
@@ -22,7 +22,7 @@
       "border_color": "amber"
     },
     "dashboard": {
-      "style": "color-128x160",
+      "style": "color-fast-128x160",
       "color_accent": "amber"
     }
   }

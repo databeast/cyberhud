@@ -134,14 +134,3 @@ var clockRegistry = func() *style.StyleRegistry[source.ClockData, source.Policy]
 
 	return r
 }()
-
-// registeredStyleNames returns the names of all registered clock styles
-// in registration order from the clockRegistry.
-func registeredStyleNames() []string {
-	styles := clockRegistry.Enumerate()
-	names := make([]string, len(styles))
-	for i, s := range styles {
-		names[i] = s.Name()
-	}
-	return names
-}

@@ -28,9 +28,6 @@ var (
 
 	// ColorFast
 	_ style.Style[source.MatrixSnapshot, source.Policy] = ColorStyle{}
-
-	// EinkStyle (MonoSlow, legacy parameterized type)
-	_ style.Style[source.MatrixSnapshot, source.Policy] = EinkStyle{}
 )
 
 // ─── ColorFast ────────────────────────────────────────────────────────────────
@@ -41,7 +38,7 @@ type ColorStyle struct {
 	Height int
 }
 
-func (s ColorStyle) Name() string { return fmt.Sprintf("color-%dx%d", s.Width, s.Height) }
+func (s ColorStyle) Name() string { return fmt.Sprintf("color-fast-%dx%d", s.Width, s.Height) }
 
 func (s ColorStyle) Requirements() style.SurfaceRequirements {
 	return style.SurfaceRequirements{
@@ -69,7 +66,7 @@ type MonoStyle struct {
 	Height int
 }
 
-func (s MonoStyle) Name() string { return fmt.Sprintf("mono-%dx%d", s.Width, s.Height) }
+func (s MonoStyle) Name() string { return fmt.Sprintf("mono-fast-%dx%d", s.Width, s.Height) }
 
 func (s MonoStyle) Requirements() style.SurfaceRequirements {
 	return style.SurfaceRequirements{
@@ -89,38 +86,9 @@ func (s MonoStyle) Build(snapshot source.MatrixSnapshot, _ source.Policy, ctx st
 	return buildFrame(snapshot)
 }
 
-// ─── MonoSlow (e-ink) ─────────────────────────────────────────────────────────
+// ─── MonoSlow ─────────────────────────────────────────────────────────
 
-// EinkStyle targets e-ink panels at the specified resolution.
-type EinkStyle struct {
-	Width  int
-	Height int
-}
-
-func (s EinkStyle) Name() string { return fmt.Sprintf("eink-%dx%d", s.Width, s.Height) }
-
-func (s EinkStyle) Requirements() style.SurfaceRequirements {
-	return style.SurfaceRequirements{
-		MinWidth:   s.Width,
-		MinHeight:  s.Height,
-		Capability: style.MonoSlow,
-	}
-}
-
-func (s EinkStyle) Supports(hints textlayout.TextHints) style.Fitness {
-	return style.EvaluateFitness(s.Requirements(), hints)
-}
-
-func (s EinkStyle) Build(snapshot source.MatrixSnapshot, _ source.Policy, ctx style.StyleContext) style.ViewData {
-	hints := ctx.Hints()
-	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return buildFrame(snapshot)
-}
-
-// ─── MonoSlowStyle (parameterized skeleton) ───────────────────────────────────
-
-// MonoSlowStyle is a skeleton style for mono slow-refresh (e-paper mono) panels.
-// Capability: MonoSlow (1-bit, slow refresh).
+// MonoSlowStyle targets slow-refresh mono (e-ink) panels at the specified resolution.
 type MonoSlowStyle struct {
 	Width  int
 	Height int
@@ -140,10 +108,10 @@ func (s MonoSlowStyle) Supports(hints textlayout.TextHints) style.Fitness {
 	return style.EvaluateFitness(s.Requirements(), hints)
 }
 
-func (s MonoSlowStyle) Build(_ source.MatrixSnapshot, _ source.Policy, ctx style.StyleContext) style.ViewData {
+func (s MonoSlowStyle) Build(snapshot source.MatrixSnapshot, _ source.Policy, ctx style.StyleContext) style.ViewData {
 	hints := ctx.Hints()
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{}
+	return buildFrame(snapshot)
 }
 
 // ─── GrayscaleSlowStyle (parameterized skeleton) ──────────────────────────────

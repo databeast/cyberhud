@@ -27,7 +27,7 @@ func genTextHints(t *rapid.T) textlayout.TextHints {
 //
 // For any style in the template registry, Name() returns a lowercase ASCII
 // string between 1 and 32 characters matching the pattern ^[a-z0-9-]+$ with
-// the correct prefix (mono-, color-, eink-, or grayscale-fast-).
+// the correct prefix (mono-, color-, or grayscale-fast-).
 
 // =============================================================================
 
@@ -52,7 +52,7 @@ func TestPropertyStyleNameValidity(t *testing.T) {
 		}
 
 		// Prefix: must be one of the valid prefixes.
-		validPrefixes := []string{"mono-", "color-", "eink-", "grayscale-fast-"}
+		validPrefixes := []string{"mono-", "color-", "grayscale-fast-"}
 		hasValidPrefix := false
 		for _, prefix := range validPrefixes {
 			if strings.HasPrefix(name, prefix) {
@@ -61,7 +61,7 @@ func TestPropertyStyleNameValidity(t *testing.T) {
 			}
 		}
 		if !hasValidPrefix {
-			t.Fatalf("style name %q does not start with a valid prefix (mono-, color-, eink-, grayscale-fast-)", name)
+			t.Fatalf("style name %q does not start with a valid prefix (mono-, color-, grayscale-fast-)", name)
 		}
 	})
 }
@@ -83,25 +83,25 @@ func TestPropertySurfaceRequirementsCorrectness(t *testing.T) {
 	// Lookup table of expected values per style name.
 	expected := map[string]expectedReqs{
 		// Primary mono styles
-		"mono-128x32": {128, 32, style.MonoFast},
-		"mono-128x64": {128, 64, style.MonoFast},
+		"mono-fast-128x32": {128, 32, style.MonoFast},
+		"mono-fast-128x64": {128, 64, style.MonoFast},
 		// Primary color styles
-		"color-160x80":  {160, 80, style.ColorFast},
-		"color-160x128": {160, 128, style.ColorFast},
-		"color-240x135": {240, 135, style.ColorFast},
-		"color-240x240": {240, 240, style.ColorFast},
-		"color-320x240": {320, 240, style.ColorFast},
-		"color-480x320": {480, 320, style.ColorFast},
-		"color-800x480": {800, 480, style.ColorFast},
+		"color-fast-160x80":  {160, 80, style.ColorFast},
+		"color-fast-160x128": {160, 128, style.ColorFast},
+		"color-fast-240x135": {240, 135, style.ColorFast},
+		"color-fast-240x240": {240, 240, style.ColorFast},
+		"color-fast-320x240": {320, 240, style.ColorFast},
+		"color-fast-480x320": {480, 320, style.ColorFast},
+		"color-fast-800x480": {800, 480, style.ColorFast},
 		// Primary e-ink styles
-		"eink-122x250": {122, 250, style.MonoSlow},
-		"eink-176x264": {176, 264, style.MonoSlow},
-		"eink-200x200": {200, 200, style.MonoSlow},
-		"eink-212x104": {212, 104, style.MonoSlow},
-		"eink-296x128": {296, 128, style.MonoSlow},
-		"eink-400x300": {400, 300, style.MonoSlow},
-		"eink-480x800": {480, 800, style.MonoSlow},
-		"eink-800x480": {800, 480, style.MonoSlow},
+		"mono-slow-122x250": {122, 250, style.MonoSlow},
+		"mono-slow-176x264": {176, 264, style.MonoSlow},
+		"mono-slow-200x200": {200, 200, style.MonoSlow},
+		"mono-slow-212x104": {212, 104, style.MonoSlow},
+		"mono-slow-296x128": {296, 128, style.MonoSlow},
+		"mono-slow-400x300": {400, 300, style.MonoSlow},
+		"mono-slow-480x800": {480, 800, style.MonoSlow},
+		"mono-slow-800x480": {800, 480, style.MonoSlow},
 		// Grayscale-fast styles (grayscale-fast capability)
 		"grayscale-fast-160x80":  {160, 80, style.GrayscaleFast},
 		"grayscale-fast-160x128": {160, 128, style.GrayscaleFast},
@@ -110,6 +110,8 @@ func TestPropertySurfaceRequirementsCorrectness(t *testing.T) {
 		"grayscale-fast-320x240": {320, 240, style.GrayscaleFast},
 		"grayscale-fast-480x320": {480, 320, style.GrayscaleFast},
 		"grayscale-fast-800x480": {800, 480, style.GrayscaleFast},
+		// Worked text+graphics example (see style_graphics_example.go).
+		"color-fast-240x240-graphics": {240, 240, style.ColorFast},
 	}
 
 	rapid.Check(t, func(t *rapid.T) {
@@ -166,11 +168,15 @@ func TestPropertySupportsDelegatesToEvaluateFitness(t *testing.T) {
 // =============================================================================
 //
 // For any style in the template registry and for any Snapshot and TextHints
-// values, Build().Items contains at least one non-empty string.
+// values, Build() produces RENDERABLE OUTPUT: either at least one non-empty
+// text item (TTY/row plane) or at least one sprite (pixel-anchored plane). A
+// text-only style satisfies this via Items; a graphics style (e.g.
+// graphics-example) satisfies it via Sprites and legitimately leaves Items
+// empty. See the two-layout-planes note in doc.go.
 
 // =============================================================================
 
-func TestPropertyBuildProducesNonEmptyItems(t *testing.T) {
+func TestPropertyBuildProducesRenderableOutput(t *testing.T) {
 	rapid.Check(t, func(t *rapid.T) {
 		styles := templateRegistry.Enumerate()
 		idx := rapid.IntRange(0, len(styles)-1).Draw(t, "styleIndex")
@@ -180,19 +186,18 @@ func TestPropertyBuildProducesNonEmptyItems(t *testing.T) {
 		ctx := style.NewStyleContext(hints)
 		result := s.Build(Snapshot{}, Policy{}, ctx)
 
-		if len(result.Items) == 0 {
-			t.Fatalf("style %q: Build() returned empty Items slice", s.Name())
-		}
-
-		hasNonEmpty := false
+		hasText := false
 		for _, item := range result.Items {
 			if item != "" {
-				hasNonEmpty = true
+				hasText = true
 				break
 			}
 		}
-		if !hasNonEmpty {
-			t.Fatalf("style %q: Build() Items has no non-empty strings: %v", s.Name(), result.Items)
+		hasSprites := len(result.Sprites) > 0
+
+		if !hasText && !hasSprites {
+			t.Fatalf("style %q: Build() produced no renderable output "+
+				"(empty Items and no Sprites)", s.Name())
 		}
 	})
 }

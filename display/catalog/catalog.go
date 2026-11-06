@@ -17,12 +17,13 @@ type OptionDefinition struct {
 
 // Definition describes a known display mode.
 type Definition struct {
-	ID      string
-	Title   string
-	Scope   string
-	Summary string
-	Order   int
-	Options []OptionDefinition
+	ID       string
+	Title    string
+	Scope    string
+	Category string // UI grouping, e.g. "Attract", "System", "Data", "Clock", "Meta", "Test"
+	Summary  string
+	Order    int
+	Options  []OptionDefinition
 }
 
 var (
@@ -41,6 +42,10 @@ func Register(def Definition) {
 		def.Title = strings.ToUpper(def.ID)
 	}
 	def.Scope = strings.TrimSpace(def.Scope)
+	def.Category = strings.TrimSpace(def.Category)
+	if def.Category == "" {
+		def.Category = "General"
+	}
 	def.Summary = strings.TrimSpace(def.Summary)
 	def.Options = append([]OptionDefinition(nil), def.Options...)
 
@@ -97,7 +102,7 @@ func DescribeMany(modes []string) []Definition {
 			out = append(out, d)
 			continue
 		}
-		out = append(out, Definition{ID: mode, Title: strings.ToUpper(mode), Scope: "display mode", Summary: "User-defined mode without built-in catalog metadata."})
+		out = append(out, Definition{ID: mode, Title: strings.ToUpper(mode), Scope: "display mode", Category: "General", Summary: "User-defined mode without built-in catalog metadata."})
 	}
 	return out
 }

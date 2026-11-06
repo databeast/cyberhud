@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/databeast/cyberhud/display/catalog"
+	"github.com/databeast/cyberhud/display/catalog/cmdutil"
 	"github.com/databeast/cyberhud/display/modes/usb/source"
 )
 
@@ -34,17 +35,17 @@ func (usbSnapshotter) RestorePolicy(data map[string]interface{}) error {
 	p := DefaultPolicy()
 
 	if v, ok := data["poll_ms"]; ok {
-		if n, ok := toInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.PollMS = n
 		}
 	}
 	if v, ok := data["hold_unplugged_ms"]; ok {
-		if n, ok := toInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.HoldUnpluggedMS = n
 		}
 	}
 	if v, ok := data["hide_root_hubs"]; ok {
-		if b, ok := toBool(v); ok {
+		if b, ok := cmdutil.ToBool(v); ok {
 			p.HideRootHubs = b
 		}
 	}
@@ -56,27 +57,6 @@ func (usbSnapshotter) RestorePolicy(data map[string]interface{}) error {
 
 	SetPolicy(p)
 	return nil
-}
-
-// toInt extracts an int from an interface value, handling both float64
-// (JSON numbers decode as float64) and direct int types.
-func toInt(v interface{}) (int, bool) {
-	switch n := v.(type) {
-	case float64:
-		return int(n), true
-	case int:
-		return n, true
-	case int64:
-		return int(n), true
-	default:
-		return 0, false
-	}
-}
-
-// toBool extracts a bool from an interface value.
-func toBool(v interface{}) (bool, bool) {
-	b, ok := v.(bool)
-	return b, ok
 }
 
 func init() {

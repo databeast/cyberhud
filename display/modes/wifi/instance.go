@@ -36,11 +36,12 @@ func (i *instance) RenderCacheKey() uint32 {
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "wifi",
-		Title:   "WiFi",
-		Summary: "Real-time wireless network status with signal bars, quality bar, and connection details.",
-		Order:   30,
-		Options: append(source.Policy{}.Options(), catalog.OptionDefinition{Key: "style", Type: "string", Summary: "Visual layout variant for WiFi display.", Default: "", Allowed: registeredStyleNames()}),
+		ID:       "wifi",
+		Title:    "WiFi",
+		Category: "System",
+		Summary:  "Real-time wireless network status with signal bars, quality bar, and connection details.",
+		Order:    30,
+		Options:  append(source.Policy{}.Options(), catalog.OptionDefinition{Key: "style", Type: "string", Summary: "Visual layout variant for WiFi display.", Default: "", Allowed: wifiRegistry.RegisteredNames()}),
 	})
 	catalog.RegisterCommand(catalog.CommandDefinition{
 		Verb:    "wifi",

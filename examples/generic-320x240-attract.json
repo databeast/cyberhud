@@ -24,7 +24,7 @@
       "saturation": 0.9
     },
     "dashboard": {
-      "style": "color-320x240",
+      "style": "color-fast-320x240",
       "color_accent": "amber"
     }
   }

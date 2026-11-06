@@ -23,7 +23,7 @@ func TestCyclePlaceholderPNGSnapshot(t *testing.T) {
 		testsnapshot.WithDimensions(128, 64),
 		testsnapshot.WithDisplayCategory(testsnapshot.CategoryMono),
 		testsnapshot.WithOutputDir(snapshotOutputDir),
-		testsnapshot.WithBasename("mono-128x64-placeholder"),
+		testsnapshot.WithBasename("mono-fast-128x64-placeholder"),
 		testsnapshot.WithReset(func() { SetPolicy(Policy{Interval: DefaultInterval}) }),
 	)
 	testsnapshot.VerifyAll(t, pngPath, 128, 64)

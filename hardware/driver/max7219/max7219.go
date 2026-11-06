@@ -9,6 +9,7 @@ import (
 	"periph.io/x/conn/v3/physic"
 	"periph.io/x/conn/v3/spi"
 
+	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/hardware/driver"
 )
 
@@ -31,6 +32,8 @@ func init() {
 		Title:      "MAX7219",
 		Summary:    "SPI LED matrix controller (8x8 per device, chainable).",
 		Monochrome: true,
+		ColorDepth: driver.DepthMono1,
+		Capability: textlayout.CapMonoFast,
 		OptionDefs: []driver.OptionDefinition{
 			{Key: "width", Type: "int", Summary: "Display width in pixels (multiple of 8 for chained devices).", Default: "8"},
 			{Key: "height", Type: "int", Summary: "Display height in pixels.", Default: "8"},
@@ -97,7 +100,7 @@ func (d *MAX7219) DrawImage(src draw.Image) error {
 			for bit := 0; bit < 8; bit++ {
 				x := dev*8 + bit
 				r, g, b, _ := src.At(x, row).RGBA()
-				if luminanceOn(r, g, b) {
+				if driver.Luminance(r, g, b) > driver.MonoThreshold {
 					colByte |= 1 << uint(7-bit)
 				}
 			}
@@ -149,8 +152,4 @@ func (d *MAX7219) writeAll(reg, val byte) error {
 		buf[i*2+1] = val
 	}
 	return d.c.Tx(buf, nil)
-}
-
-func luminanceOn(r, g, b uint32) bool {
-	return (299*r+587*g+114*b)/1000 > 0x3000
 }

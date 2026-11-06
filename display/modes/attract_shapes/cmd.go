@@ -10,20 +10,6 @@ import (
 	"github.com/databeast/cyberhud/display/modes/attract_shapes/source"
 )
 
-// floatRangeValidator returns a KeyValidator that accepts float values in [min, max].
-func floatRangeValidator(min, max float64) cmdutil.KeyValidator {
-	return func(value string) string {
-		f, err := strconv.ParseFloat(strings.TrimSpace(value), 64)
-		if err != nil {
-			return "must be a number"
-		}
-		if f < min || f > max {
-			return fmt.Sprintf("must be in [%.1f, %.1f]", min, max)
-		}
-		return ""
-	}
-}
-
 // intRangeValidator returns a KeyValidator that accepts integer values in [min, max].
 func intRangeValidator(min, max int) cmdutil.KeyValidator {
 	return func(value string) string {
@@ -43,10 +29,10 @@ func intRangeValidator(min, max int) cmdutil.KeyValidator {
 var cmdHandler = &cmdutil.CmdHandler{
 	Verb: "attract_shapes",
 	Keys: []cmdutil.KeyDef{
-		{Name: "speed", Validate: floatRangeValidator(0.1, 10.0)},
-		{Name: "density", Validate: floatRangeValidator(0.1, 1.0)},
+		{Name: "speed", Validate: cmdutil.FloatRangeValidator(0.1, 10.0)},
+		{Name: "density", Validate: cmdutil.FloatRangeValidator(0.1, 1.0)},
 		{Name: "shape_count", Validate: intRangeValidator(1, 50)},
-		{Name: "pulse_rate", Validate: floatRangeValidator(0.1, 5.0)},
+		{Name: "pulse_rate", Validate: cmdutil.FloatRangeValidator(0.1, 5.0)},
 		{Name: "complexity", Validate: intRangeValidator(3, 8)},
 	},
 	Get:       getPolicyValue,
@@ -111,11 +97,12 @@ func HandleCommand(args []string) string {
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "attract_shapes",
-		Title:   "Shapes",
-		Summary: "Pulsing and rotating geometric shapes with configurable complexity and speed.",
-		Order:   200,
-		Options: source.Policy{}.Options(),
+		ID:       "attract_shapes",
+		Title:    "Shapes",
+		Category: "Attract",
+		Summary:  "Pulsing and rotating geometric shapes with configurable complexity and speed.",
+		Order:    200,
+		Options:  source.Policy{}.Options(),
 	})
 
 	catalog.RegisterCommand(catalog.CommandDefinition{

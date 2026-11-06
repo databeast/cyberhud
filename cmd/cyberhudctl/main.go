@@ -140,6 +140,7 @@ func printUsage(w io.Writer) {
 	fmt.Fprintln(w)
 	fmt.Fprintln(w, "Display regions:")
 	fmt.Fprintln(w, "  cyberhudctl [flags] display regions                  # list all regions")
+	fmt.Fprintln(w, "  cyberhudctl [flags] display geometry                 # region bounds + virtual display size")
 	fmt.Fprintln(w, "  cyberhudctl [flags] display status")
 	fmt.Fprintln(w, "  cyberhudctl [flags] display modes")
 	fmt.Fprintln(w)
@@ -159,7 +160,7 @@ func printUsage(w io.Writer) {
 	fmt.Fprintln(w)
 	fmt.Fprintln(w, "Mode data commands:")
 	fmt.Fprintln(w, "  cyberhudctl [flags] display ticker set <text>")
-	fmt.Fprintln(w, "  cyberhudctl [flags] display ticker policy [key=value ...]")
+	fmt.Fprintln(w, "  cyberhudctl [flags] display ticker [key=value ...]")
 	fmt.Fprintln(w, "  cyberhudctl [flags] display image set file <path>")
 	fmt.Fprintln(w, "  cyberhudctl [flags] display image set base64 <data>")
 	fmt.Fprintln(w, "  cyberhudctl [flags] display image clear")
@@ -251,7 +252,7 @@ func protocolCommand(args []string) (string, bool, error) {
 
 	case "display":
 		if len(args) < 2 {
-			return "", false, errors.New("usage: display <regions|status|modes|set|config|next|prev|policy|...> ...")
+			return "", false, errors.New("usage: display <regions|geometry|status|modes|set|config|next|prev|policy|...> ...")
 		}
 		sub := strings.ToLower(args[1])
 		switch sub {
@@ -260,7 +261,7 @@ func protocolCommand(args []string) (string, bool, error) {
 				return "", false, errors.New("usage: display regions")
 			}
 			return "display regions", false, nil
-		case "status", "list", "modes":
+		case "status", "list", "modes", "geometry":
 			if len(args) != 2 {
 				return "", false, fmt.Errorf("usage: display %s", sub)
 			}

@@ -11,8 +11,9 @@ import (
 
 func TestRegisteredStyleNamesCount(t *testing.T) {
 	names := registeredStyleNames()
-	if len(names) != 24 {
-		t.Fatalf("registeredStyleNames() returned %d entries, want 24", len(names))
+	// 24 per-resolution text-only styles + 1 text+graphics example.
+	if len(names) != 25 {
+		t.Fatalf("registeredStyleNames() returned %d entries, want 25", len(names))
 	}
 }
 
@@ -41,7 +42,7 @@ func TestCatalogDescribe(t *testing.T) {
 func TestHandleCommandQuery(t *testing.T) {
 	SetPolicy(DefaultPolicy())
 	result := HandleCommand(nil)
-	want := "OK displaymode style=mono-128x32"
+	want := "OK displaymode style=mono-fast-128x32"
 	if result != want {
 		t.Fatalf("HandleCommand(nil)=%q, want %q", result, want)
 	}
@@ -49,12 +50,12 @@ func TestHandleCommandQuery(t *testing.T) {
 
 func TestHandleCommandSetColorStyle(t *testing.T) {
 	SetPolicy(DefaultPolicy())
-	result := HandleCommand([]string{"style=color-240x240"})
+	result := HandleCommand([]string{"style=color-fast-240x240"})
 	if strings.HasPrefix(result, "ERR") {
 		t.Fatalf("HandleCommand rejected valid style: %s", result)
 	}
-	if GetPolicy().Style != "color-240x240" {
-		t.Fatalf("policy style=%q after setting color-240x240", GetPolicy().Style)
+	if GetPolicy().Style != "color-fast-240x240" {
+		t.Fatalf("policy style=%q after setting color-fast-240x240", GetPolicy().Style)
 	}
 }
 
@@ -68,8 +69,6 @@ func TestHandleCommandSetGrayscaleFastStyle(t *testing.T) {
 		t.Fatalf("policy style=%q after setting grayscale-fast-240x240", GetPolicy().Style)
 	}
 }
-
-
 
 func TestRenderCacheKeyNonEmpty(t *testing.T) {
 	SetPolicy(DefaultPolicy())
@@ -87,16 +86,16 @@ func TestHandlerLeftAction(t *testing.T) {
 }
 
 func TestTwo800x480StylesDistinct(t *testing.T) {
-	color800 := templateRegistry.Lookup("color-800x480")
-	eink800 := templateRegistry.Lookup("eink-800x480")
-	if color800 == nil || eink800 == nil {
+	color800 := templateRegistry.Lookup("color-fast-800x480")
+	monoSlow800 := templateRegistry.Lookup("mono-slow-800x480")
+	if color800 == nil || monoSlow800 == nil {
 		t.Fatal("one of the 800x480 styles is nil")
 	}
-	if color800.Name() == eink800.Name() {
+	if color800.Name() == monoSlow800.Name() {
 		t.Fatal("800x480 styles have same name")
 	}
 	colorReqs := color800.Requirements()
-	einkReqs := eink800.Requirements()
+	einkReqs := monoSlow800.Requirements()
 	if colorReqs.Capability == einkReqs.Capability {
 		t.Fatal("800x480 styles have same Capability")
 	}
@@ -122,8 +121,9 @@ func TestGrayscaleFastStyleDimensionsMatchColor(t *testing.T) {
 		if !strings.HasPrefix(name, "grayscale-fast-") {
 			continue
 		}
-		// Find corresponding color style
-		colorName := "color-" + strings.TrimPrefix(name, "grayscale-fast-")
+		// Find corresponding color style. Both carry the full capability prefix
+		// (color-fast-/grayscale-fast-) per the six-class naming convention.
+		colorName := "color-fast-" + strings.TrimPrefix(name, "grayscale-fast-")
 		colorStyle := templateRegistry.Lookup(colorName)
 		if colorStyle == nil {
 			t.Fatalf("grayscale-fast style %q has no matching color style %q", name, colorName)

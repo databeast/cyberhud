@@ -12,9 +12,8 @@ var MonoSlow128x128Style = def{
 }
 
 var MonoStyle128x128 = def{
-	name: "mono-128x128",
+	name: "mono-fast-128x128",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.MonoFast},
-	p:    Params{Layout: layoutMonoRows},
 }
 
 var GrayscaleSlow128x128Style = def{
@@ -30,13 +29,11 @@ var GrayscaleSlow32x128Style = def{
 var GrayscaleFast160x128Style = def{
 	name: "grayscale-fast-160x128",
 	reqs: style.SurfaceRequirements{MinWidth: 160, MinHeight: 128, Capability: style.GrayscaleFast},
-	p:    Params{Layout: layoutGrayscaleFast},
 }
 
 var GrayscaleFast128x128Style = def{
 	name: "grayscale-fast-128x128",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.GrayscaleFast},
-	p:    Params{Layout: layoutGrayscaleFast},
 }
 
 var ColorSlow128x128Style = def{
@@ -45,7 +42,6 @@ var ColorSlow128x128Style = def{
 }
 
 var ColorStyle128x128 = def{
-	name: "color-128x128",
+	name: "color-fast-128x128",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.ColorFast},
-	p:    Params{BuildFn: colorFast128Build},
 }

@@ -28,11 +28,11 @@ func init() {
 	})
 
 	style.RegisterAliases("waveshare-4.26-epaper", map[string]string{
-		"dashboard": "eink-800x480",
-		"clock":     "eink-800x480",
+		"dashboard": "mono-slow-800x480",
+		"clock":     "mono-slow-800x480",
 		"thermal":   "overview",
-		"ticker":    "eink-800x480",
-		"gpio":      "eink-800x480",
+		"ticker":    "mono-slow-800x480",
+		"gpio":      "mono-slow-800x480",
 		"serial":    "mono-slow-800x480",
 	})
 }

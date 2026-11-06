@@ -6,17 +6,6 @@ import (
 	"github.com/databeast/cyberhud/display/style"
 )
 
-// registeredStyleNames returns the list of style names from tickerRegistry
-// for use in catalog registration and error messages.
-func registeredStyleNames() []string {
-	styles := tickerRegistry.Enumerate()
-	names := make([]string, len(styles))
-	for i, s := range styles {
-		names[i] = s.Name()
-	}
-	return names
-}
-
 // ─── Registry ─────────────────────────────────────────────────────────────────
 
 // tickerRegistry is the per-mode StyleRegistry for the ticker display mode.

@@ -117,7 +117,7 @@ The pager is non-interactive and does not require buttons or joystick input. All
 <div class="grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
 
 <figure>
-  <img src="../img/pager/color-80x160_0001.png" alt="color-80x160 80x160" style="max-width:320px;width:100%;">
+  <img src="../img/pager/color-fast-80x160_0001.png" alt="color-fast-80x160 80x160" style="max-width:320px;width:100%;">
   <figcaption>80x160</figcaption>
 </figure>
 
@@ -132,12 +132,12 @@ The pager is non-interactive and does not require buttons or joystick input. All
 </figure>
 
 <figure>
-  <img src="../img/pager/color-128x128_0001.png" alt="color-128x128 128x128" style="max-width:320px;width:100%;">
+  <img src="../img/pager/color-fast-128x128_0001.png" alt="color-fast-128x128 128x128" style="max-width:320px;width:100%;">
   <figcaption>128x128</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/pager/color-128x160_0001.png" alt="color-128x160 128x160" style="max-width:320px;width:100%;">
+  <img src="../img/pager/color-fast-128x160_0001.png" alt="color-fast-128x160 128x160" style="max-width:320px;width:100%;">
   <figcaption>128x160</figcaption>
 </figure>
 
@@ -147,17 +147,17 @@ The pager is non-interactive and does not require buttons or joystick input. All
 </figure>
 
 <figure>
-  <img src="../img/pager/color-135x240_0001.png" alt="color-135x240 135x240" style="max-width:320px;width:100%;">
+  <img src="../img/pager/color-fast-135x240_0001.png" alt="color-fast-135x240 135x240" style="max-width:320px;width:100%;">
   <figcaption>135x240</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/pager/color-160x80_0001.png" alt="color-160x80 160x80" style="max-width:320px;width:100%;">
+  <img src="../img/pager/color-fast-160x80_0001.png" alt="color-fast-160x80 160x80" style="max-width:320px;width:100%;">
   <figcaption>160x80</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/pager/color-160x128_0001.png" alt="color-160x128 160x128" style="max-width:320px;width:100%;">
+  <img src="../img/pager/color-fast-160x128_0001.png" alt="color-fast-160x128 160x128" style="max-width:320px;width:100%;">
   <figcaption>160x128</figcaption>
 </figure>
 
@@ -177,17 +177,17 @@ The pager is non-interactive and does not require buttons or joystick input. All
 </figure>
 
 <figure>
-  <img src="../img/pager/color-240x135_0001.png" alt="color-240x135 240x135" style="max-width:320px;width:100%;">
+  <img src="../img/pager/color-fast-240x135_0001.png" alt="color-fast-240x135 240x135" style="max-width:320px;width:100%;">
   <figcaption>240x135</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/pager/color-240x240_0001.png" alt="color-240x240 240x240" style="max-width:320px;width:100%;">
+  <img src="../img/pager/color-fast-240x240_0001.png" alt="color-fast-240x240 240x240" style="max-width:320px;width:100%;">
   <figcaption>240x240</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/pager/color-240x320_0001.png" alt="color-240x320 240x320" style="max-width:320px;width:100%;">
+  <img src="../img/pager/color-fast-240x320_0001.png" alt="color-fast-240x320 240x320" style="max-width:320px;width:100%;">
   <figcaption>240x320</figcaption>
 </figure>
 
@@ -212,12 +212,12 @@ The pager is non-interactive and does not require buttons or joystick input. All
 </figure>
 
 <figure>
-  <img src="../img/pager/color-320x240_0001.png" alt="color-320x240 320x240" style="max-width:320px;width:100%;">
+  <img src="../img/pager/color-fast-320x240_0001.png" alt="color-fast-320x240 320x240" style="max-width:320px;width:100%;">
   <figcaption>320x240</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/pager/color-320x480_0001.png" alt="color-320x480 320x480" style="max-width:320px;width:100%;">
+  <img src="../img/pager/color-fast-320x480_0001.png" alt="color-fast-320x480 320x480" style="max-width:320px;width:100%;">
   <figcaption>320x480</figcaption>
 </figure>
 
@@ -227,12 +227,12 @@ The pager is non-interactive and does not require buttons or joystick input. All
 </figure>
 
 <figure>
-  <img src="../img/pager/color-480x320_0001.png" alt="color-480x320 480x320" style="max-width:320px;width:100%;">
+  <img src="../img/pager/color-fast-480x320_0001.png" alt="color-fast-480x320 480x320" style="max-width:320px;width:100%;">
   <figcaption>480x320</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/pager/color-480x800_0001.png" alt="color-480x800 480x800" style="max-width:320px;width:100%;">
+  <img src="../img/pager/color-fast-480x800_0001.png" alt="color-fast-480x800 480x800" style="max-width:320px;width:100%;">
   <figcaption>480x800</figcaption>
 </figure>
 
@@ -242,7 +242,7 @@ The pager is non-interactive and does not require buttons or joystick input. All
 </figure>
 
 <figure>
-  <img src="../img/pager/color-800x480_0001.png" alt="color-800x480 800x480" style="max-width:320px;width:100%;">
+  <img src="../img/pager/color-fast-800x480_0001.png" alt="color-fast-800x480 800x480" style="max-width:320px;width:100%;">
   <figcaption>800x480</figcaption>
 </figure>
 
@@ -399,12 +399,12 @@ The pager is non-interactive and does not require buttons or joystick input. All
 <div class="grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
 
 <figure>
-  <img src="../img/pager/mono-32x128_0001.png" alt="mono-32x128 32x128" style="max-width:320px;width:100%;">
+  <img src="../img/pager/mono-fast-32x128_0001.png" alt="mono-fast-32x128 32x128" style="max-width:320px;width:100%;">
   <figcaption>32x128</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/pager/mono-64x128_0001.png" alt="mono-64x128 64x128" style="max-width:320px;width:100%;">
+  <img src="../img/pager/mono-fast-64x128_0001.png" alt="mono-fast-64x128 64x128" style="max-width:320px;width:100%;">
   <figcaption>64x128</figcaption>
 </figure>
 
@@ -419,17 +419,17 @@ The pager is non-interactive and does not require buttons or joystick input. All
 </figure>
 
 <figure>
-  <img src="../img/pager/mono-128x32_0001.png" alt="mono-128x32 128x32" style="max-width:320px;width:100%;">
+  <img src="../img/pager/mono-fast-128x32_0001.png" alt="mono-fast-128x32 128x32" style="max-width:320px;width:100%;">
   <figcaption>128x32</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/pager/mono-128x64_0001.png" alt="mono-128x64 128x64" style="max-width:320px;width:100%;">
+  <img src="../img/pager/mono-fast-128x64_0001.png" alt="mono-fast-128x64 128x64" style="max-width:320px;width:100%;">
   <figcaption>128x64</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/pager/mono-128x128_0001.png" alt="mono-128x128 128x128" style="max-width:320px;width:100%;">
+  <img src="../img/pager/mono-fast-128x128_0001.png" alt="mono-fast-128x128 128x128" style="max-width:320px;width:100%;">
   <figcaption>128x128</figcaption>
 </figure>
 

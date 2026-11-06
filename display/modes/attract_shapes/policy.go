@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/databeast/cyberhud/display/catalog"
+	"github.com/databeast/cyberhud/display/catalog/cmdutil"
 	"github.com/databeast/cyberhud/display/modes/attract_shapes/source"
 )
 
@@ -29,63 +30,33 @@ func (shapesSnapshotter) RestorePolicy(data map[string]interface{}) error {
 	p := source.DefaultPolicy()
 
 	if v, ok := data["speed"]; ok {
-		if f, ok := toFloat64(v); ok {
+		if f, ok := cmdutil.ToFloat64(v); ok {
 			p.Speed = f
 		}
 	}
 	if v, ok := data["density"]; ok {
-		if f, ok := toFloat64(v); ok {
+		if f, ok := cmdutil.ToFloat64(v); ok {
 			p.Density = f
 		}
 	}
 	if v, ok := data["shape_count"]; ok {
-		if n, ok := toInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.ShapeCount = n
 		}
 	}
 	if v, ok := data["pulse_rate"]; ok {
-		if f, ok := toFloat64(v); ok {
+		if f, ok := cmdutil.ToFloat64(v); ok {
 			p.PulseRate = f
 		}
 	}
 	if v, ok := data["complexity"]; ok {
-		if n, ok := toInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.Complexity = n
 		}
 	}
 
 	SetPolicy(p)
 	return nil
-}
-
-// toFloat64 extracts a float64 from an interface value, handling both
-// float64 (native JSON number) and int/int64 conversions.
-func toFloat64(v interface{}) (float64, bool) {
-	switch n := v.(type) {
-	case float64:
-		return n, true
-	case int:
-		return float64(n), true
-	case int64:
-		return float64(n), true
-	default:
-		return 0, false
-	}
-}
-
-// toInt extracts an int from an interface value, handling both float64
-// (JSON numbers decode as float64) and direct int types.
-func toInt(v interface{}) (int, bool) {
-	switch n := v.(type) {
-	case float64:
-		return int(n), true
-	case int:
-		return n, true
-	case int64:
-		return int(n), true
-	default:
-		return 0, false
-	}
 }
 
 func init() {

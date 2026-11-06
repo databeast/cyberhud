@@ -39,25 +39,25 @@ var MonoSlow128x128MinimalStyle = def{
 
 // MonoFast 128x128 variants (skeleton is in styles.go as polished detail)
 var MonoFast128x128OverviewStyle = def{
-	name: "mono-128x128-overview",
+	name: "mono-fast-128x128-overview",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildOverviewStyle},
 }
 
 var MonoFast128x128TimegraphStyle = def{
-	name: "mono-128x128-timegraph",
+	name: "mono-fast-128x128-timegraph",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildTimegraphStyle},
 }
 
 var MonoFast128x128GraphStyle = def{
-	name: "mono-128x128-graph",
+	name: "mono-fast-128x128-graph",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildGraphStyle},
 }
 
 var MonoFast128x128MinimalStyle = def{
-	name: "mono-128x128-minimal",
+	name: "mono-fast-128x128-minimal",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildMinimalStyle},
 }
@@ -156,36 +156,36 @@ var ColorSlow128x128MinimalStyle = def{
 }
 
 var ColorFast128x128Style = def{
-	name: "color-128x128",
+	name: "color-fast-128x128",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.ColorFast},
 }
 
 var ColorFast128x128OverviewStyle = def{
-	name: "color-128x128-overview",
+	name: "color-fast-128x128-overview",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildOverviewStyle},
 }
 
 var ColorFast128x128TimegraphStyle = def{
-	name: "color-128x128-timegraph",
+	name: "color-fast-128x128-timegraph",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildTimegraphStyle},
 }
 
 var ColorFast128x128DetailStyle = def{
-	name: "color-128x128-detail",
+	name: "color-fast-128x128-detail",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildDetailStyle},
 }
 
 var ColorFast128x128GraphStyle = def{
-	name: "color-128x128-graph",
+	name: "color-fast-128x128-graph",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildGraphStyle},
 }
 
 var ColorFast128x128MinimalStyle = def{
-	name: "color-128x128-minimal",
+	name: "color-fast-128x128-minimal",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildMinimalStyle},
 }

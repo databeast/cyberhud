@@ -35,12 +35,6 @@ func secondaryTier(primary tiercatalog.Tier) tiercatalog.Tier {
 	return style.SecondaryTier(primary)
 }
 
-func guardEmptyItems(vd *style.ViewData) {
-	if len(vd.Items) == 0 {
-		vd.Items = []string{""}
-	}
-}
-
 func resolveFGColor(name string) color.RGBA {
 	return sharedcolor.ResolveAccent(name)
 }

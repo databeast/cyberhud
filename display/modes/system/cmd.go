@@ -3,6 +3,8 @@ package system
 import (
 	"fmt"
 	"strings"
+
+	"github.com/databeast/cyberhud/display/catalog/cmdutil"
 )
 
 // KeyDef and CmdHandler types are defined in the parent displaymodes package.
@@ -37,10 +39,10 @@ func HandleCommand(args []string) string {
 		case "style":
 			lower := strings.ToLower(p.val)
 			if systemRegistry.Lookup(lower) == nil {
-				return fmt.Sprintf("ERR style: must be one of [%s]", strings.Join(registeredStyleNames(), ", "))
+				return fmt.Sprintf("ERR style: must be one of [%s]", strings.Join(systemRegistry.RegisteredNames(), ", "))
 			}
 		case "font":
-			if reason := fontValidator(p.val); reason != "" {
+			if reason := cmdutil.FontValidator()(p.val); reason != "" {
 				return fmt.Sprintf("ERR font: %s", reason)
 			}
 		default:

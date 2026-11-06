@@ -8,8 +8,8 @@ import (
 var cmdHandler = &cmdutil.CmdHandler{
 	Verb: "gpio-control",
 	Keys: []cmdutil.KeyDef{
-		{Name: "style", Validate: cmdutil.AllowedValidator(registeredStyleNames())},
-		{Name: "font", Validate: fontValidator},
+		{Name: "style", Validate: cmdutil.AllowedValidator(gpioControlRegistry.RegisteredNames())},
+		{Name: "font", Validate: cmdutil.FontValidator()},
 	},
 	PostApply: fitnessNotesPostApply,
 	Get: func(key string) string {
@@ -41,12 +41,13 @@ func HandleCommand(args []string) string {
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "gpio-control",
-		Title:   "GPIO Control",
-		Summary: "Interactive mode for toggling GPIO pins. Navigate with up/down, toggle with primary button.",
-		Order:   42,
+		ID:       "gpio-control",
+		Title:    "GPIO Control",
+		Category: "System",
+		Summary:  "Interactive mode for toggling GPIO pins. Navigate with up/down, toggle with primary button.",
+		Order:    42,
 		Options: []catalog.OptionDefinition{
-			{Key: "style", Type: "string", Summary: "Visual presentation style", Default: "", Allowed: registeredStyleNames()},
+			{Key: "style", Type: "string", Summary: "Visual presentation style", Default: "", Allowed: gpioControlRegistry.RegisteredNames()},
 			{Key: "font", Type: "string", Summary: "Font selection (auto or a registered font ID).", Default: "auto"},
 		},
 	})

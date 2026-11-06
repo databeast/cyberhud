@@ -8,7 +8,7 @@ import (
 // ColorMedium240x135Style targets the 240×135 color TFT panel.
 type ColorMedium240x135Style struct{}
 
-func (s ColorMedium240x135Style) Name() string { return "color-240x135" }
+func (s ColorMedium240x135Style) Name() string { return "color-fast-240x135" }
 
 // Requirements returns SurfaceRequirements for the 240×135 panel.
 // Target: 240×135, RGB565, Continuous refresh.

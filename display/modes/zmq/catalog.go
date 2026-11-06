@@ -7,13 +7,14 @@ import (
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "zmq",
-		Title:   "ZMQ Monitor",
-		Summary: "Live ZeroMQ message stream with JSON field filtering.",
-		Order:   37,
+		ID:       "zmq",
+		Title:    "ZMQ Monitor",
+		Category: "Data",
+		Summary:  "Live ZeroMQ message stream with JSON field filtering.",
+		Order:    37,
 		Options: append(content.Policy{}.Options(), catalog.OptionDefinition{
 			Key: "style", Type: "string", Summary: "Visual presentation style.",
-			Default: "", Allowed: registeredStyleNames(),
+			Default: "", Allowed: zmqRegistry.RegisteredNames(),
 		}),
 	})
 	catalog.RegisterCommand(catalog.CommandDefinition{

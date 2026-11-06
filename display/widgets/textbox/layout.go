@@ -3,7 +3,7 @@ package textbox
 import (
 	"strings"
 
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 )
 
 // visualLine represents a single rendered line after layout.

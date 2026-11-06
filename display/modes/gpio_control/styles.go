@@ -91,14 +91,3 @@ var gpioControlRegistry = style.NewRegistry[source.Data, source.Policy](
 	styles.ColorFast480x320Style,
 	styles.ColorFast800x480Style,
 )
-
-// registeredStyleNames returns the list of style names from the registry.
-// Used by catalog registration and cmdHandler for allowed-value validation.
-func registeredStyleNames() []string {
-	styles := gpioControlRegistry.Enumerate()
-	names := make([]string, len(styles))
-	for i, s := range styles {
-		names[i] = s.Name()
-	}
-	return names
-}

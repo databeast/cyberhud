@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/databeast/cyberhud/display/catalog"
+	"github.com/databeast/cyberhud/display/catalog/cmdutil"
 	"github.com/databeast/cyberhud/display/modes/ticker/source"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 )
@@ -63,7 +64,7 @@ func (tickerSnapshotter) RestorePolicy(data map[string]interface{}) error {
 		}
 	}
 	if v, ok := data["auto_scroll_ms"]; ok {
-		if n, ok := toInt(v); ok {
+		if n, ok := cmdutil.ToInt(v); ok {
 			p.AutoScrollMS = n
 		}
 	}
@@ -85,21 +86,6 @@ func (tickerSnapshotter) RestorePolicy(data map[string]interface{}) error {
 
 	SetPolicy(p)
 	return nil
-}
-
-// toInt extracts an int from an interface value, handling both float64
-// (JSON numbers decode as float64) and direct int types.
-func toInt(v interface{}) (int, bool) {
-	switch n := v.(type) {
-	case float64:
-		return int(n), true
-	case int:
-		return n, true
-	case int64:
-		return int(n), true
-	default:
-		return 0, false
-	}
 }
 
 func init() {

@@ -100,10 +100,10 @@ func TestSignatureIncludesPolicyFingerprint(t *testing.T) {
 		func() (int, int) { return 2, 8 },
 	)
 
-	systemd.SetPolicy(systemd.Policy{Style: "color-240x240"})
+	systemd.SetPolicy(systemd.Policy{Style: "color-fast-240x240"})
 	s1 := systemd.Signature()
 
-	systemd.SetPolicy(systemd.Policy{Style: "mono-128x64"})
+	systemd.SetPolicy(systemd.Policy{Style: "mono-fast-128x64"})
 	s2 := systemd.Signature()
 
 	if s1 == s2 {
@@ -119,9 +119,9 @@ func TestHandleCommandUseCmdutil(t *testing.T) {
 	}
 
 	// Set style.
-	resp = systemd.HandleCommand([]string{"style=mono-128x64"})
-	if !strings.Contains(resp, "style=mono-128x64") {
-		t.Fatalf("HandleCommand(style=mono-128x64)=%q, want style=mono-128x64 in response", resp)
+	resp = systemd.HandleCommand([]string{"style=mono-fast-128x64"})
+	if !strings.Contains(resp, "style=mono-fast-128x64") {
+		t.Fatalf("HandleCommand(style=mono-fast-128x64)=%q, want style=mono-fast-128x64 in response", resp)
 	}
 
 	// Invalid key.
@@ -148,13 +148,13 @@ func TestBuildViewDefaultStyle(t *testing.T) {
 		func() bool { return false },
 		func() (int, int) { return 3, 8 },
 	)
-	systemd.SetPolicy(systemd.Policy{Style: "color-240x240"})
+	systemd.SetPolicy(systemd.Policy{Style: "color-fast-240x240"})
 
 	hints := textlayout.DefaultTextHints(image.Rect(0, 0, 240, 240))
 	view := systemd.BuildView(hints)
 
 	if len(view.Items) == 0 && len(view.Sprites) == 0 {
-		t.Fatal("BuildView color-240x240: no items and no sprites")
+		t.Fatal("BuildView color-fast-240x240: no items and no sprites")
 	}
 }
 
@@ -166,16 +166,16 @@ func TestBuildViewMonoStyle(t *testing.T) {
 		func() bool { return false },
 		func() (int, int) { return 2, 6 },
 	)
-	systemd.SetPolicy(systemd.Policy{Style: "mono-128x64"})
+	systemd.SetPolicy(systemd.Policy{Style: "mono-fast-128x64"})
 
 	hints := textlayout.DefaultTextHints(image.Rect(0, 0, 128, 64))
 	view := systemd.BuildView(hints)
 
 	if len(view.Items) == 0 {
-		t.Fatal("BuildView mono-128x64: no items")
+		t.Fatal("BuildView mono-fast-128x64: no items")
 	}
 	if !strings.Contains(view.Items[0], "Boot") && !strings.Contains(view.Items[0], "Loading") {
-		t.Fatalf("BuildView mono-128x64 items[0]=%q, want boot-related content", view.Items[0])
+		t.Fatalf("BuildView mono-fast-128x64 items[0]=%q, want boot-related content", view.Items[0])
 	}
 }
 
@@ -187,13 +187,13 @@ func TestBuildViewColorGradientStyle(t *testing.T) {
 		func() bool { return false },
 		func() (int, int) { return 4, 8 },
 	)
-	systemd.SetPolicy(systemd.Policy{Style: "color-240x240"})
+	systemd.SetPolicy(systemd.Policy{Style: "color-fast-240x240"})
 
 	hints := textlayout.DefaultTextHints(image.Rect(0, 0, 240, 240))
 	view := systemd.BuildView(hints)
 
 	if len(view.Items) == 0 && len(view.Sprites) == 0 {
-		t.Fatal("BuildView color-240x240: no items and no sprites")
+		t.Fatal("BuildView color-fast-240x240: no items and no sprites")
 	}
 	// Should have a gradient sprite.
 	hasGradient := false
@@ -204,7 +204,7 @@ func TestBuildViewColorGradientStyle(t *testing.T) {
 		}
 	}
 	if !hasGradient {
-		t.Fatal("BuildView color-240x240: no gradient sprite found")
+		t.Fatal("BuildView color-fast-240x240: no gradient sprite found")
 	}
 }
 
@@ -216,14 +216,14 @@ func TestBuildViewSmallColorStyle(t *testing.T) {
 		func() bool { return false },
 		func() (int, int) { return 3, 8 },
 	)
-	systemd.SetPolicy(systemd.Policy{Style: "color-128x128"})
+	systemd.SetPolicy(systemd.Policy{Style: "color-fast-128x128"})
 
 	hints := textlayout.DefaultTextHints(image.Rect(0, 0, 128, 128))
 	view := systemd.BuildView(hints)
 
 	// Small color panel (area < 57600): gradient only, no text expected.
 	if len(view.Sprites) == 0 {
-		t.Fatal("BuildView color-128x128: no sprites found")
+		t.Fatal("BuildView color-fast-128x128: no sprites found")
 	}
 	hasGradient := false
 	for _, s := range view.Sprites {
@@ -233,7 +233,7 @@ func TestBuildViewSmallColorStyle(t *testing.T) {
 		}
 	}
 	if !hasGradient {
-		t.Fatal("BuildView color-128x128: no gradient sprite found")
+		t.Fatal("BuildView color-fast-128x128: no gradient sprite found")
 	}
 }
 
@@ -245,14 +245,14 @@ func TestBuildViewLargeColorStyle(t *testing.T) {
 		func() bool { return false },
 		func() (int, int) { return 5, 10 },
 	)
-	systemd.SetPolicy(systemd.Policy{Style: "color-320x240"})
+	systemd.SetPolicy(systemd.Policy{Style: "color-fast-320x240"})
 
 	hints := textlayout.DefaultTextHints(image.Rect(0, 0, 320, 240))
 	view := systemd.BuildView(hints)
 
 	// Large color panel (area >= 57600): should have text and gradient.
 	if len(view.Items) == 0 && len(view.Sprites) == 0 {
-		t.Fatal("BuildView color-320x240: no items and no sprites")
+		t.Fatal("BuildView color-fast-320x240: no items and no sprites")
 	}
 }
 
@@ -268,11 +268,11 @@ func TestBuildViewWithBorder(t *testing.T) {
 	hints := textlayout.DefaultTextHints(image.Rect(0, 0, 240, 240))
 
 	// Build without border.
-	systemd.SetPolicy(systemd.Policy{Style: "color-240x240"})
+	systemd.SetPolicy(systemd.Policy{Style: "color-fast-240x240"})
 	viewNoBorder := systemd.BuildView(hints)
 
 	// Build with border.
-	systemd.SetPolicy(systemd.Policy{Style: "color-240x240"})
+	systemd.SetPolicy(systemd.Policy{Style: "color-fast-240x240"})
 	viewWithBorder := systemd.BuildView(hints)
 
 	// With border enabled, the border is purely decorative (BorderInset=0) so

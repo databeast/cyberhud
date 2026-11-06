@@ -37,15 +37,17 @@ func TestProtocolCommand(t *testing.T) {
 		{name: "display next", args: []string{"display", "next", "0"}, want: "display next 0"},
 		{name: "display prev", args: []string{"display", "prev", "2"}, want: "display prev 2"},
 		{name: "ticker set", args: []string{"display", "ticker", "set", "hello", "world"}, want: "display ticker set hello world"},
-		{name: "ticker policy query", args: []string{"display", "ticker", "policy"}, want: "display ticker policy"},
-		{name: "ticker policy set", args: []string{"display", "ticker", "policy", "line_mode=clip", "direction=none", "auto_scroll_ms=0"}, want: "display ticker policy line_mode=clip direction=none auto_scroll_ms=0"},
+		{name: "ticker policy query", args: []string{"display", "ticker"}, want: "display ticker"},
+		{name: "ticker policy set", args: []string{"display", "ticker", "line_mode=clip", "direction=none", "auto_scroll_ms=0"}, want: "display ticker line_mode=clip direction=none auto_scroll_ms=0"},
 		{name: "image clear", args: []string{"display", "image", "clear"}, want: "display image clear"},
-		{name: "image policy query", args: []string{"display", "image", "policy"}, want: "display image policy"},
-		{name: "image policy set", args: []string{"display", "image", "policy", "fit=truncate"}, want: "display image policy fit=truncate"},
-		{name: "mode sub-command bad key accepted", args: []string{"display", "ticker", "policy", "foo=bar"}, want: "display ticker policy foo=bar"},
+		{name: "image policy query", args: []string{"display", "image"}, want: "display image"},
+		{name: "image policy set", args: []string{"display", "image", "fit=truncate"}, want: "display image fit=truncate"},
+		{name: "mode sub-command bad key accepted", args: []string{"display", "ticker", "foo=bar"}, want: "display ticker foo=bar"},
 		{name: "unknown verb rejected", args: []string{"weather", "set", "city=Berlin"}, wantErr: true},
 		{name: "help passthrough", args: []string{"help", "modes"}, want: "help modes"},
 		{name: "display regions", args: []string{"display", "regions"}, want: "display regions"},
+		{name: "display geometry", args: []string{"display", "geometry"}, want: "display geometry"},
+		{name: "display geometry extra rejected", args: []string{"display", "geometry", "extra"}, wantErr: true},
 		{name: "display policy by mode", args: []string{"display", "policy", "clock"}, want: "display policy clock"},
 		{name: "display policy by region", args: []string{"display", "policy", "main.0"}, want: "display policy main.0"},
 		{name: "freeze as protocol command", args: []string{"freeze"}, want: "freeze"},
@@ -447,6 +449,34 @@ func TestRun_DisplayRegions(t *testing.T) {
 	}
 	if !strings.Contains(got, "left-aux.0") {
 		t.Fatalf("expected region left-aux.0 in output, got %q", got)
+	}
+}
+
+func TestRun_DisplayGeometry(t *testing.T) {
+	sock := testSocketPath(t)
+	stop := startFakeServer(t, sock, func(line string) []string {
+		if line == "display geometry" {
+			return []string{
+				"OK",
+				"  virtual w=320 h=240",
+				`  region=main.0 index=0 name="main" x=0 y=0 w=240 h=240`,
+				`  region=aux.0 index=1 name="aux" x=240 y=0 w=80 h=120`,
+			}
+		}
+		return []string{"ERR unknown"}
+	})
+	defer stop()
+
+	var out, errOut bytes.Buffer
+	exit := run([]string{"-socket", sock, "display", "geometry"}, &out, &errOut)
+	if exit != 0 {
+		t.Fatalf("run() exit = %d, errOut=%q", exit, errOut.String())
+	}
+	got := out.String()
+	for _, want := range []string{"virtual w=320 h=240", "region=main.0", "w=240 h=240", "region=aux.0", "x=240"} {
+		if !strings.Contains(got, want) {
+			t.Fatalf("expected %q in output, got %q", want, got)
+		}
 	}
 }
 

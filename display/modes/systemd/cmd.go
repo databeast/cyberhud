@@ -11,7 +11,7 @@ import (
 var cmdHandler = &cmdutil.CmdHandler{
 	Verb: "systemd",
 	Keys: []cmdutil.KeyDef{
-		{Name: "style", Validate: cmdutil.AllowedValidator(registeredStyleNames())},
+		{Name: "style", Validate: cmdutil.AllowedValidator(systemdRegistry.RegisteredNames())},
 		{Name: "color_accent", Validate: cmdutil.AllowedValidator(source.AllowedAccents)},
 	},
 	PostApply: fitnessNotesPostApply,

@@ -10,7 +10,7 @@ import (
 var cmdHandler = &cmdutil.CmdHandler{
 	Verb: "menu",
 	Keys: []cmdutil.KeyDef{
-		{Name: "style", Validate: cmdutil.AllowedValidator(registeredStyleNames())},
+		{Name: "style", Validate: cmdutil.AllowedValidator(menuRegistry.RegisteredNames())},
 	},
 	PostApply: fitnessNotesPostApply,
 	Get: func(key string) string {

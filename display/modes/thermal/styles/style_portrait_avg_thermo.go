@@ -56,7 +56,8 @@ func buildPortraitAvgThermoStyle(snapshot source.ThermalSnapshot, pol source.Pol
 	}
 
 	// Reserve space for the text label at the top.
-	labelHeight := bridge.RowHeight()
+	m := ctx.DefaultMetrics()
+	labelHeight := m.RowHeight()
 	if labelHeight <= 0 {
 		labelHeight = 12
 	}
@@ -125,14 +126,14 @@ func buildPortraitAvgThermoStyle(snapshot source.ThermalSnapshot, pol source.Pol
 	}
 
 	// Center the temperature label text above the bar.
-	glyphAdvance := bridge.GlyphAdvance()
+	glyphAdvance := m.Advance()
 	if glyphAdvance > 0 {
 		textWidth := glyphAdvance * len(tempLabel)
 		offsetX := (width - textWidth) / 2
 		if offsetX < 0 {
 			offsetX = 0
 		}
-		vd.LineOffsets = []int{offsetX}
+		vd.LineOffsets = []layout.TTYX{layout.TTYX(offsetX)}
 	}
 
 	return vd

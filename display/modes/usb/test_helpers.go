@@ -2,7 +2,7 @@ package usb
 
 import "github.com/databeast/cyberhud/display/style"
 
-func RegisteredStyleNames() []string                        { return registeredStyleNames() }
+func RegisteredStyleNames() []string                        { return usbRegistry.RegisteredNames() }
 func BoolStr(b bool) string                                 { return boolStr(b) }
 func UsbRegistryEnumerate() []style.Style[Snapshot, Policy] { return usbRegistry.Enumerate() }
 func LookupStyleForTest(name string) style.Style[Snapshot, Policy] {

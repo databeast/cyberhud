@@ -11,7 +11,7 @@ var AllowedAccents = []string{"cyan", "green", "amber", "red", "white", "none"}
 
 // Policy captures all runtime-configurable parameters for the systemd mode.
 type Policy struct {
-	Style       string // Resolution-specific style name (e.g., "color-240x240", "mono-128x64")
+	Style       string // Resolution-specific style name (e.g., "color-fast-240x240", "mono-fast-128x64")
 	ColorAccent string // Boot-in-progress color accent: "cyan", "green", "amber", "red", "white", "none"
 }
 

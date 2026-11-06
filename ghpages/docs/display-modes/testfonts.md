@@ -46,19 +46,19 @@ The test fonts mode is non-interactive and ignores all input actions. Works on a
 ### Color
 
 <figure>
-  <img src="../img/testfonts/color-240x240_0001.png" alt="color-240x240 240x240" style="max-width:320px;width:100%;">
+  <img src="../img/testfonts/color-fast-240x240_0001.png" alt="color-fast-240x240 240x240" style="max-width:320px;width:100%;">
   <figcaption>240x240</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/testfonts/color-320x240_0001.png" alt="color-320x240 320x240" style="max-width:320px;width:100%;">
+  <img src="../img/testfonts/color-fast-320x240_0001.png" alt="color-fast-320x240 320x240" style="max-width:320px;width:100%;">
   <figcaption>320x240</figcaption>
 </figure>
 
 ### Mono
 
 <figure>
-  <img src="../img/testfonts/mono-128x64_0001.png" alt="mono-128x64 128x64" style="max-width:320px;width:100%;">
+  <img src="../img/testfonts/mono-fast-128x64_0001.png" alt="mono-fast-128x64 128x64" style="max-width:320px;width:100%;">
   <figcaption>128x64</figcaption>
 </figure>
 

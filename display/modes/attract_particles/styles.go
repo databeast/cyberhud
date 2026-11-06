@@ -115,16 +115,6 @@ var particlesRegistry = func() *style.StyleRegistry[source.Snapshot, source.Poli
 	return r
 }()
 
-// registeredStyleNames returns registered particles style names in registry order.
-func registeredStyleNames() []string {
-	styles := particlesRegistry.Enumerate()
-	names := make([]string, len(styles))
-	for i, s := range styles {
-		names[i] = s.Name()
-	}
-	return names
-}
-
 // resolvePanelType determines mono/eink flags from the best-fit style.
 func resolvePanelType(hints textlayout.TextHints) (mono bool, eink bool) {
 	s, _ := style.ResolveStyle(particlesRegistry, hints, "attract_particles", "")

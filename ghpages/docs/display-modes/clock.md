@@ -22,7 +22,7 @@ The daemon automatically selects a style based on your panel's resolution and ca
 
 | Key | Type | Description | Default | Allowed Values |
 |-----|------|-------------|---------|----------------|
-| style | string | Resolution-specific visual layout (auto-selected based on panel) | (auto) | Resolution-specific names (e.g., color-240x240, mono-128x64) |
+| style | string | Resolution-specific visual layout (auto-selected based on panel) | (auto) | Resolution-specific names (e.g., color-fast-240x240, mono-fast-128x64) |
 | show_seconds | bool | Whether to display seconds | true | true, false |
 | time_format | string | 12-hour or 24-hour time | 24h | 24h, 12h |
 | date_format | string | Date layout or hidden | YYYY-MM-DD | YYYY-MM-DD, DD-MM-YYYY, MM-DD-YYYY, none |
@@ -235,7 +235,7 @@ The clock mode is non-interactive and works on all panels regardless of input co
 </figure>
 
 <figure>
-  <img src="../img/clock/color-80x160_0001.png" alt="color-80x160 80x160" style="max-width:320px;width:100%;">
+  <img src="../img/clock/color-fast-80x160_0001.png" alt="color-fast-80x160 80x160" style="max-width:320px;width:100%;">
   <figcaption>80x160</figcaption>
 </figure>
 
@@ -270,7 +270,7 @@ The clock mode is non-interactive and works on all panels regardless of input co
 </figure>
 
 <figure>
-  <img src="../img/clock/color-128x128_0001.png" alt="color-128x128 128x128" style="max-width:320px;width:100%;">
+  <img src="../img/clock/color-fast-128x128_0001.png" alt="color-fast-128x128 128x128" style="max-width:320px;width:100%;">
   <figcaption>128x128</figcaption>
 </figure>
 
@@ -280,7 +280,7 @@ The clock mode is non-interactive and works on all panels regardless of input co
 </figure>
 
 <figure>
-  <img src="../img/clock/color-128x160_0001.png" alt="color-128x160 128x160" style="max-width:320px;width:100%;">
+  <img src="../img/clock/color-fast-128x160_0001.png" alt="color-fast-128x160 128x160" style="max-width:320px;width:100%;">
   <figcaption>128x160</figcaption>
 </figure>
 
@@ -295,7 +295,7 @@ The clock mode is non-interactive and works on all panels regardless of input co
 </figure>
 
 <figure>
-  <img src="../img/clock/color-135x240_0001.png" alt="color-135x240 135x240" style="max-width:320px;width:100%;">
+  <img src="../img/clock/color-fast-135x240_0001.png" alt="color-fast-135x240 135x240" style="max-width:320px;width:100%;">
   <figcaption>135x240</figcaption>
 </figure>
 
@@ -305,12 +305,12 @@ The clock mode is non-interactive and works on all panels regardless of input co
 </figure>
 
 <figure>
-  <img src="../img/clock/color-160x80_0001.png" alt="color-160x80 160x80" style="max-width:320px;width:100%;">
+  <img src="../img/clock/color-fast-160x80_0001.png" alt="color-fast-160x80 160x80" style="max-width:320px;width:100%;">
   <figcaption>160x80</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/clock/color-160x128_0001.png" alt="color-160x128 160x128" style="max-width:320px;width:100%;">
+  <img src="../img/clock/color-fast-160x128_0001.png" alt="color-fast-160x128 160x128" style="max-width:320px;width:100%;">
   <figcaption>160x128</figcaption>
 </figure>
 
@@ -335,7 +335,7 @@ The clock mode is non-interactive and works on all panels regardless of input co
 </figure>
 
 <figure>
-  <img src="../img/clock/color-240x135_0001.png" alt="color-240x135 240x135" style="max-width:320px;width:100%;">
+  <img src="../img/clock/color-fast-240x135_0001.png" alt="color-fast-240x135 240x135" style="max-width:320px;width:100%;">
   <figcaption>240x135</figcaption>
 </figure>
 
@@ -345,7 +345,7 @@ The clock mode is non-interactive and works on all panels regardless of input co
 </figure>
 
 <figure>
-  <img src="../img/clock/color-240x240_0001.png" alt="color-240x240 240x240" style="max-width:320px;width:100%;">
+  <img src="../img/clock/color-fast-240x240_0001.png" alt="color-fast-240x240 240x240" style="max-width:320px;width:100%;">
   <figcaption>240x240</figcaption>
 </figure>
 
@@ -355,7 +355,7 @@ The clock mode is non-interactive and works on all panels regardless of input co
 </figure>
 
 <figure>
-  <img src="../img/clock/color-240x320_0001.png" alt="color-240x320 240x320" style="max-width:320px;width:100%;">
+  <img src="../img/clock/color-fast-240x320_0001.png" alt="color-fast-240x320 240x320" style="max-width:320px;width:100%;">
   <figcaption>240x320</figcaption>
 </figure>
 
@@ -390,7 +390,7 @@ The clock mode is non-interactive and works on all panels regardless of input co
 </figure>
 
 <figure>
-  <img src="../img/clock/color-320x240_0001.png" alt="color-320x240 320x240" style="max-width:320px;width:100%;">
+  <img src="../img/clock/color-fast-320x240_0001.png" alt="color-fast-320x240 320x240" style="max-width:320px;width:100%;">
   <figcaption>320x240</figcaption>
 </figure>
 
@@ -400,7 +400,7 @@ The clock mode is non-interactive and works on all panels regardless of input co
 </figure>
 
 <figure>
-  <img src="../img/clock/color-320x480_0001.png" alt="color-320x480 320x480" style="max-width:320px;width:100%;">
+  <img src="../img/clock/color-fast-320x480_0001.png" alt="color-fast-320x480 320x480" style="max-width:320px;width:100%;">
   <figcaption>320x480</figcaption>
 </figure>
 
@@ -410,7 +410,7 @@ The clock mode is non-interactive and works on all panels regardless of input co
 </figure>
 
 <figure>
-  <img src="../img/clock/color-480x320_0001.png" alt="color-480x320 480x320" style="max-width:320px;width:100%;">
+  <img src="../img/clock/color-fast-480x320_0001.png" alt="color-fast-480x320 480x320" style="max-width:320px;width:100%;">
   <figcaption>480x320</figcaption>
 </figure>
 
@@ -425,12 +425,12 @@ The clock mode is non-interactive and works on all panels regardless of input co
 </figure>
 
 <figure>
-  <img src="../img/clock/color-480x800_0001.png" alt="color-480x800 480x800" style="max-width:320px;width:100%;">
+  <img src="../img/clock/color-fast-480x800_0001.png" alt="color-fast-480x800 480x800" style="max-width:320px;width:100%;">
   <figcaption>480x800</figcaption>
 </figure>
 
 <figure>
-  <img src="../img/clock/color-800x480_0001.png" alt="color-800x480 800x480" style="max-width:320px;width:100%;">
+  <img src="../img/clock/color-fast-800x480_0001.png" alt="color-fast-800x480 800x480" style="max-width:320px;width:100%;">
   <figcaption>800x480</figcaption>
 </figure>
 
@@ -667,7 +667,7 @@ The clock mode is non-interactive and works on all panels regardless of input co
 <div class="grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
 
 <figure>
-  <img src="../img/clock/mono-32x128_0001.png" alt="mono-32x128 32x128" style="max-width:320px;width:100%;">
+  <img src="../img/clock/mono-fast-32x128_0001.png" alt="mono-fast-32x128 32x128" style="max-width:320px;width:100%;">
   <figcaption>32x128</figcaption>
 </figure>
 
@@ -677,7 +677,7 @@ The clock mode is non-interactive and works on all panels regardless of input co
 </figure>
 
 <figure>
-  <img src="../img/clock/mono-64x128_0001.png" alt="mono-64x128 64x128" style="max-width:320px;width:100%;">
+  <img src="../img/clock/mono-fast-64x128_0001.png" alt="mono-fast-64x128 64x128" style="max-width:320px;width:100%;">
   <figcaption>64x128</figcaption>
 </figure>
 
@@ -692,7 +692,7 @@ The clock mode is non-interactive and works on all panels regardless of input co
 </figure>
 
 <figure>
-  <img src="../img/clock/mono-128x32_0001.png" alt="mono-128x32 128x32" style="max-width:320px;width:100%;">
+  <img src="../img/clock/mono-fast-128x32_0001.png" alt="mono-fast-128x32 128x32" style="max-width:320px;width:100%;">
   <figcaption>128x32</figcaption>
 </figure>
 
@@ -702,7 +702,7 @@ The clock mode is non-interactive and works on all panels regardless of input co
 </figure>
 
 <figure>
-  <img src="../img/clock/mono-128x64_0001.png" alt="mono-128x64 128x64" style="max-width:320px;width:100%;">
+  <img src="../img/clock/mono-fast-128x64_0001.png" alt="mono-fast-128x64 128x64" style="max-width:320px;width:100%;">
   <figcaption>128x64</figcaption>
 </figure>
 
@@ -717,7 +717,7 @@ The clock mode is non-interactive and works on all panels regardless of input co
 </figure>
 
 <figure>
-  <img src="../img/clock/mono-128x128_0001.png" alt="mono-128x128 128x128" style="max-width:320px;width:100%;">
+  <img src="../img/clock/mono-fast-128x128_0001.png" alt="mono-fast-128x128 128x128" style="max-width:320px;width:100%;">
   <figcaption>128x128</figcaption>
 </figure>
 

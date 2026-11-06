@@ -34,6 +34,8 @@ func init() {
 		Title:      "ST7789",
 		Summary:    "SPI color LCD controller used by 240x240, 240x135, and 320x240 TFT panels.",
 		Monochrome: false,
+		ColorDepth: driver.DepthColor,
+		Capability: textlayout.CapColorFast,
 		OptionDefs: []driver.OptionDefinition{
 			{Key: "width", Type: "int", Summary: "Logical panel width in pixels.", Default: "240"},
 			{Key: "height", Type: "int", Summary: "Logical panel height in pixels.", Default: "240"},
@@ -42,7 +44,6 @@ func init() {
 			{Key: "x_offset", Type: "int", Summary: "Physical framebuffer X offset applied to window commands.", Default: "0"},
 			{Key: "y_offset", Type: "int", Summary: "Physical framebuffer Y offset applied to window commands.", Default: "0"},
 		},
-		DefaultText: textlayout.DefaultTextHints(image.Rect(0, 0, 240, 240)),
 		NewSPI: func(port spi.Port, dc, rst, bl gpio.PinOut, _ gpio.PinIn, cfg driver.DriverConfig) (driver.DrawTarget, error) {
 			return New(port, dc, rst, bl, cfg)
 		},

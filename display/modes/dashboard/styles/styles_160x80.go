@@ -9,7 +9,7 @@ import "github.com/databeast/cyberhud/display/style"
 // dashboard's look for this specific display.
 
 var ColorStyle80x160 = styleDef{
-	name: "color-80x160",
+	name: "color-fast-80x160",
 	reqs: style.SurfaceRequirements{MinWidth: 80, MinHeight: 160, Capability: style.ColorFast},
 	p:    Params{Layout: LayoutCompactPortrait},
 }
@@ -27,7 +27,7 @@ var GrayscaleFast160x80 = styleDef{
 }
 
 var ColorStyle160x80 = styleDef{
-	name: "color-160x80",
+	name: "color-fast-160x80",
 	reqs: style.SurfaceRequirements{MinWidth: 160, MinHeight: 80, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildColorStyle160x80},
 }

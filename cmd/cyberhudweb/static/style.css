@@ -1,0 +1,392 @@
+:root {
+  --bg: #0b0e14;
+  --panel: #131722;
+  --panel-2: #1a2030;
+  --line: #273043;
+  --text: #d6deeb;
+  --muted: #8491a8;
+  --accent: #4fd1c5;
+  --accent-dim: #2b8c84;
+  --active: #ffd166;
+  --error: #ff6b6b;
+  --notice: #f0b429;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  padding: 0 0 48px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, #0e121b, var(--bg));
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+.accent { color: var(--accent); }
+
+main {
+  width: 100%;
+  max-width: 1200px;
+  margin: 24px auto;
+  padding: 0 clamp(12px, 3vw, 40px);
+  display: grid;
+  gap: clamp(16px, 2vw, 28px);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+
+h2 {
+  margin: 0 0 14px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+
+/* banners */
+.banner {
+  width: 100%;
+  max-width: 1200px;
+  margin: 16px auto 0;
+  padding: 12px clamp(12px, 3vw, 40px);
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+}
+.banner-error { background: rgba(255,107,107,0.12); border-color: var(--error); color: #ffd4d4; }
+.banner-notice { background: rgba(240,180,41,0.12); border-color: var(--notice); color: #ffe9b8; }
+
+/* The layout panel spans the content column like the regions block below it,
+   so the map sits directly above regions. The SVG inside is capped and centered
+   within the panel. */
+.layout {
+  justify-self: stretch;
+  min-width: 0; /* grid item: allow shrink below intrinsic content width */
+}
+/* layout visualizer — a reference map of the physical surface arrangement.
+   Bounded in BOTH dimensions so a tall virtual-display aspect ratio can't
+   balloon it, but sized to be comfortably readable and centered. */
+.layout .vd {
+  width: 100%;
+  max-width: 700px;
+  max-height: 440px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  background: var(--panel-2);
+  border-radius: 6px;
+}
+.vd-outline {
+  fill: none;
+  stroke: var(--accent-dim);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+.vd-region {
+  fill: rgba(79,209,197,0.10);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  transition: fill 0.12s ease;
+}
+a:hover .vd-region { fill: rgba(79,209,197,0.24); }
+.vd-label {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  pointer-events: none;
+}
+.vd-label.mode { fill: var(--accent); font-weight: 400; font-size: 12px; }
+
+/* regions — a simple vertical list. Each region card is full width and as tall
+   as its content needs; no grid packing, no orphaned columns. */
+.regions {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 1.5vw, 22px);
+  /* Grid item of `main`; grid items default to min-width:auto and refuse to
+     shrink below their content's intrinsic width (the carousel's full chip row).
+     min-width:0 lets this track honor the grid column so the carousel scrolls. */
+  min-width: 0;
+}
+/* A flex item defaults to min-width:auto, so a region card would otherwise grow
+   to the intrinsic width of its (nowrap) carousel chips and push the page wide
+   instead of letting the carousel scroll. min-width:0 bounds the card to the
+   container so overflow falls through to the scrollable .car-track. */
+.region { min-width: 0; }
+.region-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.region-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.region-id { color: var(--muted); margin-left: 8px; }
+.region-ctrl {
+  margin-left: 8px;
+  padding: 1px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.region-current { text-align: right; }
+.region-current .label {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+.region-current .value { color: var(--active); font-weight: 700; }
+
+.region-actions { display: flex; gap: 8px; margin-bottom: 12px; }
+
+button {
+  font: inherit;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:disabled { opacity: 0.55; cursor: default; }
+
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+.topbar-actions form { margin: 0; }
+.refresh button { padding: 5px 14px; }
+.freeze button {
+  padding: 5px 14px;
+  border-color: var(--accent-dim);
+  background: rgba(79,209,197,0.10);
+}
+.freeze button:hover:not(:disabled) { border-color: var(--accent); }
+
+/* category jump chips */
+.cat-jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.cat-chip {
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 11px;
+  cursor: pointer;
+}
+.cat-chip:hover { border-color: var(--accent); color: var(--text); }
+.cat-chip.active { border-color: var(--accent); color: var(--accent); }
+
+/* mode carousel */
+.carousel {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  min-width: 0;
+}
+.car-arrow {
+  flex: 0 0 auto;
+  width: 34px;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.car-arrow:hover { border-color: var(--accent); color: var(--accent); }
+.car-track {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 2px;
+  scrollbar-width: thin;
+  /* Critical: a flex item defaults to min-width:auto, which refuses to shrink
+     below the intrinsic width of its (nowrap) chips — that forced the whole
+     page wide instead of letting the chips scroll. min-width:0 lets the track
+     shrink so overflow-x actually engages. */
+  min-width: 0;
+  flex: 1 1 auto;
+}
+/* Compact selector chip — identity only. Config lives in the single card below. */
+.mode-chip {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.mode-chip:hover { border-color: var(--accent); }
+.mode-chip.selected { border-color: var(--accent); background: rgba(79,209,197,0.10); }
+.mode-chip.active { box-shadow: inset 2px 0 0 var(--active); }
+.chip-title { font-weight: 600; font-size: 13px; }
+.chip-cat {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.chip-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--active);
+}
+.mode-cat {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+.mode-active-badge {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--active);
+  font-weight: 700;
+}
+.switch-btn { white-space: nowrap; }
+
+/* single config card per region */
+.config-card { margin-top: 12px; }
+.config-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.config-head form { margin: 0; }
+.config-mode-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.config-mode-id { color: var(--muted); margin-left: 8px; }
+.config-head .mode-cat { margin-left: 8px; }
+.config-mode-summary { margin: 0 0 12px; color: var(--muted); font-size: 12px; }
+.config-none { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+.mode-config[hidden] { display: none; }
+
+/* config editor */
+.config {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.config h3 {
+  margin: 0 0 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-weight: 600;
+}
+.config-grid {
+  display: grid;
+  /* min(220px, 100%) so the column floor can never exceed the container width
+     (a bare 220px floor overflows narrow viewports). */
+  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+  gap: 12px 16px;
+}
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field-key {
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 600;
+}
+.field-help {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+.field input[type="text"],
+.field input[type="number"],
+.field select {
+  font: inherit;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 6px 10px;
+  width: 100%;
+}
+.field input[type="text"]:focus,
+.field input[type="number"]:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.field input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  align-self: flex-start;
+}
+.config-actions { margin-top: 14px; }
+.config-actions button {
+  border-color: var(--accent-dim);
+  background: rgba(79,209,197,0.08);
+}
+
+.empty { color: var(--muted); }
+
+/* ── Reactive breakpoints (desktop-down; phones are out of scope) ────────── */
+
+/* Narrower desktop windows: single-column regions, tighter config grid, and a
+   smaller layout map so the page fits without horizontal scroll. */
+@media (max-width: 820px) {
+  .config-grid { grid-template-columns: repeat(auto-fill, minmax(min(170px, 100%), 1fr)); }
+  .layout { max-width: 100%; }
+  .layout .vd { max-width: 380px; max-height: 240px; }
+}
+
+/* Small windows: stack the config head (title row + switch button) and let the
+   topbar actions wrap rather than overflow. */
+@media (max-width: 560px) {
+  .config-head { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .config-grid { grid-template-columns: 1fr; }
+  .topbar { flex-wrap: wrap; gap: 10px; }
+}
+
+

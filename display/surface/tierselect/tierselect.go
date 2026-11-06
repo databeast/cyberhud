@@ -7,7 +7,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 )
 

@@ -1,6 +1,6 @@
 package tiercatalog
 
-import "github.com/databeast/cyberhud/display/surface/fonts"
+import font "github.com/databeast/cyberhud/display/surface/fonts"
 
 // Candidate abstracts a font that can participate in tier selection.
 // Bitmap fonts return their fixed metrics; scalable fonts compute metrics

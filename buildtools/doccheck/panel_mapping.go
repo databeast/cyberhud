@@ -25,7 +25,6 @@ var utilityModeExclusions = map[string]bool{
 // catalog.Register() call and should not trigger missing-documentation errors.
 var stubDirectoryExclusions = map[string]bool{
 	"schedule":     true,
-	"storage":      true,
 	"servicemon":   true,
 	"frameclock":   true,
 	"testsnapshot": true,

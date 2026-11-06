@@ -112,7 +112,7 @@ On panels with buttons, the primary button navigates back to the dashboard.
 </figure>
 
 <figure>
-  <img src="../img/stemma/color-80x160_0001.png" alt="color-80x160 80x160" style="max-width:320px;width:100%;">
+  <img src="../img/stemma/color-fast-80x160_0001.png" alt="color-fast-80x160 80x160" style="max-width:320px;width:100%;">
   <figcaption>80x160</figcaption>
 </figure>
 
@@ -137,7 +137,7 @@ On panels with buttons, the primary button navigates back to the dashboard.
 </figure>
 
 <figure>
-  <img src="../img/stemma/color-128x128_0001.png" alt="color-128x128 128x128" style="max-width:320px;width:100%;">
+  <img src="../img/stemma/color-fast-128x128_0001.png" alt="color-fast-128x128 128x128" style="max-width:320px;width:100%;">
   <figcaption>128x128</figcaption>
 </figure>
 
@@ -152,7 +152,7 @@ On panels with buttons, the primary button navigates back to the dashboard.
 </figure>
 
 <figure>
-  <img src="../img/stemma/color-128x160_0001.png" alt="color-128x160 128x160" style="max-width:320px;width:100%;">
+  <img src="../img/stemma/color-fast-128x160_0001.png" alt="color-fast-128x160 128x160" style="max-width:320px;width:100%;">
   <figcaption>128x160</figcaption>
 </figure>
 
@@ -172,7 +172,7 @@ On panels with buttons, the primary button navigates back to the dashboard.
 </figure>
 
 <figure>
-  <img src="../img/stemma/color-160x80_0001.png" alt="color-160x80 160x80" style="max-width:320px;width:100%;">
+  <img src="../img/stemma/color-fast-160x80_0001.png" alt="color-fast-160x80 160x80" style="max-width:320px;width:100%;">
   <figcaption>160x80</figcaption>
 </figure>
 
@@ -182,7 +182,7 @@ On panels with buttons, the primary button navigates back to the dashboard.
 </figure>
 
 <figure>
-  <img src="../img/stemma/color-160x128_0001.png" alt="color-160x128 160x128" style="max-width:320px;width:100%;">
+  <img src="../img/stemma/color-fast-160x128_0001.png" alt="color-fast-160x128 160x128" style="max-width:320px;width:100%;">
   <figcaption>160x128</figcaption>
 </figure>
 
@@ -494,7 +494,7 @@ On panels with buttons, the primary button navigates back to the dashboard.
 <div class="grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
 
 <figure>
-  <img src="../img/stemma/mono-32x128_0001.png" alt="mono-32x128 32x128" style="max-width:320px;width:100%;">
+  <img src="../img/stemma/mono-fast-32x128_0001.png" alt="mono-fast-32x128 32x128" style="max-width:320px;width:100%;">
   <figcaption>32x128</figcaption>
 </figure>
 
@@ -504,7 +504,7 @@ On panels with buttons, the primary button navigates back to the dashboard.
 </figure>
 
 <figure>
-  <img src="../img/stemma/mono-64x128_0001.png" alt="mono-64x128 64x128" style="max-width:320px;width:100%;">
+  <img src="../img/stemma/mono-fast-64x128_0001.png" alt="mono-fast-64x128 64x128" style="max-width:320px;width:100%;">
   <figcaption>64x128</figcaption>
 </figure>
 
@@ -519,7 +519,7 @@ On panels with buttons, the primary button navigates back to the dashboard.
 </figure>
 
 <figure>
-  <img src="../img/stemma/mono-128x32_0001.png" alt="mono-128x32 128x32" style="max-width:320px;width:100%;">
+  <img src="../img/stemma/mono-fast-128x32_0001.png" alt="mono-fast-128x32 128x32" style="max-width:320px;width:100%;">
   <figcaption>128x32</figcaption>
 </figure>
 
@@ -529,7 +529,7 @@ On panels with buttons, the primary button navigates back to the dashboard.
 </figure>
 
 <figure>
-  <img src="../img/stemma/mono-128x64_0001.png" alt="mono-128x64 128x64" style="max-width:320px;width:100%;">
+  <img src="../img/stemma/mono-fast-128x64_0001.png" alt="mono-fast-128x64 128x64" style="max-width:320px;width:100%;">
   <figcaption>128x64</figcaption>
 </figure>
 
@@ -544,7 +544,7 @@ On panels with buttons, the primary button navigates back to the dashboard.
 </figure>
 
 <figure>
-  <img src="../img/stemma/mono-128x128_0001.png" alt="mono-128x128 128x128" style="max-width:320px;width:100%;">
+  <img src="../img/stemma/mono-fast-128x128_0001.png" alt="mono-fast-128x128 128x128" style="max-width:320px;width:100%;">
   <figcaption>128x128</figcaption>
 </figure>
 

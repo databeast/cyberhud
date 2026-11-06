@@ -54,13 +54,13 @@ var ColorSlow240x320Style = styleDef{
 }
 
 var ColorMedium320x240Style = styleDef{
-	name: "color-320x240",
+	name: "color-fast-320x240",
 	reqs: style.SurfaceRequirements{MinWidth: 320, MinHeight: 240, Capability: style.ColorFast},
 	p:    Params{Fast: true, Color: true},
 }
 
 var ColorMedium240x320Style = styleDef{
-	name: "color-240x320",
+	name: "color-fast-240x320",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 320, Capability: style.ColorFast},
 	p:    Params{Fast: true, Color: true},
 }

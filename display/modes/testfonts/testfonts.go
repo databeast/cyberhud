@@ -20,10 +20,11 @@ import (
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "testfonts",
-		Title:   "Test Fonts",
-		Summary: "Cycles through all registered fonts showing sample text.",
-		Order:   91,
+		ID:       "testfonts",
+		Title:    "Test Fonts",
+		Category: "Test",
+		Summary:  "Cycles through all registered fonts showing sample text.",
+		Order:    91,
 	})
 }
 

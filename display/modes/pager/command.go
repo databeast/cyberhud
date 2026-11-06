@@ -85,7 +85,7 @@ var cmdHandler = &cmdutil.CmdHandler{
 		{Name: "max_lines", Validate: intRangeValidator(1, 1000)},
 		{Name: "scan_ms", Validate: intRangeValidator(100, 30000)},
 		{Name: "font", Validate: stringValidator()},
-		{Name: "style", Validate: cmdutil.AllowedValidator(registeredStyleNames())},
+		{Name: "style", Validate: cmdutil.AllowedValidator(pagerRegistry.RegisteredNames())},
 		{Name: "fade_out_ms", Validate: intMinValidator(0)},
 		{Name: "fade_in_ms", Validate: intMinValidator(0)},
 		{Name: "line_time_ms", Validate: intMinValidator(1)},

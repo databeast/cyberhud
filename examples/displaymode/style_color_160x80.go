@@ -8,7 +8,7 @@ import (
 // ColorSmall160x80Style targets the 160×80 color TFT panel.
 type ColorSmall160x80Style struct{}
 
-func (s ColorSmall160x80Style) Name() string { return "color-160x80" }
+func (s ColorSmall160x80Style) Name() string { return "color-fast-160x80" }
 
 // Requirements returns SurfaceRequirements for the 160×80 panel.
 // Target: 160×80, RGB565, Continuous refresh.

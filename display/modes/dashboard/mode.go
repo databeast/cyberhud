@@ -8,11 +8,12 @@ import (
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "dashboard",
-		Title:   "Dashboard",
-		Summary: "Glanceable liveness panel showing hostname, uptime heartbeat, IP, WiFi, version, and panel name.",
-		Order:   20,
-		Options: append(source.Policy{}.Options(), styleOptions()...),
+		ID:       "dashboard",
+		Title:    "Dashboard",
+		Category: "Meta",
+		Summary:  "Glanceable liveness panel showing hostname, uptime heartbeat, IP, WiFi, version, and panel name.",
+		Order:    20,
+		Options:  append(source.Policy{}.Options(), styleOptions()...),
 	})
 
 	displaymodes.RegisterFactory("dashboard", newInstance)
@@ -26,7 +27,7 @@ func styleOptions() []catalog.OptionDefinition {
 			Type:    "string",
 			Summary: "Visual presentation style.",
 			Default: "",
-			Allowed: registeredStyleNames(),
+			Allowed: dashboardRegistry.RegisteredNames(),
 		},
 	}
 }

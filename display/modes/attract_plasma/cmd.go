@@ -9,28 +9,14 @@ import (
 	"github.com/databeast/cyberhud/display/catalog/cmdutil"
 )
 
-// floatRangeValidator returns a KeyValidator that accepts float values in [min, max].
-func floatRangeValidator(min, max float64) cmdutil.KeyValidator {
-	return func(value string) string {
-		f, err := strconv.ParseFloat(strings.TrimSpace(value), 64)
-		if err != nil {
-			return "must be a number"
-		}
-		if f < min || f > max {
-			return fmt.Sprintf("must be in [%.1f, %.1f]", min, max)
-		}
-		return ""
-	}
-}
-
 // cmdHandler is the declarative CmdHandler for the "attract_plasma" command verb.
 var cmdHandler = &cmdutil.CmdHandler{
 	Verb: "attract_plasma",
 	Keys: []cmdutil.KeyDef{
-		{Name: "speed", Validate: floatRangeValidator(0.1, 10.0)},
-		{Name: "density", Validate: floatRangeValidator(0.1, 1.0)},
-		{Name: "cycle_rate", Validate: floatRangeValidator(0.1, 5.0)},
-		{Name: "blob_scale", Validate: floatRangeValidator(0.5, 4.0)},
+		{Name: "speed", Validate: cmdutil.FloatRangeValidator(0.1, 10.0)},
+		{Name: "density", Validate: cmdutil.FloatRangeValidator(0.1, 1.0)},
+		{Name: "cycle_rate", Validate: cmdutil.FloatRangeValidator(0.1, 5.0)},
+		{Name: "blob_scale", Validate: cmdutil.FloatRangeValidator(0.5, 4.0)},
 	},
 	Get:       getPolicy,
 	Apply:     applyPolicy,
@@ -86,10 +72,11 @@ func HandleCommand(args []string) string {
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "attract_plasma",
-		Title:   "Plasma",
-		Summary: "Lava-lamp plasma blob effect with smooth morphing color gradients and configurable spatial frequency.",
-		Order:   200,
+		ID:       "attract_plasma",
+		Title:    "Plasma",
+		Category: "Attract",
+		Summary:  "Lava-lamp plasma blob effect with smooth morphing color gradients and configurable spatial frequency.",
+		Order:    200,
 		Options: []catalog.OptionDefinition{
 			{Key: "speed", Type: "float", Summary: "Morph speed multiplier.", Default: "1.0", Allowed: []string{}},
 			{Key: "density", Type: "float", Summary: "Unused, kept for uniformity.", Default: "0.5", Allowed: []string{}},

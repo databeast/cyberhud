@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 )
 
 // drawGlyph renders a single character onto img at position (x, y) using the
@@ -43,24 +43,4 @@ func drawGlyph(img *image.RGBA, face font.Face, ch rune, x, y int, fg color.RGBA
 			}
 		}
 	}
-}
-
-// drawText renders a string onto img starting at position (x, y) using the
-// given font face and foreground color. It stops rendering characters once the
-// next glyph's starting X position would exceed maxX. Returns the total pixel
-// width advanced (number of characters rendered × GlyphAdvance).
-func drawText(img *image.RGBA, face font.Face, text string, x, y int, fg color.RGBA, maxX int) int {
-	metrics := face.Metrics()
-	glyphAdvance := metrics.GlyphAdvance
-
-	xCursor := x
-	for _, ch := range text {
-		if xCursor >= maxX {
-			break
-		}
-		drawGlyph(img, face, ch, xCursor, y, fg)
-		xCursor += glyphAdvance
-	}
-
-	return xCursor - x
 }

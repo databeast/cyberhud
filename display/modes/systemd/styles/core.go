@@ -106,6 +106,7 @@ func rowsBuild(snap source.Snapshot, ctx style.StyleContext, d def) style.ViewDa
 	items := source.BuildDefaultItems(snap)
 
 	entry := ctx.Entry(tiercatalog.TierNormal)
+	m := ctx.Metrics(tiercatalog.TierNormal)
 	if d.p.ContentMaxRows {
 		if entry.RowHeight > 0 {
 			maxRows := bridge.AvailableContentHeight() / entry.RowHeight
@@ -114,7 +115,7 @@ func rowsBuild(snap source.Snapshot, ctx style.StyleContext, d def) style.ViewDa
 			}
 		}
 	} else {
-		maxRows := bridge.MaxVisibleRows()
+		maxRows := bridge.MaxVisibleRows(m)
 		if maxRows > 0 && len(items) > maxRows {
 			items = items[:maxRows]
 		}
@@ -132,9 +133,9 @@ func rowsBuild(snap source.Snapshot, ctx style.StyleContext, d def) style.ViewDa
 		}
 	}
 
-	offsets := make([]int, len(items))
+	offsets := make([]style.TTYX, len(items))
 	for i, item := range items {
-		offsets[i] = bridge.CenterXWith(len(item), entry.GlyphAdvance)
+		offsets[i] = bridge.CenterX(len(item), m)
 	}
 	rowHeights := make([]int, len(items))
 	for i := range items {
@@ -162,7 +163,7 @@ func singleLabelBuild(snap source.Snapshot, ctx style.StyleContext, d def) style
 
 	label := source.BootStatusLabel(snap)
 	entry := ctx.Entry(tiercatalog.TierNormal)
-	offsets := []int{bridge.CenterXWith(len(label), entry.GlyphAdvance)}
+	offsets := []style.TTYX{bridge.CenterX(len(label), layout.NewMetrics(entry.GlyphAdvance, entry.RowHeight, entry.FontID))}
 	offsetY := bridge.CenterBlockY([]int{entry.RowHeight}, 0)
 
 	return style.ViewData{
@@ -185,7 +186,7 @@ func summaryBuild(snap source.Snapshot, ctx style.StyleContext) style.ViewData {
 		label = "Boot OK"
 	} else {
 		label = source.BootStatusLabel(snap)
-		maxChars := bridge.AvailableContentWidth() / bridge.GlyphAdvance()
+		maxChars := bridge.MaxChars(ctx.DefaultMetrics())
 		if maxChars > 0 && len(label) > maxChars {
 			label = label[:maxChars]
 		}
@@ -193,7 +194,7 @@ func summaryBuild(snap source.Snapshot, ctx style.StyleContext) style.ViewData {
 
 	items := []string{label}
 	entry := ctx.Entry(tiercatalog.TierNormal)
-	offsets := []int{bridge.CenterXWith(len(label), entry.GlyphAdvance)}
+	offsets := []style.TTYX{bridge.CenterX(len(label), layout.NewMetrics(entry.GlyphAdvance, entry.RowHeight, entry.FontID))}
 	rowHeights := []int{entry.RowHeight}
 	offsetY := bridge.CenterBlockY(rowHeights, 0)
 
@@ -231,7 +232,7 @@ func gradientBuild(snap source.Snapshot, pol source.Policy, ctx style.StyleConte
 
 	label := source.BootStatusLabel(snap)
 	entry := ctx.Entry(tiercatalog.TierNormal)
-	offsets := []int{bridge.CenterXWith(len(label), entry.GlyphAdvance)}
+	offsets := []style.TTYX{bridge.CenterX(len(label), layout.NewMetrics(entry.GlyphAdvance, entry.RowHeight, entry.FontID))}
 	offsetY := bridge.CenterBlockY([]int{entry.RowHeight}, 0)
 
 	return style.ViewData{
@@ -242,7 +243,7 @@ func gradientBuild(snap source.Snapshot, pol source.Policy, ctx style.StyleConte
 	}
 }
 
-func einkPoster800x480(snap source.Snapshot, pol source.Policy, ctx style.StyleContext, d def) style.ViewData {
+func monoSlowPoster800x480(snap source.Snapshot, pol source.Policy, ctx style.StyleContext, d def) style.ViewData {
 	hints := ctx.Hints()
 
 	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 2})
@@ -328,9 +329,9 @@ func einkPoster800x480(snap source.Snapshot, pol source.Policy, ctx style.StyleC
 		}
 	}
 
-	offsets := make([]int, len(visibleRows))
+	offsets := make([]style.TTYX, len(visibleRows))
 	for i, r := range visibleRows {
-		offsets[i] = bridge.CenterXWith(len([]rune(r.text)), r.entry.GlyphAdvance)
+		offsets[i] = bridge.CenterX(len([]rune(r.text)), layout.NewMetrics(r.entry.GlyphAdvance, r.entry.RowHeight, r.entry.FontID))
 	}
 
 	var blockHeight int
@@ -340,7 +341,7 @@ func einkPoster800x480(snap source.Snapshot, pol source.Policy, ctx style.StyleC
 	if includeDetails && len(visibleRows) > len(header) {
 		blockHeight += groupGap
 	}
-	offsetY := (bridge.AvailableContentHeight() - blockHeight) / 2
+	offsetY := style.TTYY((bridge.AvailableContentHeight() - blockHeight) / 2)
 	if offsetY < 0 {
 		offsetY = 0
 	}

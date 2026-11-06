@@ -19,12 +19,12 @@ var MonoSlow32x128MinimalStyle = def{
 }
 
 var MonoFast32x128Style = def{
-	name: "mono-32x128",
+	name: "mono-fast-32x128",
 	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.MonoFast},
 }
 
 var MonoFast32x128MinimalStyle = def{
-	name: "mono-32x128-minimal",
+	name: "mono-fast-32x128-minimal",
 	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildMinimalStyle},
 }

@@ -58,11 +58,11 @@ func monoSlow800x480Build(snap source.TickerSnapshot, pol source.Policy, ctx sty
 		}
 
 		// Horizontal centering
-		offsetX := bridge.CenterXWith(len([]rune(emptyText)), ga)
+		offsetX := bridge.CenterX(len([]rune(emptyText)), ctx.Metrics(tiercatalog.TierLarge))
 
 		// Vertical centering
 		blockHeight := largeEntry.RowHeight
-		offsetY := (bridge.AvailableContentHeight() - blockHeight) / 2
+		offsetY := layout.TTYY((bridge.AvailableContentHeight() - blockHeight) / 2)
 		if offsetY < 0 {
 			offsetY = 0
 		}
@@ -70,7 +70,7 @@ func monoSlow800x480Build(snap source.TickerSnapshot, pol source.Policy, ctx sty
 		return style.ViewData{
 			Items:       []string{emptyText},
 			Tiers:       []tiercatalog.Tier{tiercatalog.TierLarge},
-			LineOffsets: []int{offsetX},
+			LineOffsets: []layout.TTYX{offsetX},
 			OffsetY:     offsetY,
 			Static:      true,
 			Sprites:     sprites,
@@ -99,14 +99,14 @@ func monoSlow800x480Build(snap source.TickerSnapshot, pol source.Policy, ctx sty
 	}
 
 	// Step 7 (Horizontal centering): CenterXWith per line.
-	offsets := make([]int, len(lines))
+	offsets := make([]style.TTYX, len(lines))
 	for i, line := range lines {
-		offsets[i] = bridge.CenterXWith(len([]rune(line)), ga)
+		offsets[i] = bridge.CenterX(len([]rune(line)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
 	// Step 8 (Vertical centering): center the block of lines.
 	blockHeight := len(lines) * rowHeight
-	offsetY := (bridge.AvailableContentHeight() - blockHeight) / 2
+	offsetY := layout.TTYY((bridge.AvailableContentHeight() - blockHeight) / 2)
 	if offsetY < 0 {
 		offsetY = 0
 	}

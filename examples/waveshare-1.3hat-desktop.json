@@ -7,11 +7,11 @@
   },
   "policies": {
     "dashboard": {
-      "style": "color-240x240",
+      "style": "color-fast-240x240",
       "color_accent": "cyan"
     },
     "clock": {
-      "style": "color-240x240",
+      "style": "color-fast-240x240",
       "show_seconds": true,
       "time_format": "24h",
       "date_format": "YYYY-MM-DD",

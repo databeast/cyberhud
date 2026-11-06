@@ -14,10 +14,10 @@ var GrayscaleFast800x480 = styleDef{
 	p:    Params{BuildFn: buildGrayscaleFast240x135},
 }
 
-var EinkStyle800x480 = styleDef{
-	name: "eink-800x480",
+var MonoSlow800x480Style = styleDef{
+	name: "mono-slow-800x480",
 	reqs: style.SurfaceRequirements{MinWidth: 800, MinHeight: 480, Capability: style.MonoSlow},
-	p:    Params{BuildFn: buildEinkStyle800x480},
+	p:    Params{BuildFn: buildMonoSlow800x480Style},
 }
 
 var GrayscaleFast480x800 = styleDef{
@@ -26,22 +26,21 @@ var GrayscaleFast480x800 = styleDef{
 	p:    Params{BuildFn: buildGrayscaleFast240x135},
 }
 
-var EinkStyle480x800 = styleDef{
-	name: "eink-480x800",
+var MonoSlow480x800Style = styleDef{
+	name: "mono-slow-480x800",
 	reqs: style.SurfaceRequirements{MinWidth: 480, MinHeight: 800, Capability: style.MonoSlow},
-	p:    Params{BuildFn: buildEinkStyle200x200},
 }
 
 var ColorStyle480x800 = styleDef{
-	name: "color-480x800",
+	name: "color-fast-480x800",
 	reqs: style.SurfaceRequirements{MinWidth: 480, MinHeight: 800, Capability: style.ColorFast},
-	p:    Params{BuildFn: buildColorStyle320x240},
+	p:    Params{BuildFn: buildColorHero},
 }
 
 var ColorStyle800x480 = styleDef{
-	name: "color-800x480",
+	name: "color-fast-800x480",
 	reqs: style.SurfaceRequirements{MinWidth: 800, MinHeight: 480, Capability: style.ColorFast},
-	p:    Params{BuildFn: buildColorStyle320x240},
+	p:    Params{BuildFn: buildColorHero},
 }
 
 var MonoFast480x800Style = styleDef{

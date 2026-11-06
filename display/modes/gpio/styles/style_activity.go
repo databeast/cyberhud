@@ -9,5 +9,4 @@ import "github.com/databeast/cyberhud/display/style"
 var ActivityStyle = def{
 	name: "activity",
 	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 16, PreferredWidth: 0, PreferredHeight: 0, Capability: style.MonoFast},
-	p:    Params{Layout: layoutActivity},
 }

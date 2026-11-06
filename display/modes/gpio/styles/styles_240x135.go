@@ -39,13 +39,11 @@ var GrayscaleSlow240x135Style = def{
 var GrayscaleFast240x135Style = def{
 	name: "grayscale-fast-240x135",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 135, Capability: style.GrayscaleFast},
-	p:    Params{Layout: layoutGrayscaleFast},
 }
 
 var GrayscaleFast135x240Style = def{
 	name: "grayscale-fast-135x240",
 	reqs: style.SurfaceRequirements{MinWidth: 135, MinHeight: 240, Capability: style.GrayscaleFast},
-	p:    Params{Layout: layoutGrayscaleFast},
 }
 
 var ColorSlow135x240Style = def{
@@ -59,13 +57,11 @@ var ColorSlow240x135Style = def{
 }
 
 var ColorStyle240x135 = def{
-	name: "color-240x135",
+	name: "color-fast-240x135",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 135, Capability: style.ColorFast},
-	p:    Params{Layout: layoutColorFastRows},
 }
 
 var ColorStyle135x240 = def{
-	name: "color-135x240",
+	name: "color-fast-135x240",
 	reqs: style.SurfaceRequirements{MinWidth: 135, MinHeight: 240, Capability: style.ColorFast},
-	p:    Params{Layout: layoutColorFastRows},
 }

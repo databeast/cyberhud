@@ -790,9 +790,6 @@ func computeExpectedMode(config region2.PanelActivationConfig) string {
 // From: manager_property_test.go
 // =============================================================================
 
-// lowercaseRunes is used by generators to produce lowercase alphabetic strings.
-var lowercaseRunes = []rune("abcdefghijklmnopqrstuvwxyz")
-
 // TestProperty4_ValidAllocationSucceeds tests that allocation succeeds when all
 // constraints are satisfied: unique name (1-64 chars), bounds with width >= 1 and
 // height >= 1, bounds within VD, and no overlap with existing regions.

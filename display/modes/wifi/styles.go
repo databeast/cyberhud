@@ -180,14 +180,3 @@ var wifiRegistry = func() *style.StyleRegistry[source.WifiData, source.Policy] {
 
 	return r
 }()
-
-// registeredStyleNames returns the list of style names from the registry.
-// Used by catalog registration and cmdHandler for allowed-value validation.
-func registeredStyleNames() []string {
-	styles := wifiRegistry.Enumerate()
-	names := make([]string, len(styles))
-	for i, s := range styles {
-		names[i] = s.Name()
-	}
-	return names
-}

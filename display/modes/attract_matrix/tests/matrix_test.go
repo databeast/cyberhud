@@ -108,8 +108,8 @@ func TestBuildView_UltraLowResSparsePixelRain(t *testing.T) {
 	if vd.Sprites[0].Label != "matrix-lowres" {
 		t.Fatalf("sprite label = %q, want %q", vd.Sprites[0].Label, "matrix-lowres")
 	}
-	if vd.StyleReport.Name != "mono-16x8" {
-		t.Fatalf("StyleReport.Name = %q, want %q", vd.StyleReport.Name, "mono-16x8")
+	if vd.StyleReport.Name != "mono-fast-16x8" {
+		t.Fatalf("StyleReport.Name = %q, want %q", vd.StyleReport.Name, "mono-fast-16x8")
 	}
 
 	img := vd.Sprites[0].Image

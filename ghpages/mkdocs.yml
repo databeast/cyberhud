@@ -59,6 +59,7 @@ nav:
               - '1.3" OLED HAT': getting-started/waveshare-1-3-oled-hat.md
               - '1.3" LCD HAT': getting-started/waveshare-1-3hat.md
               - '2.2" LCD': getting-started/waveshare-2-2.md
+              - '3.5" RPi LCD (A)': getting-started/waveshare-3-5-lcd-a.md
               - '4.26" E-Paper': getting-started/waveshare-4-26-epaper.md
               - Triple Screen: getting-started/waveshare-triple-screen.md
           - Adafruit Displays:
@@ -83,6 +84,7 @@ nav:
           - Data & Monitoring:
               - Dashboard: display-modes/dashboard.md
               - Gauges: display-modes/gauges.md
+              - Storage: display-modes/storage.md
               - System: display-modes/system.md
               - Thermal: display-modes/thermal.md
               - WiFi: display-modes/wifi.md
@@ -110,6 +112,7 @@ nav:
           - Matrix: display-modes/attract_matrix.md
           - Particles: display-modes/attract_particles.md
           - Plasma: display-modes/attract_plasma.md
+          - Pop Squares: display-modes/attract_popsquares.md
           - Shapes: display-modes/attract_shapes.md
           - Starfield: display-modes/attract_starfield.md
           - Waveform: display-modes/attract_waveform.md

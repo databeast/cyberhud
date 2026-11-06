@@ -8,14 +8,8 @@ import (
 	displaymodes "github.com/databeast/cyberhud/display/modes"
 	"github.com/databeast/cyberhud/display/region"
 	"github.com/databeast/cyberhud/display/style"
-	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 	"github.com/databeast/cyberhud/runtime/action"
 )
-
-// Font configuration for the cycle mode.
-const cycleFontFamily = "spleen"
-
-var cycleFontTier = tiercatalog.TierNormal
 
 func init() {
 	displaymodes.RegisterFactory("cycle", newInstance)

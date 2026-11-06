@@ -11,9 +11,9 @@ import (
 var cmdHandler = &cmdutil.CmdHandler{
 	Verb: "gpio",
 	Keys: []cmdutil.KeyDef{
-		{Name: "style", Validate: cmdutil.AllowedValidator(registeredStyleNames())},
+		{Name: "style", Validate: cmdutil.AllowedValidator(gpioRegistry.RegisteredNames())},
 		{Name: "color", Validate: cmdutil.BoolValidator()},
-		{Name: "font", Validate: fontValidator},
+		{Name: "font", Validate: cmdutil.FontValidator()},
 		{Name: "fgcolor", Validate: cmdutil.AllowedValidator(allowedFGColors)},
 	},
 	PostApply: fitnessNotesPostApply,
@@ -62,13 +62,14 @@ func HandleCommand(args []string) string {
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "gpio",
-		Title:   "GPIO",
-		Scope:   "any",
-		Summary: "GPIO pin state list on the main display or compact GPIO counters on secondary displays.",
-		Order:   40,
+		ID:       "gpio",
+		Title:    "GPIO",
+		Category: "System",
+		Scope:    "any",
+		Summary:  "GPIO pin state list on the main display or compact GPIO counters on secondary displays.",
+		Order:    40,
 		Options: []catalog.OptionDefinition{
-			{Key: "style", Type: "string", Summary: "Visual presentation style.", Default: "", Allowed: registeredStyleNames()},
+			{Key: "style", Type: "string", Summary: "Visual presentation style.", Default: "", Allowed: gpioRegistry.RegisteredNames()},
 			{Key: "color", Type: "bool", Summary: "Whether to color-code pin rows by level.", Default: "true", Allowed: []string{"true", "false"}},
 			{Key: "font", Type: "string", Summary: "Font selection (auto or a registered font ID).", Default: "auto"},
 			{Key: "fgcolor", Type: "string", Summary: "Foreground color for GPIO display elements.", Default: "cyan", Allowed: allowedFGColors},

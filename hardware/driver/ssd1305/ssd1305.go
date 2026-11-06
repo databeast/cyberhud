@@ -12,6 +12,7 @@ import (
 	"periph.io/x/conn/v3/physic"
 	"periph.io/x/conn/v3/spi"
 
+	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/hardware/driver"
 )
 
@@ -28,6 +29,8 @@ func init() {
 		Title:      "SSD1305",
 		Summary:    "SPI/I2C monochrome OLED controller (128x32).",
 		Monochrome: true,
+		ColorDepth: driver.DepthMono1,
+		Capability: textlayout.CapMonoFast,
 		OptionDefs: []driver.OptionDefinition{
 			{Key: "width", Type: "int", Summary: "Display width in pixels.", Default: "128"},
 			{Key: "height", Type: "int", Summary: "Display height in pixels.", Default: "32"},
@@ -137,7 +140,7 @@ func (d *SSD1305) DrawImage(src draw.Image) error {
 			for bit := 0; bit < 8; bit++ {
 				y := page*8 + bit
 				r, g, bl, _ := src.At(col, y).RGBA()
-				if luminanceOn(r, g, bl) {
+				if driver.Luminance(r, g, bl) > driver.MonoThreshold {
 					b |= 1 << uint(bit)
 				}
 			}
@@ -212,10 +215,6 @@ func (d *SSD1305) initCommands() []byte {
 	}
 }
 
-// luminanceOn returns true if the pixel luminance exceeds the threshold.
-func luminanceOn(r, g, b uint32) bool {
-	return (299*r+587*g+114*b)/1000 > 0x3000
-}
 
 // applyDefaults sets width and height to defaults when either is not specified.
 // If either dimension is invalid (≤ 0), both default to 128×32.

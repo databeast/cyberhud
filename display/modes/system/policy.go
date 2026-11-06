@@ -2,7 +2,6 @@ package system
 
 import (
 	"fmt"
-	"strings"
 	"sync"
 
 	"github.com/databeast/cyberhud/display/catalog"
@@ -74,14 +73,6 @@ func normalizePolicy(p Policy) Policy {
 		p.Style = ""
 	}
 	return p
-}
-
-// fontValidator accepts "auto" or any non-empty string for the font option.
-func fontValidator(value string) string {
-	if strings.TrimSpace(value) == "" {
-		return "must be \"auto\" or a registered font ID"
-	}
-	return ""
 }
 
 // queryResponse builds the "OK system style=... font=..." response.

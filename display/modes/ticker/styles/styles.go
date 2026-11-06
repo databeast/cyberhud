@@ -80,29 +80,28 @@ var TickerMonoSlow300x400Style = def{
 	p:    Params{Slow: true},
 }
 
-
 var TickerMonoFast128x32Style = def{
-	name: "mono-128x32",
+	name: "mono-fast-128x32",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 32, Capability: style.MonoFast},
 }
 
 var TickerMonoFast128x64Style = def{
-	name: "mono-128x64",
+	name: "mono-fast-128x64",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 64, Capability: style.MonoFast},
 }
 
 var TickerMonoFast128x128Style = def{
-	name: "mono-128x128",
+	name: "mono-fast-128x128",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.MonoFast},
 }
 
 var TickerMonoFast32x128Style = def{
-	name: "mono-32x128",
+	name: "mono-fast-32x128",
 	reqs: style.SurfaceRequirements{MinWidth: 32, MinHeight: 128, Capability: style.MonoFast},
 }
 
 var TickerMonoFast64x128Style = def{
-	name: "mono-64x128",
+	name: "mono-fast-64x128",
 	reqs: style.SurfaceRequirements{MinWidth: 64, MinHeight: 128, Capability: style.MonoFast},
 }
 
@@ -333,72 +332,72 @@ var TickerColorSlow300x400Style = def{
 }
 
 var TickerColorFast128x128Style = def{
-	name: "color-128x128",
+	name: "color-fast-128x128",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.ColorFast},
 }
 
 var TickerColorFast160x80Style = def{
-	name: "color-160x80",
+	name: "color-fast-160x80",
 	reqs: style.SurfaceRequirements{MinWidth: 160, MinHeight: 80, Capability: style.ColorFast},
 }
 
 var TickerColorFast160x128Style = def{
-	name: "color-160x128",
+	name: "color-fast-160x128",
 	reqs: style.SurfaceRequirements{MinWidth: 160, MinHeight: 128, Capability: style.ColorFast},
 }
 
 var TickerColorFast240x135Style = def{
-	name: "color-240x135",
+	name: "color-fast-240x135",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 135, Capability: style.ColorFast},
 }
 
 var TickerColorFast240x240Style = def{
-	name: "color-240x240",
+	name: "color-fast-240x240",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 240, Capability: style.ColorFast},
 }
 
 var TickerColorFast240x320Style = def{
-	name: "color-240x320",
+	name: "color-fast-240x320",
 	reqs: style.SurfaceRequirements{MinWidth: 240, MinHeight: 320, Capability: style.ColorFast},
 }
 
 var TickerColorFast320x240Style = def{
-	name: "color-320x240",
+	name: "color-fast-320x240",
 	reqs: style.SurfaceRequirements{MinWidth: 320, MinHeight: 240, Capability: style.ColorFast},
 }
 
 var TickerColorFast320x480Style = def{
-	name: "color-320x480",
+	name: "color-fast-320x480",
 	reqs: style.SurfaceRequirements{MinWidth: 320, MinHeight: 480, Capability: style.ColorFast},
 }
 
 var TickerColorFast480x320Style = def{
-	name: "color-480x320",
+	name: "color-fast-480x320",
 	reqs: style.SurfaceRequirements{MinWidth: 480, MinHeight: 320, Capability: style.ColorFast},
 }
 
 var TickerColorFast480x800Style = def{
-	name: "color-480x800",
+	name: "color-fast-480x800",
 	reqs: style.SurfaceRequirements{MinWidth: 480, MinHeight: 800, Capability: style.ColorFast},
 }
 
 var TickerColorFast800x480Style = def{
-	name: "color-800x480",
+	name: "color-fast-800x480",
 	reqs: style.SurfaceRequirements{MinWidth: 800, MinHeight: 480, Capability: style.ColorFast},
 }
 
 var TickerColorFast80x160Style = def{
-	name: "color-80x160",
+	name: "color-fast-80x160",
 	reqs: style.SurfaceRequirements{MinWidth: 80, MinHeight: 160, Capability: style.ColorFast},
 }
 
 var TickerColorFast128x160Style = def{
-	name: "color-128x160",
+	name: "color-fast-128x160",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 160, Capability: style.ColorFast},
 }
 
 var TickerColorFast135x240Style = def{
-	name: "color-135x240",
+	name: "color-fast-135x240",
 	reqs: style.SurfaceRequirements{MinWidth: 135, MinHeight: 240, Capability: style.ColorFast},
 }
 

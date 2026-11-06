@@ -17,16 +17,7 @@ func styleValidator(value string) string {
 		return "must be a non-empty style name"
 	}
 	if zmqRegistry.Lookup(v) == nil {
-		return "must be one of: " + strings.Join(registeredStyleNames(), ", ")
-	}
-	return ""
-}
-
-// fontValidator accepts "auto" or any non-empty trimmed string.
-func fontValidator(value string) string {
-	v := strings.TrimSpace(value)
-	if v == "" {
-		return "must be \"auto\" or a non-empty font ID"
+		return "must be one of: " + strings.Join(zmqRegistry.RegisteredNames(), ", ")
 	}
 	return ""
 }

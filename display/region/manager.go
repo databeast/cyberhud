@@ -269,6 +269,17 @@ func (rm *RegionManager) Regions() []*Region {
 	return result
 }
 
+// VirtualBounds returns the bounding rectangle of the VirtualDisplay backing this
+// manager, with origin at (0,0). This is the overall coordinate space within which
+// all Region bounds are placed. Returns the zero Rectangle if no VirtualDisplay is
+// attached.
+func (rm *RegionManager) VirtualBounds() image.Rectangle {
+	if rm.vd == nil {
+		return image.Rectangle{}
+	}
+	return rm.vd.Bounds()
+}
+
 // SetMode changes the active display mode for a Region identified by target.
 // The target parameter is either a zero-based integer index (as a string) or a
 // region name (case-insensitive). The modeID parameter is the display mode

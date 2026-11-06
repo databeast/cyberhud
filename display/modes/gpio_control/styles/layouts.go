@@ -265,11 +265,10 @@ func sharedListBuild(data source.Data, _ source.Policy, ctx style.StyleContext, 
 		}
 	}
 
+	m := ctx.DefaultMetrics()
+
 	// Truncate text to available width.
-	maxCols := 0
-	if bridge.GlyphAdvance() > 0 {
-		maxCols = bridge.AvailableContentWidth() / bridge.GlyphAdvance()
-	}
+	maxCols := bridge.MaxChars(m)
 	if maxCols > 0 {
 		for i, item := range items {
 			if len(item) > maxCols {
@@ -279,7 +278,7 @@ func sharedListBuild(data source.Data, _ source.Policy, ctx style.StyleContext, 
 	}
 
 	// Limit visible rows with scroll offset.
-	maxRows := bridge.MaxVisibleRows()
+	maxRows := bridge.MaxVisibleRows(m)
 	if maxRows > 0 && len(items) > maxRows {
 		topRow := data.TopRow
 		if topRow < 0 {

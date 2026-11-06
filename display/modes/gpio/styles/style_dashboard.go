@@ -9,5 +9,4 @@ import "github.com/databeast/cyberhud/display/style"
 var DashboardStyle = def{
 	name: "dashboard",
 	reqs: style.SurfaceRequirements{MinWidth: 64, MinHeight: 64, PreferredWidth: 0, PreferredHeight: 0, Capability: style.ColorSlow},
-	p:    Params{Layout: layoutDashboard},
 }

@@ -10,36 +10,36 @@ import (
 // The MonoFast skeleton is declared here.
 
 var MonoFast128x64Style = def{
-	name: "mono-128x64",
+	name: "mono-fast-128x64",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 64, Capability: style.MonoFast},
 }
 
 var MonoFast128x64OverviewStyle = def{
-	name: "mono-128x64-overview",
+	name: "mono-fast-128x64-overview",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 64, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildOverviewStyle},
 }
 
 var MonoFast128x64TimegraphStyle = def{
-	name: "mono-128x64-timegraph",
+	name: "mono-fast-128x64-timegraph",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 64, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildTimegraphStyle},
 }
 
 var MonoFast128x64DetailStyle = def{
-	name: "mono-128x64-detail",
+	name: "mono-fast-128x64-detail",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 64, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildDetailStyle},
 }
 
 var MonoFast128x64GraphStyle = def{
-	name: "mono-128x64-graph",
+	name: "mono-fast-128x64-graph",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 64, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildGraphStyle},
 }
 
 var MonoFast128x64MinimalStyle = def{
-	name: "mono-128x64-minimal",
+	name: "mono-fast-128x64-minimal",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 64, Capability: style.MonoFast},
 	p:    Params{BuildFn: buildMinimalStyle},
 }

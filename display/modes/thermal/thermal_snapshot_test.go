@@ -33,7 +33,6 @@ type displayCategory string
 
 const (
 	catColor     displayCategory = "Color"
-	catEInk      displayCategory = "E-Ink"
 	catGrayscale displayCategory = "Grayscale"
 	catMono      displayCategory = "Mono"
 )
@@ -56,7 +55,6 @@ var recognizedPrefixes = []prefixMapping{
 	{prefix: "mono-fast-", category: catMono},
 	{prefix: "color-", category: catColor},
 	{prefix: "mono-", category: catMono},
-	{prefix: "eink-", category: catEInk},
 }
 
 // matchCategory returns the display category for a style name using
@@ -83,8 +81,6 @@ func categoryToDisplayCategory(cat displayCategory) testsnapshot.DisplayCategory
 		return testsnapshot.CategoryColor
 	case catMono:
 		return testsnapshot.CategoryMono
-	case catEInk:
-		return testsnapshot.CategoryEink
 	case catGrayscale:
 		return testsnapshot.CategoryGrayscale
 	default:

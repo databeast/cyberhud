@@ -36,11 +36,10 @@ func compactBuild(snapshot source.Data, _ source.Policy, ctx style.StyleContext,
 	// Build LED sprites using bridge metrics.
 	sprites := BuildSprites(pins, hints)
 
+	m := ctx.DefaultMetrics()
+
 	// Truncate text to MaxCharsPerRow.
-	maxCols := 0
-	if bridge.GlyphAdvance() > 0 {
-		maxCols = bridge.AvailableContentWidth() / bridge.GlyphAdvance()
-	}
+	maxCols := bridge.MaxChars(m)
 	if maxCols > 0 {
 		for i, item := range items {
 			if len(item) > maxCols {
@@ -50,7 +49,7 @@ func compactBuild(snapshot source.Data, _ source.Policy, ctx style.StyleContext,
 	}
 
 	// Limit visible rows to MaxVisibleRows.
-	maxRows := bridge.MaxVisibleRows()
+	maxRows := bridge.MaxVisibleRows(m)
 	if maxRows > 0 && len(items) > maxRows {
 		items = items[:maxRows]
 		if len(colors) > maxRows {

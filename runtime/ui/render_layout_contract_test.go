@@ -104,7 +104,7 @@ func contractView(static bool) style.ViewData {
 		FontIDs:      []string{"tall", "short"},
 		RowHeights:   []int{20, 8},
 		Spacing:      5,
-		LineOffsets:  []int{7, 30},
+		LineOffsets:  []style.TTYX{7, 30},
 		VisibleCount: 2,
 		OffsetY:      10,
 		Cursor:       -1,

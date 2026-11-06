@@ -17,7 +17,7 @@ var MonoSlow128x128Style = styleDef{
 }
 
 var MonoSmall128x128Style = styleDef{
-	name: "mono-128x128",
+	name: "mono-fast-128x128",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.MonoFast},
 }
 
@@ -38,7 +38,7 @@ var ColorSlow128x128Style = styleDef{
 }
 
 var ColorSmall128x128Style = styleDef{
-	name: "color-128x128",
+	name: "color-fast-128x128",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 128, Capability: style.ColorFast},
 	p:    Params{Fast: true, Color: true},
 }

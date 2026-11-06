@@ -74,9 +74,9 @@ Register panel defaults in `hardware/panels/*/panel.go`:
 
 ```go
 style.RegisterAliases("panel-name", map[string]string{
-	"clock":   "color-240x240",
+	"clock":   "color-fast-240x240",
 	"serial":  "mono-fast-128x64",
-	"gpio":    "color-320x240",
+	"gpio":    "color-fast-320x240",
 })
 ```
 

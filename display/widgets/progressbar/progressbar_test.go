@@ -2267,7 +2267,11 @@ func TestProperty23_ArcFillEndpoint(t *testing.T) {
 
 		// Compute the start angle of the arc:
 		// The arc is centered symmetrically about the orientation reference angle.
-		// geom.StartAngle: -π/2 for horizontal (12-o'clock), π for vertical (9-o'clock)
+		// geom.StartAngle is in the shared standard-math convention (-π/2 for
+		// horizontal = 12-o'clock, π for vertical = 9-o'clock) and the renderer
+		// converts it into its atan2(dx,-dy) clockwise-from-12 space with a +π/2
+		// shift. The reconstruction below uses that same clockwise-from-12 space,
+		// so apply the matching conversion here.
 		sweepRad := sweepAngle * math.Pi / 180.0
 		var refAngle float64
 		if orientation == OrientHorizontal {
@@ -2275,7 +2279,8 @@ func TestProperty23_ArcFillEndpoint(t *testing.T) {
 		} else {
 			refAngle = math.Pi
 		}
-		arcStart := refAngle - sweepRad/2.0
+		startOffset := refAngle + math.Pi/2.0
+		arcStart := startOffset - sweepRad/2.0
 
 		// The first filled pixel should be at arcStart (the left/bottom endpoint).
 		// Convert arcStart (clockwise from north) to screen coordinates:
@@ -2442,8 +2447,12 @@ func TestProperty25_VerticalGradientDirection(t *testing.T) {
 			// Fill starts from arcStart = the left endpoint of this bottom-centered sweep.
 			// This is the "bottom endpoint" per the design.
 
+			// geom.StartAngle for vertical Arc is π in the shared standard-math
+			// convention; the renderer converts it into its atan2(dx,-dy)
+			// clockwise-from-12 space with a +π/2 shift (→ 3π/2 = 9-o'clock,
+			// matching the vertical Ring). Apply the same conversion here.
 			sweepRad := cfgCopy.SweepAngle * math.Pi / 180.0
-			arcStartAngle := math.Pi - sweepRad/2.0
+			arcStartAngle := (math.Pi + math.Pi/2.0) - sweepRad/2.0
 			earlyAngle = arcStartAngle + 0.1*sweepRad // t=0.1 along the arc
 			lateAngle = arcStartAngle + 0.5*sweepRad  // t=0.5 along the arc
 		}

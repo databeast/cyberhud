@@ -22,8 +22,9 @@ func newCmdHandler() *cmdutil.CmdHandler {
 			{Name: "lines", Validate: cmdutil.IntValidator(1)},
 			{Name: "autoselect", Validate: cmdutil.BoolValidator()},
 			{Name: "scan_ms", Validate: cmdutil.IntValidator(1)},
-			{Name: "style", Validate: cmdutil.AllowedValidator(registeredStyleNames())},
-			{Name: "font", Validate: fontValidator},
+			{Name: "style", Validate: cmdutil.AllowedValidator(serialRegistry.RegisteredNames())},
+			{Name: "font", Validate: cmdutil.FontValidator()},
+			{Name: "raw", Validate: cmdutil.BoolValidator()},
 		},
 		PostApply: fitnessNotesPostApply,
 		Get:       getPolicyValue,
@@ -33,19 +34,21 @@ func newCmdHandler() *cmdutil.CmdHandler {
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "serial",
-		Title:   "Serial Monitor",
-		Scope:   "any",
-		Summary: "Live serial console monitor with auto-select and configurable port/baud.",
-		Order:   36,
+		ID:       "serial",
+		Title:    "Serial Monitor",
+		Category: "Data",
+		Scope:    "any",
+		Summary:  "Live serial console monitor with auto-select and configurable port/baud.",
+		Order:    36,
 		Options: []catalog.OptionDefinition{
 			{Key: "port", Type: "string", Summary: "Manual serial device path (disables auto-select when set).", Default: ""},
 			{Key: "baud", Type: "int", Summary: "Serial baud rate.", Default: "115200"},
 			{Key: "lines", Type: "int", Summary: "How many recent output lines to keep.", Default: "24"},
 			{Key: "autoselect", Type: "bool", Summary: "Auto-pick the best available USB serial port.", Default: "true", Allowed: []string{"true", "false"}},
 			{Key: "scan_ms", Type: "int", Summary: "Milliseconds between reconnect attempts.", Default: "500"},
-			{Key: "style", Type: "string", Summary: "Visual presentation style.", Default: "", Allowed: registeredStyleNames()},
+			{Key: "style", Type: "string", Summary: "Visual presentation style.", Default: "", Allowed: serialRegistry.RegisteredNames()},
 			{Key: "font", Type: "string", Summary: "Font selection (auto or a registered font ID).", Default: "auto"},
+			{Key: "raw", Type: "bool", Summary: "Show serial output bytes only, suppressing the connection/status chrome.", Default: "false", Allowed: []string{"true", "false"}},
 		},
 	})
 	catalog.RegisterCommand(catalog.CommandDefinition{
@@ -64,15 +67,6 @@ func portValidator(value string) string {
 	}
 	if strings.ContainsAny(v, " \t\n\r") {
 		return "must be empty or a path without whitespace"
-	}
-	return ""
-}
-
-// fontValidator accepts "auto" or any non-empty trimmed string.
-func fontValidator(value string) string {
-	v := strings.TrimSpace(value)
-	if v == "" {
-		return "must be \"auto\" or a non-empty font ID"
 	}
 	return ""
 }
@@ -98,6 +92,11 @@ func getPolicyValue(key string) string {
 		return p.Style
 	case "font":
 		return p.Font
+	case "raw":
+		if p.Raw {
+			return "true"
+		}
+		return "false"
 	default:
 		return ""
 	}
@@ -129,6 +128,10 @@ func applyPolicyValue(key, value string) {
 		p.Style = strings.ToLower(strings.TrimSpace(value))
 	case "font":
 		p.Font = strings.TrimSpace(value)
+	case "raw":
+		if v, ok := cmdutil.ParseBool(value); ok {
+			p.Raw = v
+		}
 	}
 	SetPolicy(p)
 }

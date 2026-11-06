@@ -37,6 +37,29 @@ type RegionDefinition struct {
 	Modes      []catalog.Definition
 }
 
+// RegionGeometry describes one region's placement within the virtual display, in
+// virtual-display pixel coordinates. X/Y are the top-left origin; W/H are the
+// dimensions.
+type RegionGeometry struct {
+	Index int
+	Name  string
+	X     int
+	Y     int
+	W     int
+	H     int
+}
+
+// Geometry is the placement of all regions within the overall virtual display.
+// VirtualW/VirtualH are the total virtual-display dimensions in pixels; Regions
+// lists each region's rectangle in those coordinates. Geometry is only available
+// once the State is bound to a live RegionManager; before binding, Regions is empty
+// and VirtualW/VirtualH are zero.
+type Geometry struct {
+	VirtualW int
+	VirtualH int
+	Regions  []RegionGeometry
+}
+
 type regionState struct {
 	name       string
 	controller string
@@ -293,6 +316,37 @@ func (s *State) Definitions() []RegionDefinition {
 			Controller: st.Controller,
 			Current:    st.Current,
 			Modes:      catalog.DescribeMany(st.Modes),
+		})
+	}
+	return out
+}
+
+// Geometry returns the virtual-display dimensions and each region's placement
+// rectangle, in virtual-display pixel coordinates. Geometry is sourced from the
+// live RegionManager; if the State is not yet bound to one, it returns a zero-value
+// Geometry (zero dimensions, no regions), because the pre-bind compatibility
+// snapshot carries no bounds.
+func (s *State) Geometry() Geometry {
+	rm := s.manager()
+	if rm == nil {
+		return Geometry{}
+	}
+	vb := rm.VirtualBounds()
+	regions := rm.Regions()
+	out := Geometry{
+		VirtualW: vb.Dx(),
+		VirtualH: vb.Dy(),
+		Regions:  make([]RegionGeometry, 0, len(regions)),
+	}
+	for i, r := range regions {
+		b := r.Bounds()
+		out.Regions = append(out.Regions, RegionGeometry{
+			Index: i,
+			Name:  r.Name(),
+			X:     b.Min.X,
+			Y:     b.Min.Y,
+			W:     b.Dx(),
+			H:     b.Dy(),
 		})
 	}
 	return out

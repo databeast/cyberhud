@@ -66,8 +66,9 @@ func (p Policy) ToMap() map[string]interface{} {
 	}
 }
 
-// defaultStyleName is the registry default style name.
-const defaultStyleName = "color-medium-240x240"
+// defaultStyleName is the registry default style name. It must match the first
+// style registered in the parent package's zmqRegistry.
+const defaultStyleName = "color-fast-240x240"
 
 // policyState holds the mutex-protected active policy.
 var policyState = struct {

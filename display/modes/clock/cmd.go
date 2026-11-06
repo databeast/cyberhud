@@ -27,7 +27,7 @@ type Handler struct{}
 var cmdHandler = &cmdutil.CmdHandler{
 	Verb: "clock",
 	Keys: []cmdutil.KeyDef{
-		{Name: "style", Validate: cmdutil.AllowedValidator(registeredStyleNames())},
+		{Name: "style", Validate: cmdutil.AllowedValidator(clockRegistry.RegisteredNames())},
 		{Name: "show_seconds", Validate: cmdutil.BoolValidator()},
 		{Name: "time_format", Validate: cmdutil.AllowedValidator(source.AllowedTimeFormats)},
 		{Name: "date_format", Validate: cmdutil.AllowedValidator(source.AllowedDateFormats)},
@@ -139,12 +139,13 @@ func HandleCommand(args []string) string {
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "clock",
-		Title:   "Clock",
-		Summary: "Current time, date, and weekday sized for secondary displays.",
-		Order:   60,
+		ID:       "clock",
+		Title:    "Clock",
+		Category: "Clock",
+		Summary:  "Current time, date, and weekday sized for secondary displays.",
+		Order:    60,
 		Options: append(source.Policy{}.Options(), []catalog.OptionDefinition{
-			{Key: "style", Type: "string", Summary: "Visual layout variant for time display.", Default: "", Allowed: registeredStyleNames()},
+			{Key: "style", Type: "string", Summary: "Visual layout variant for time display.", Default: "", Allowed: clockRegistry.RegisteredNames()},
 		}...),
 	})
 	catalog.RegisterCommand(catalog.CommandDefinition{

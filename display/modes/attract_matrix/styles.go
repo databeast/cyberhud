@@ -100,15 +100,6 @@ var matrixRegistry = style.NewRegistry[source.MatrixSnapshot, source.Policy](
 	matrixstyles.ColorStyle{Width: 128, Height: 128},
 )
 
-func registeredStyleNames() []string {
-	registered := matrixRegistry.Enumerate()
-	names := make([]string, len(registered))
-	for i, s := range registered {
-		names[i] = s.Name()
-	}
-	return names
-}
-
 func resolveBestStyleName(hints textlayout.TextHints) string {
 	s, _ := style.ResolveStyle(matrixRegistry, hints, "attract_matrix", "")
 	return s.Name()

@@ -172,42 +172,42 @@ var ColorSlow128x160MinimalStyle = def{
 }
 
 var ColorFast128x160Style = def{
-	name: "color-128x160",
+	name: "color-fast-128x160",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 160, Capability: style.ColorFast},
 }
 
 var ColorFast128x160ThermometerStyle = def{
-	name: "color-128x160-thermometer",
+	name: "color-fast-128x160-thermometer",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 160, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildPortraitThermometerStyle},
 }
 
 var ColorFast128x160SparkStyle = def{
-	name: "color-128x160-spark",
+	name: "color-fast-128x160-spark",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 160, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildPortraitSparkStyle},
 }
 
 var ColorFast128x160HeatmapStyle = def{
-	name: "color-128x160-heatmap",
+	name: "color-fast-128x160-heatmap",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 160, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildPortraitHeatmapStyle},
 }
 
 var ColorFast128x160LEDsStyle = def{
-	name: "color-128x160-leds",
+	name: "color-fast-128x160-leds",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 160, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildPortraitLEDsStyle},
 }
 
 var ColorFast128x160AvgThermoStyle = def{
-	name: "color-128x160-avg-thermo",
+	name: "color-fast-128x160-avg-thermo",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 160, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildPortraitAvgThermoStyle},
 }
 
 var ColorFast128x160MinimalStyle = def{
-	name: "color-128x160-minimal",
+	name: "color-fast-128x160-minimal",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 160, Capability: style.ColorFast},
 	p:    Params{BuildFn: buildMinimalStyle},
 }

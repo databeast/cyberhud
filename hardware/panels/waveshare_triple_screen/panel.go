@@ -77,32 +77,32 @@ func init() {
 
 	// Per-screen aliases (compound keys)
 	style.RegisterAliases("waveshare-triple-screen/main", map[string]string{
-		"dashboard": "color-240x240",
-		"clock":     "color-240x240",
+		"dashboard": "color-fast-240x240",
+		"clock":     "color-fast-240x240",
 		"thermal":   "overview",
-		"ticker":    "color-240x240",
-		"wifi":      "color-240x240",
-		"gpio":      "color-240x240",
-		"serial":    "color-240x240",
+		"ticker":    "color-fast-240x240",
+		"wifi":      "color-fast-240x240",
+		"gpio":      "color-fast-240x240",
+		"serial":    "color-fast-240x240",
 	})
 	style.RegisterAliases("waveshare-triple-screen/left-aux", map[string]string{
 		"stemma":  "compact",
-		"gpio":    "color-160x80",
+		"gpio":    "color-fast-160x80",
 		"thermal": "minimal",
-		"ticker":  "color-160x80",
-		"serial":  "color-160x80",
+		"ticker":  "color-fast-160x80",
+		"serial":  "color-fast-160x80",
 	})
 	style.RegisterAliases("waveshare-triple-screen/right-aux", map[string]string{
-		"gpio":    "color-160x80",
+		"gpio":    "color-fast-160x80",
 		"stemma":  "compact",
 		"thermal": "minimal",
-		"ticker":  "color-160x80",
-		"serial":  "color-160x80",
+		"ticker":  "color-fast-160x80",
+		"serial":  "color-fast-160x80",
 	})
 
 	// Parent-level fallback aliases
 	style.RegisterAliases("waveshare-triple-screen", map[string]string{
-		"clock":  "color-240x240",
-		"serial": "color-240x240",
+		"clock":  "color-fast-240x240",
+		"serial": "color-fast-240x240",
 	})
 }

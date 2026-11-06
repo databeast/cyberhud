@@ -12,6 +12,7 @@ import (
 	"github.com/databeast/cyberhud/display/modes/usb/source"
 	styles2 "github.com/databeast/cyberhud/display/modes/usb/styles"
 	"github.com/databeast/cyberhud/display/region"
+	"github.com/databeast/cyberhud/display/region/modehints"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/display/widgets/icons"
 
@@ -385,21 +386,10 @@ var usbRegistry = style.NewRegistry[source.Snapshot, source.Policy](
 	styles2.ColorFast800x480MinimalStyle,
 )
 
-// registeredStyleNames returns the list of style names from the registry.
-// Used by catalog registration and cmdHandler for allowed-value validation.
-func registeredStyleNames() []string {
-	styles := usbRegistry.Enumerate()
-	names := make([]string, len(styles))
-	for i, s := range styles {
-		names[i] = s.Name()
-	}
-	return names
-}
-
 // usbStyleNamePattern is the regex that all registered USB style names must match.
 // Format: <capability_prefix><WxH>[-<variant>]
 var usbStyleNamePattern = regexp.MustCompile(
-	`^(mono-slow-|mono-fast-|mono-|grayscale-slow-|grayscale-fast-|color-slow-|color-fast-|color-)\d+x\d+(-[a-z0-9-]+)?$`,
+	`^(mono-fast-|mono-slow-|grayscale-fast-|grayscale-slow-|color-fast-|color-slow-)\d+x\d+(-[a-z0-9-]+)?$`,
 )
 
 func init() {
@@ -412,16 +402,17 @@ func init() {
 
 func init() {
 	catalog.Register(catalog.Definition{
-		ID:      "usb",
-		Title:   "USB Bench",
-		Scope:   "any",
-		Summary: "Highlights the most recently connected USB device for bench identification.",
-		Order:   35,
+		ID:       "usb",
+		Title:    "USB Bench",
+		Category: "System",
+		Scope:    "any",
+		Summary:  "Highlights the most recently connected USB device for bench identification.",
+		Order:    35,
 		Options: []catalog.OptionDefinition{
 			{Key: "poll_ms", Type: "int", Summary: "Milliseconds between fallback polling scans.", Default: "500"},
 			{Key: "hold_unplugged_ms", Type: "int", Summary: "How long to keep a disconnected device visible (0 keeps indefinitely).", Default: "0"},
 			{Key: "hide_root_hubs", Type: "bool", Summary: "Hide USB root hubs from bench identification results.", Default: "true", Allowed: []string{"true", "false"}},
-			{Key: "style", Type: "string", Summary: "Visual presentation style.", Default: "", Allowed: registeredStyleNames()},
+			{Key: "style", Type: "string", Summary: "Visual presentation style.", Default: "", Allowed: usbRegistry.RegisteredNames()},
 		},
 	})
 	catalog.RegisterCommand(catalog.CommandDefinition{
@@ -479,7 +470,7 @@ func BuildView() style.ViewData {
 	snap := SnapshotNow()
 	p := PolicySnapshot()
 	p = normalizePolicy(p)
-	hints, ok := getPanelHints()
+	hints, ok := modehints.Current()
 	if !ok {
 		return style.ViewData{Items: []string{"error"}}
 	}
@@ -492,7 +483,7 @@ func BuildView() style.ViewData {
 	}
 	vd := s.Build(snap, p, ctx)
 
-	vd.StyleReport = style.StyleReport{Name: s.Name(), Reason: reason}
+	vd.StyleReport = style.ReportFor(s, reason, hints)
 	vd.Static = true
 	return vd
 }

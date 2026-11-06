@@ -2,8 +2,6 @@ package source
 
 import (
 	"sync"
-
-	"github.com/databeast/cyberhud/display/style"
 )
 
 // scrollState tracks the smooth-scroll position and velocity for fast displays.
@@ -90,73 +88,64 @@ func (s *ScrollState) OffsetPx() int {
 	return s.offsetPx
 }
 
-// renderSmoothScroll produces a ViewData representing the visible window of
-// text lines given the current scroll state, buffer snapshot, and layout.
+// ScrollFrame resolves the visible window of text lines for the current scroll
+// state, returning the already-truncated lines and the sub-line pixel offset.
 //
-// The function selects which lines are visible based on offsetPx and rowHeight,
-// and sets OffsetY to the negative sub-line pixel offset so the renderer
-// positions text with sub-pixel vertical scrolling.
-//
-// This is a standalone rendering function — it does NOT modify BuildView
-// directly. Task 13.1 handles BuildView wiring.
-func RenderSmoothScroll(scroll *ScrollState, lines []string, layout Layout) style.ViewData {
+// It selects which lines are visible from offsetPx and rowHeight, truncates each
+// to the column budget, and returns the negative sub-line offset so the frame
+// scrolls content upward. This is pure frame resolution — it produces data for a
+// style to place, not a ViewData. Returns (nil, 0) when there is nothing to show.
+func ScrollFrame(scroll *ScrollState, lines []string, layout Layout) (visible []string, offsetY int) {
 	if layout.RowHeight <= 0 || layout.VisibleRows <= 0 || len(lines) == 0 {
-		return style.ViewData{
-			Items:  []string{},
-			Static: true,
-		}
+		return nil, 0
 	}
 
 	scroll.mu.Lock()
 	offsetPx := scroll.offsetPx
 	scroll.mu.Unlock()
 
-	// Determine how many full lines have been scrolled past.
-	linesScrolled := 0
-	if layout.RowHeight > 0 {
-		linesScrolled = offsetPx / layout.RowHeight
-	}
-
-	// Sub-line pixel offset within the top visible line.
+	// Full lines scrolled past, and the sub-line offset within the top line.
+	linesScrolled := offsetPx / layout.RowHeight
 	subOffset := offsetPx % layout.RowHeight
 
-	// We need visibleRows + 1 lines to account for the partially visible
-	// top line being scrolled out and the partially visible bottom line
-	// being scrolled in.
+	// One extra line beyond the visible count covers the partially-scrolled top
+	// and bottom rows.
 	needLines := layout.VisibleRows + 1
 
-	// Calculate the start index into the buffer.
 	startIdx := linesScrolled
 	if startIdx >= len(lines) {
-		// We've scrolled past all content — show empty.
-		return style.ViewData{
-			Items:  []string{},
-			Static: true,
-		}
+		// Scrolled past all content.
+		return nil, 0
 	}
-
-	// Calculate the end index.
 	endIdx := startIdx + needLines
 	if endIdx > len(lines) {
 		endIdx = len(lines)
 	}
 
-	// Extract the visible slice.
-	visible := make([]string, endIdx-startIdx)
+	visible = make([]string, endIdx-startIdx)
 	copy(visible, lines[startIdx:endIdx])
 
-	// Truncate lines to VisibleColumns if layout provides it.
 	if layout.VisibleColumns > 0 {
 		for i, line := range visible {
-			if len(line) > layout.VisibleColumns {
-				visible[i] = line[:layout.VisibleColumns]
-			}
+			visible[i] = truncateCols(line, layout.VisibleColumns)
 		}
 	}
 
-	return style.ViewData{
-		Items:   visible,
-		OffsetY: -subOffset, // negative offset scrolls content upward
-		Static:  false,
+	return visible, -subOffset
+}
+
+// truncateCols trims a line to at most cols runes, counting runes so multi-byte
+// content is not split mid-codepoint.
+func truncateCols(s string, cols int) string {
+	if cols <= 0 {
+		return ""
 	}
+	n := 0
+	for i := range s {
+		if n == cols {
+			return s[:i]
+		}
+		n++
+	}
+	return s
 }

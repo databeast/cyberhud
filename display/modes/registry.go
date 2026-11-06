@@ -32,6 +32,16 @@ func LogStyleSelection(regionName string, modeID string, report style.StyleRepor
 
 	log.Printf("style: region=%s mode=%s style=%s reason=%s",
 		regionName, modeID, report.Name, report.Reason)
+
+	// Lever 2: surface the capability-utilization gap. When the chosen style sits
+	// below the panel's tier, the panel is being driven with less than it can show
+	// — the condition that was previously invisible. Emit a WARN so an
+	// under-driven surface (a color panel running a mono-only mode like menu, or a
+	// mode with no style at the panel's tier) is observable without a debugger.
+	if report.CapGap() > 0 {
+		log.Printf("style: region=%s mode=%s UNDER-UTILIZES panel: panel=%s style uses %s (gap=%d tier(s))",
+			regionName, modeID, report.PanelCap, report.StyleCap, report.CapGap())
+	}
 }
 
 // Warnings holds hardware pin notices or other warnings that modes like stemma

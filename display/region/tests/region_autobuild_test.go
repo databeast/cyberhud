@@ -6,7 +6,7 @@ import (
 
 	"github.com/databeast/cyberhud/display/region"
 	"github.com/databeast/cyberhud/display/surface"
-	"github.com/databeast/cyberhud/display/surface/fonts"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 )
 
