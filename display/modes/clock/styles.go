@@ -30,12 +30,13 @@ var clockRegistry = func() *style.StyleRegistry[source.ClockData, source.Policy]
 		styles.MonoSlow480x320Style,
 		styles.MonoSlow800x480Style,
 
-		// MonoFast — existing mono (5)
+		// MonoFast — existing mono (5) + 400x240 skeleton
 		styles.MonoSmall128x32Style,
 		styles.MonoSmall128x64Style,
 		styles.MonoSmall128x128Style,
 		styles.MonoSmall32x128Style,
 		styles.MonoSmall64x128Style,
+		styles.MonoSmall400x240Style,
 
 		// GrayscaleSlow — all skeletons (29)
 		styles.GrayscaleSlow32x128Style,
@@ -68,7 +69,10 @@ var clockRegistry = func() *style.StyleRegistry[source.ClockData, source.Policy]
 		styles.GrayscaleSlow480x800Style,
 		styles.GrayscaleSlow800x480Style,
 
-		// GrayscaleFast (14 existing)
+		// GrayscaleFast (14 existing) + LED-matrix and 128x64 skeletons
+		styles.GrayscaleFast15x7Style,
+		styles.GrayscaleFast16x8Style,
+		styles.GrayscaleFast128x64Style,
 		styles.GrayscaleFast80x160Style,
 		styles.GrayscaleFast128x128Style,
 		styles.GrayscaleFast128x160Style,
@@ -115,7 +119,8 @@ var clockRegistry = func() *style.StyleRegistry[source.ClockData, source.Policy]
 		styles.ColorSlow480x800Style,
 		styles.ColorSlow800x480Style,
 
-		// ColorFast — existing color (14)
+		// ColorFast — existing color (14) + 13x9 LED-matrix skeleton
+		styles.ColorSmall13x9Style,
 		styles.ColorSmall80x160Style,
 		styles.ColorSmall128x128Style,
 		styles.ColorSmall128x160Style,

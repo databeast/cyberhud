@@ -36,6 +36,12 @@ var GrayscaleSlow128x64Style = styleDef{
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 64, Capability: style.GrayscaleSlow},
 }
 
+var GrayscaleFast128x64Style = styleDef{
+	name: "grayscale-fast-128x64",
+	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 64, Capability: style.GrayscaleFast},
+	p:    Params{Fast: true},
+}
+
 var GrayscaleSlow64x128Style = styleDef{
 	name: "grayscale-slow-64x128",
 	reqs: style.SurfaceRequirements{MinWidth: 64, MinHeight: 128, Capability: style.GrayscaleSlow},

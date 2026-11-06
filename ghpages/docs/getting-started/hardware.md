@@ -43,6 +43,21 @@ Panels with `InputPins` defined provide physical controls for on-device navigati
 | `waveshare-1.44` | Key1, Key2, Key3 | Up, Down, Left, Right, Press |
 | `waveshare-triple-screen` | Key1, Key2 | — |
 
+## Planned / Future Hardware Support
+
+The following panels are confirmed targets but are **not yet implemented** — they are listed here for planning only and cannot be selected with `-panel` today. They are all 6-colour "Spectra 6 / E6" ACeP e-paper Pi HATs, which need a new palette-quantizing e-paper driver (mapping full-colour frames to the six fixed inks — black, white, red, green, blue, yellow — with dithering) that does not exist in the panel registry yet.
+
+| Device | Form factor | Resolution | PPI | SKU | Status |
+|--------|-------------|------------|-----|-----|--------|
+| Pimoroni Inky Impression 4.0" | Pi HAT | 640 × 400 | 180 | PIM789 | planned |
+| Pimoroni Inky Impression 7.3" | Pi HAT | 800 × 480 | 127 | PIM773 | planned |
+| Pimoroni Inky Impression 13.3" | Pi HAT | 1600 × 1200 | 150 | PIM774 | planned |
+| Waveshare 3.6" E6 HAT+ | Pi HAT | 640 × 400 | — | — | planned |
+| Waveshare 4" E6 HAT+ | Pi HAT | 640 × 400 | — | — | planned |
+| Waveshare 13.3" E6 HAT+ | Pi HAT | 1600 × 1200 | — | — | planned |
+
+These are tracked for a future Spectra 6 driver milestone. Until that lands, there is no panel ID for them and the daemon cannot drive them.
+
 ## Hardware Identification Commands
 
 Use the `cyberhudctl` CLI to discover and identify hardware:

@@ -256,6 +256,7 @@ var geometricRegistry = func() *style.StyleRegistry[source.GeometricFrame, sourc
 		GeometricGrayscaleSlowStyle{Width: 300, Height: 400},
 
 		// GrayscaleFast (grayscale LED matrix)
+		GeometricGrayscaleFastStyle{Width: 15, Height: 7},
 		GeometricGrayscaleFastStyle{Width: 16, Height: 8},
 		GeometricGrayscaleFastStyle{Width: 8, Height: 16},
 		GeometricGrayscaleFastStyle{Width: 160, Height: 80},
@@ -289,6 +290,7 @@ var geometricRegistry = func() *style.StyleRegistry[source.GeometricFrame, sourc
 		GeometricColorSlowStyle{Width: 300, Height: 400},
 
 		// ColorFast (color TFT)
+		GeometricColorFastStyle{Width: 13, Height: 9},
 		GeometricColorFastStyle{Width: 16, Height: 8},
 		GeometricColorFastStyle{Width: 8, Height: 16},
 		GeometricColorFastStyle{Width: 160, Height: 80},

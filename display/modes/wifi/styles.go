@@ -122,6 +122,8 @@ var wifiRegistry = func() *style.StyleRegistry[source.WifiData, source.Policy] {
 		styles.GrayscaleFast800x480Style,
 		styles.GrayscaleFast480x800Style,
 		styles.GrayscaleFast800x600Style,
+		styles.GrayscaleFast15x7Style,
+		styles.GrayscaleFast16x8Style,
 
 		// ─── ColorSlow (color e-paper) ────────────────────────────────────
 		styles.ColorSlow128x32Style,
@@ -176,6 +178,7 @@ var wifiRegistry = func() *style.StyleRegistry[source.WifiData, source.Policy] {
 		styles.ColorFast800x480Style,
 		styles.ColorFast480x800Style,
 		styles.ColorFast800x600Style,
+		styles.ColorFast13x9Style,
 	)
 
 	return r

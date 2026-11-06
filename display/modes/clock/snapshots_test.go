@@ -294,12 +294,12 @@ func TestPolicyHelperValues(t *testing.T) {
 	}
 }
 
-// TestStyleCountGuard verifies that the clock registry contains exactly 108 styles,
+// TestStyleCountGuard verifies that the clock registry contains exactly 113 styles,
 // ensuring the test suite's count guard assertion remains valid.
 
 func TestStyleCountGuard(t *testing.T) {
 	styles := clockRegistry.Enumerate()
-	if len(styles) != 108 {
-		t.Fatalf("clockRegistry.Enumerate() returned %d styles, want 108", len(styles))
+	if len(styles) != 113 {
+		t.Fatalf("clockRegistry.Enumerate() returned %d styles, want 113", len(styles))
 	}
 }

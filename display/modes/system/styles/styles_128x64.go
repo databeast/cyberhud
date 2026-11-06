@@ -65,6 +65,11 @@ var GrayscaleSlow128x64TopStyle = def{
 	p:    Params{BuildFn: buildTopStyle},
 }
 
+var GrayscaleFast128x64Style = def{
+	name: "grayscale-fast-128x64",
+	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 64, Capability: style.GrayscaleFast},
+}
+
 var ColorSlow128x64Style = def{
 	name: "color-slow-128x64",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 64, Capability: style.ColorSlow},

@@ -63,6 +63,7 @@ var shapesRegistry = func() *style.StyleRegistry[source.Snapshot, source.Policy]
 		styles.GrayscaleSlowStyle{Width: 300, Height: 400},
 
 		// GrayscaleFast (grayscale LED matrix)
+		styles.GrayscaleFastStyle{Width: 15, Height: 7},
 		styles.GrayscaleFastStyle{Width: 16, Height: 8},
 		styles.GrayscaleFastStyle{Width: 8, Height: 16},
 		styles.GrayscaleFastStyle{Width: 160, Height: 80},
@@ -96,6 +97,7 @@ var shapesRegistry = func() *style.StyleRegistry[source.Snapshot, source.Policy]
 		styles.ColorSlowStyle{Width: 300, Height: 400},
 
 		// ColorFast (color TFT)
+		styles.ColorFastStyle{Width: 13, Height: 9},
 		styles.ColorFastStyle{Width: 16, Height: 8},
 		styles.ColorFastStyle{Width: 8, Height: 16},
 		styles.ColorFastStyle{Width: 160, Height: 80},

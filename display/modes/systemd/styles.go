@@ -127,6 +127,8 @@ var systemdRegistry = func() *style.StyleRegistry[source.Snapshot, source.Policy
 		styles.GrayscaleFast296x128Style,
 		styles.GrayscaleFast300x400Style,
 		styles.GrayscaleFast400x300Style,
+		styles.GrayscaleFast15x7Style,
+		styles.GrayscaleFast16x8Style,
 		// ColorSlow
 		styles.ColorSlow128x32Style,
 		styles.ColorSlow128x64Style,
@@ -185,6 +187,7 @@ var systemdRegistry = func() *style.StyleRegistry[source.Snapshot, source.Policy
 		styles.ColorFast296x128Style,
 		styles.ColorFast300x400Style,
 		styles.ColorFast400x300Style,
+		styles.ColorFast13x9Style,
 	)
 
 	return r

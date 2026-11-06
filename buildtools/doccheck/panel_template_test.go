@@ -34,6 +34,8 @@ func TestPanelPageTemplate(t *testing.T) {
 		"waveshare-1.44":          true,
 		"waveshare-triple-screen": true,
 		"adafruit-2.13-ssd1680":   true,
+		"adafruit-1.3-tft-bonnet": true,
+		"adafruit-128x64-oled-bonnet": true,
 	}
 
 	// Track which panels have already been validated (for grouped panels

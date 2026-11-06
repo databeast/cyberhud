@@ -62,6 +62,9 @@ var tickerRegistry = style.NewRegistry[source.TickerSnapshot, source.Policy](
 	styles.TickerGrayscaleFast320x480Style,
 	styles.TickerGrayscaleFast480x800Style,
 	styles.TickerGrayscaleFast128x128Style,
+	styles.TickerGrayscaleFast128x64Style,
+	styles.TickerGrayscaleFast15x7Style,
+	styles.TickerGrayscaleFast16x8Style,
 
 	// ColorSlow (color e-paper)
 	styles.TickerColorSlow122x250Style,
@@ -93,6 +96,7 @@ var tickerRegistry = style.NewRegistry[source.TickerSnapshot, source.Policy](
 	styles.TickerColorFast80x160Style,
 	styles.TickerColorFast128x160Style,
 	styles.TickerColorFast135x240Style,
+	styles.TickerColorFast13x9Style,
 
 	// MonoSlow polished (9-step pipeline)
 	styles.MonoSlow800x480Style,

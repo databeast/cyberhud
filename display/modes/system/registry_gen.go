@@ -121,6 +121,10 @@ var systemRegistry = style.NewRegistry[source.SystemSnapshot, source.Policy](
 	styles.MonoFast128x64CompactStyle,
 	styles.MonoFast128x64CoresStyle,
 	styles.MonoFast128x64TopStyle,
+	// 168x144 (landscape)
+	styles.MonoFast168x144Style,
+	// 400x240 (landscape)
+	styles.MonoFast400x240Style,
 	//  GrayscaleSlow
 	// 32x128 (tiny)
 	styles.GrayscaleSlow32x128Style,
@@ -369,6 +373,12 @@ var systemRegistry = style.NewRegistry[source.SystemSnapshot, source.Policy](
 	styles.GrayscaleFast800x480CompactStyle,
 	styles.GrayscaleFast800x480CoresStyle,
 	styles.GrayscaleFast800x480TopStyle,
+	// 15x7 (LED matrix)
+	styles.GrayscaleFast15x7Style,
+	// 16x8 (LED matrix)
+	styles.GrayscaleFast16x8Style,
+	// 128x64 (landscape)
+	styles.GrayscaleFast128x64Style,
 	//  ColorSlow
 	// 32x128 (tiny)
 	styles.ColorSlow32x128Style,
@@ -623,4 +633,6 @@ var systemRegistry = style.NewRegistry[source.SystemSnapshot, source.Policy](
 	styles.ColorFast800x480CompactStyle,
 	styles.ColorFast800x480CoresStyle,
 	styles.ColorFast800x480TopStyle,
+	// 13x9 (LED matrix)
+	styles.ColorFast13x9Style,
 )

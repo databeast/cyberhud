@@ -934,3 +934,21 @@ var MonoSlow480x320Style = def{
 // (mono-slow-480x800 and mono-slow-800x480 are defined above via the renamed
 // slow-panel styles that carry the real suppression params / poster builder;
 // the earlier empty-skeleton duplicates were removed.)
+
+// LED matrix panels (skeleton only).
+
+var GrayscaleFast15x7Style = def{
+	name: "grayscale-fast-15x7",
+	reqs: style.SurfaceRequirements{MinWidth: 15, MinHeight: 7, Capability: style.GrayscaleFast},
+}
+
+var GrayscaleFast16x8Style = def{
+	name: "grayscale-fast-16x8",
+	reqs: style.SurfaceRequirements{MinWidth: 16, MinHeight: 8, Capability: style.GrayscaleFast},
+}
+
+var ColorFast13x9Style = def{
+	name: "color-fast-13x9",
+	reqs: style.SurfaceRequirements{MinWidth: 13, MinHeight: 9, Capability: style.ColorFast},
+	p:    Params{ColorText: true},
+}
