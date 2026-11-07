@@ -10,6 +10,11 @@ export interface VersionEntry {
  */
 export const versionHistory: VersionEntry[] = [
     {
+        version: "0.2.1",
+        date: "November 2026",
+        summary: "Adds additional display modes and display panel profiles.",
+    },
+    {
         version: "0.1.0",
         date: "August 2026",
         summary: "First public release of CyberHUD.",

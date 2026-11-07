@@ -8,7 +8,7 @@
  */
 import {describe, expect, it} from 'vitest';
 import {features} from '../../src/data/features';
-import {supportedPanels} from '../../src/data/hardware';
+import {supportedControllerFamilies} from '../../src/data/hardware';
 import {siteConfig} from '../../src/data/navigation';
 import {existsSync, readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
@@ -20,8 +20,8 @@ describe('Component data snapshots', () => {
         expect(features).toMatchSnapshot();
     });
 
-    it('hardware panels data snapshot matches expected structure', () => {
-        expect(supportedPanels).toMatchSnapshot();
+    it('hardware controller family data snapshot matches expected structure', () => {
+        expect(supportedControllerFamilies).toMatchSnapshot();
     });
 
     it('site config data snapshot matches expected structure', () => {
@@ -92,6 +92,9 @@ describe('Built HTML structure verification', () => {
 
         // Features section landmark
         expect(html).toContain('id="features"');
+        expect(html).toContain('standalone daemon with no external dependencies');
+        expect(html).toContain('Raspberry Pi HATs and Bonnets');
+        expect(html).toContain('Many modes accept custom or external data');
     });
 
     it.skipIf(!htmlExists)('contains HardwareSection grouped by chipset family', () => {
@@ -100,20 +103,18 @@ describe('Built HTML structure verification', () => {
         // Every distinct chipset family and controller should be represented,
         // rather than every individual product (visitors already know their
         // own hardware's specs; what matters is whether their chip is supported).
-        const families = [...new Set(supportedPanels.map((p) => p.family))];
-        const controllers = [...new Set(supportedPanels.flatMap((p) => p.controller.split(' + ')))];
-        for (const family of families) {
-            expect(html).toContain(family);
-        }
-        for (const controller of controllers) {
-            expect(html).toContain(controller);
+        for (const group of supportedControllerFamilies) {
+            expect(html).toContain(group.family);
+            for (const controller of group.controllers) {
+                expect(html).toContain(controller);
+            }
         }
 
         // Hardware section landmark
         expect(html).toContain('id="hardware"');
 
-        // Generic panel override / fallback statement
-        expect(html).toContain('automatic fallback if the primary panel fails to init');
+        // Generic panel setup
+        expect(html).toContain('generic configuration');
 
         // No-code value proposition should be present
         expect(html).toContain('no code required');

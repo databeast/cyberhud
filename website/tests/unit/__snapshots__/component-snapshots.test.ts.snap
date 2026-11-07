@@ -21,8 +21,11 @@ exports[`Built HTML structure verification > snapshot of complete built HTML str
   "<h3 class="chipset-card__name" data-astro-cid-ow7xn3rr>",
   "<h3 class="chipset-card__name" data-astro-cid-ow7xn3rr>",
   "<h3 class="chipset-card__name" data-astro-cid-ow7xn3rr>",
+  "<h3 class="chipset-card__name" data-astro-cid-ow7xn3rr>",
   "<section class="bottom-cta" aria-labelledby="cta-heading" data-astro-cid-esi4ugl2>",
   "<h2 id="cta-heading" class="cta-heading" data-astro-cid-esi4ugl2>",
+  "<section id="version-history" class="version-history" aria-label="Version history" data-astro-cid-kbm6zxwt>",
+  "<h2 class="version-history__heading" data-astro-cid-kbm6zxwt>",
   "<footer role="contentinfo" data-astro-cid-pgtvljfo>",
   "<nav class="footer-links" aria-label="Footer navigation" data-astro-cid-jo6i4kqk>",
 ]
@@ -31,7 +34,7 @@ exports[`Built HTML structure verification > snapshot of complete built HTML str
 exports[`Component data snapshots > features data snapshot matches expected structure 1`] = `
 [
   {
-    "description": "Run dashboard, GPIO/I2C monitors, system stats, clock, and more — independently on up to 3 panels.",
+    "description": "Run dashboards, GPIO/I2C monitors, system stats, clocks, and more — independently across multiple panels.",
     "id": "multi-display",
     "mediaAlt": "Three SPI displays showing different HUD content driven by one Raspberry Pi",
     "mediaHeight": 400,
@@ -40,16 +43,16 @@ exports[`Component data snapshots > features data snapshot matches expected stru
     "title": "Multi-Display, Many Modes",
   },
   {
-    "description": "Animated bokeh, particles, plasma, and starfield modes for passive displays with no input needed.",
+    "description": "A rotating cube is one of many attract modes—including bokeh, particles, plasma, and starfields—for passive displays.",
     "id": "attract-modes",
-    "mediaAlt": "Animated bokeh attract mode running on a small SPI display panel",
+    "mediaAlt": "A glowing cyan and magenta wireframe cube spinning on a dark display",
     "mediaHeight": 400,
     "mediaSrc": "/images/features/attract-modes.svg",
     "mediaWidth": 600,
     "title": "Ambient Attract Modes",
   },
   {
-    "description": "Switch modes, push text, check status, and freeze the config to disk — all via cyberhudctl or a socket.",
+    "description": "Switch modes, push text, check status, and freeze the config to disk — via cyberhudctl, the web UI, or a socket.",
     "id": "runtime-control",
     "mediaAlt": "Terminal showing cyberhudctl commands controlling display modes in real time",
     "mediaHeight": 400,
@@ -58,158 +61,68 @@ exports[`Component data snapshots > features data snapshot matches expected stru
     "title": "Live Runtime Control",
   },
   {
-    "description": "Adafruit and Waveshare panels do nothing until coded. CyberHUD drives any panel on a supported chipset out of the box.",
+    "description": "Ready-made profiles for common panels; generic configs support compatible displays across 20 controller drivers.",
     "id": "hardware-compatibility",
     "mediaAlt": "Raspberry Pi connected to multiple SPI display panels of different sizes",
     "mediaHeight": 400,
     "mediaSrc": "/images/features/hardware-compat.svg",
     "mediaWidth": 600,
-    "title": "No-Code Hardware Support",
+    "title": "Broad Display Support",
   },
 ]
 `;
 
-exports[`Component data snapshots > hardware panels data snapshot matches expected structure 1`] = `
+exports[`Component data snapshots > hardware controller family data snapshot matches expected structure 1`] = `
 [
   {
-    "controller": "ST7789",
-    "description": "240x240 ST7789 with buttons and joystick",
+    "controllers": [
+      "GC9A01A",
+      "ILI9341",
+      "ILI9486",
+      "ST7735S",
+      "ST7789",
+    ],
     "family": "Color LCD",
-    "name": "Waveshare 1.3" LCD HAT",
-    "resolution": {
-      "height": 240,
-      "width": 240,
-    },
+    "note": "SPI TFT panels, from compact 128x128 displays to 480x320 screens.",
   },
   {
-    "controller": "ST7735S",
-    "description": "128x128 ST7735S with three buttons and joystick",
-    "family": "Color LCD",
-    "name": "Waveshare 1.44" LCD HAT",
-    "resolution": {
-      "height": 128,
-      "width": 128,
-    },
+    "controllers": [
+      "SH1106",
+      "SSD1305",
+      "SSD1306",
+      "SSD1325",
+      "SSD1351",
+    ],
+    "family": "OLED",
+    "note": "Monochrome, grayscale, and full-color OLEDs over SPI or I2C.",
   },
   {
-    "controller": "ST7789",
-    "description": "320x240 ST7789 without onboard inputs",
-    "family": "Color LCD",
-    "name": "Waveshare 2.2" SPI Display",
-    "resolution": {
-      "height": 240,
-      "width": 320,
-    },
-  },
-  {
-    "controller": "ST7789 + ST7735S",
-    "description": "Main 1.3" ST7789 (240x240) + dual 0.96" ST7735S (160x80)",
-    "family": "Color LCD",
-    "name": "Waveshare Triple Screen HAT",
-    "resolution": {
-      "height": 240,
-      "width": 240,
-    },
-  },
-  {
-    "controller": "SH1106",
-    "description": "128x64 monochrome OLED with three buttons and D-pad",
-    "family": "Monochrome OLED",
-    "name": "Waveshare 1.3" OLED HAT",
-    "resolution": {
-      "height": 64,
-      "width": 128,
-    },
-  },
-  {
-    "controller": "SSD1305",
-    "description": "128x32 monochrome OLED via I2C",
-    "family": "Monochrome OLED",
-    "name": "Waveshare 2.23" OLED HAT (I2C)",
-    "resolution": {
-      "height": 32,
-      "width": 128,
-    },
-  },
-  {
-    "controller": "SSD1305",
-    "description": "128x32 monochrome OLED via SPI",
-    "family": "Monochrome OLED",
-    "name": "Waveshare 2.23" OLED HAT (SPI)",
-    "resolution": {
-      "height": 32,
-      "width": 128,
-    },
-  },
-  {
-    "controller": "ST7789",
-    "description": "Generic SPI panel without input controls",
-    "family": "Color LCD",
-    "name": "Generic ST7789 240x135",
-    "resolution": {
-      "height": 135,
-      "width": 240,
-    },
-  },
-  {
-    "controller": "ST7789",
-    "description": "Generic SPI panel without input controls",
-    "family": "Color LCD",
-    "name": "Generic ST7789 240x240",
-    "resolution": {
-      "height": 240,
-      "width": 240,
-    },
-  },
-  {
-    "controller": "ST7789",
-    "description": "Generic SPI panel without input controls",
-    "family": "Color LCD",
-    "name": "Generic ST7789 320x240",
-    "resolution": {
-      "height": 240,
-      "width": 320,
-    },
-  },
-  {
-    "controller": "SSD1680",
-    "description": "Monochrome E-Ink in landscape mode with two buttons",
+    "controllers": [
+      "EPD4in26",
+      "SSD1680",
+      "SSD1681",
+      "SSD1681 tri-color",
+      "UC8179",
+    ],
     "family": "E-Ink",
-    "name": "Adafruit 2.13" E-Ink Bonnet",
-    "resolution": {
-      "height": 122,
-      "width": 250,
-    },
+    "note": "Monochrome and tri-color e-paper, from compact panels to large dashboards.",
   },
   {
-    "controller": "SSD1680",
-    "description": "E-Ink with two-button menu mapping",
-    "family": "E-Ink",
-    "name": "Adafruit 2.13" E-Ink Bonnet (2-btn)",
-    "resolution": {
-      "height": 122,
-      "width": 250,
-    },
-  },
-  {
-    "controller": "IS31FL3731",
-    "description": "LED matrix via I2C",
+    "controllers": [
+      "HT16K33",
+      "IS31FL3731",
+      "IS31FL3741",
+      "MAX7219",
+    ],
     "family": "LED Matrix",
-    "name": "Adafruit 15x7 CharliePlex FeatherWing",
-    "resolution": {
-      "height": 7,
-      "width": 15,
-    },
+    "note": "I2C and SPI LED matrices, including monochrome and RGB displays.",
   },
   {
-    "controller": "IS31FL3731",
-    "description": "Green LED matrix bonnet via I2C",
-    "family": "LED Matrix",
-    "name": "Adafruit 8x16 CharliePlex Bonnet",
-    "resolution": {
-      "height": 8,
-      "width": 16,
-    },
+    "controllers": [
+      "Sharp Memory LCD",
+    ],
+    "family": "Memory LCD",
+    "note": "Reflective, low-power Sharp memory displays with fast updates.",
   },
 ]
 `;

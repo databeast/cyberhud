@@ -7,7 +7,7 @@
  */
 import {describe, expect, it} from 'vitest';
 import {features} from '../../src/data/features';
-import {supportedPanels} from '../../src/data/hardware';
+import {supportedControllerFamilies} from '../../src/data/hardware';
 import {siteConfig} from '../../src/data/navigation';
 
 describe('Feature data validation', () => {
@@ -110,16 +110,39 @@ describe('Navigation links validation', () => {
 });
 
 describe('Hardware data validation', () => {
-    it('has at least 3 supported panels', () => {
-        expect(supportedPanels.length).toBeGreaterThanOrEqual(3);
+    it('lists every supported display controller', () => {
+        const controllers = supportedControllerFamilies.flatMap((family) => family.controllers);
+        expect(controllers).toHaveLength(20);
+        expect(new Set(controllers).size).toBe(controllers.length);
+        expect(controllers).toEqual(expect.arrayContaining([
+            'EPD4in26',
+            'GC9A01A',
+            'HT16K33',
+            'ILI9341',
+            'ILI9486',
+            'IS31FL3731',
+            'IS31FL3741',
+            'MAX7219',
+            'SH1106',
+            'Sharp Memory LCD',
+            'SSD1305',
+            'SSD1306',
+            'SSD1325',
+            'SSD1351',
+            'SSD1680',
+            'SSD1681',
+            'SSD1681 tri-color',
+            'ST7735S',
+            'ST7789',
+            'UC8179',
+        ]));
     });
 
-    it('all panels have required fields', () => {
-        for (const panel of supportedPanels) {
-            expect(panel.name).toBeTruthy();
-            expect(panel.controller).toBeTruthy();
-            expect(panel.resolution.width).toBeGreaterThan(0);
-            expect(panel.resolution.height).toBeGreaterThan(0);
+    it('all controller families have a description and controllers', () => {
+        for (const family of supportedControllerFamilies) {
+            expect(family.family).toBeTruthy();
+            expect(family.note).toBeTruthy();
+            expect(family.controllers.length).toBeGreaterThan(0);
         }
     });
 });
