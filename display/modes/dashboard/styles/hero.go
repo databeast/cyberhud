@@ -146,6 +146,7 @@ func buildColorHero(data source.DashboardContent, pol source.Policy, ctx style.S
 	sprites = append(sprites, placeHealth(ctx, data.Health, gutter, bandTop, bandBottom, (ox+cw)-gutter, accent)...)
 
 	return style.ViewData{
+		PaddingPct: 4,
 		Sprites: sprites,
 		Static:  false, // heartbeat animates
 		Cursor:  -1,

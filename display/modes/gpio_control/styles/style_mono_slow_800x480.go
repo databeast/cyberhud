@@ -157,6 +157,7 @@ func monoSlow800x480Build(snap source.Data, _ source.Policy, ctx style.StyleCont
 	}
 
 	return style.ViewData{
+		PaddingPct: 2,
 		Items:       items,
 		Tiers:       tiers,
 		LineOffsets: offsets,

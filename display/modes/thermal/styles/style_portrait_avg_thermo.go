@@ -51,6 +51,7 @@ func buildPortraitAvgThermoStyle(snapshot source.ThermalSnapshot, pol source.Pol
 	tempLabel := formatTemp(avgTemp, pol.Unit)
 
 	vd := style.ViewData{
+		PaddingPct: 5,
 		Items:  []string{tempLabel},
 		Colors: []color.Color{severityColorRGBA(sev)},
 	}

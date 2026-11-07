@@ -173,6 +173,7 @@ func buildOverview(snap source.ThermalSnapshot, pol source.Policy, ctx style.Sty
 	offsetY := bridge.CenterBlockY(uniformRowHeights(len(zones), rowHeight), 0)
 
 	vd := style.ViewData{
+		PaddingPct: 5,
 		OffsetY: offsetY,
 	}
 
@@ -362,7 +363,7 @@ func buildDetail(snap source.ThermalSnapshot, pol source.Policy, ctx style.Style
 	minTemp, maxTemp := computeMinMax(history)
 
 	// Build Items.
-	vd := style.ViewData{OffsetY: 0}
+	vd := style.ViewData{OffsetY: 0, PaddingPct: 5}
 
 	// Add borderframe sprites if applicable (panel-covering).
 	if hasBorder {
@@ -545,7 +546,7 @@ func buildGraph(snap source.ThermalSnapshot, pol source.Policy, ctx style.StyleC
 		zones = zones[:maxRows]
 	}
 	offsetY := bridge.CenterBlockY(uniformRowHeights(len(zones), rowHeight), 0)
-	vd := style.ViewData{OffsetY: offsetY}
+	vd := style.ViewData{OffsetY: offsetY, PaddingPct: 5}
 
 	hasBorder := pol.ShowBorder && hints.PixelWidth >= 16 && hints.PixelHeight >= 16
 
@@ -685,6 +686,7 @@ func buildMinimal(snap source.ThermalSnapshot, pol source.Policy, ctx style.Styl
 	tempColor := resolveAccentForTemp(pol.FGColor, isColor, sev, nativeFG)
 
 	vd := style.ViewData{
+		PaddingPct: 5,
 		OffsetY: 0,
 	}
 
@@ -810,7 +812,7 @@ func buildMonoOLEDCompact(snap source.ThermalSnapshot, pol source.Policy, ctx st
 	minTemp, maxTemp := computeMinMax(history)
 	sparkData := normalizeSparkline(history, ec)
 
-	vd := style.ViewData{OffsetY: 0}
+	vd := style.ViewData{OffsetY: 0, PaddingPct: 5}
 
 	if hasBorder {
 		cfg := borderframe.Config{Bounds: image.Rect(0, 0, hints.PixelWidth, hints.PixelHeight)}

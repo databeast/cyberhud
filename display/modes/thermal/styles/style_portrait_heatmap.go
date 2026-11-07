@@ -35,7 +35,7 @@ func buildPortraitHeatmapStyle(snapshot source.ThermalSnapshot, pol source.Polic
 
 	stops := heatmapGradientStops(sev)
 
-	vd := style.ViewData{}
+	vd := style.ViewData{PaddingPct: 5}
 
 	// Render gradient covering the full panel bounds.
 	if hints.PixelWidth > 0 && hints.PixelHeight > 0 {

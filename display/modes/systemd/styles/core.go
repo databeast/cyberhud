@@ -354,6 +354,7 @@ func monoSlowPoster800x480(snap source.Snapshot, pol source.Policy, ctx style.St
 	}
 
 	return style.ViewData{
+		PaddingPct: 2,
 		Items:       items,
 		Tiers:       tiers,
 		LineOffsets: offsets,

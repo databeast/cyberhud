@@ -52,7 +52,7 @@ func buildFocusStyle(snapshot source.StorageSnapshot, pol source.Policy, ctx sty
 		fmt.Sprintf("free %s", source.FormatBytes(m.FreeBytes, pol.Unit)),
 	}
 
-	vd := style.ViewData{Static: true}
+	vd := style.ViewData{Static: true, PaddingPct: 6}
 	for range rows {
 		vd.Tiers = append(vd.Tiers, tiercatalog.TierNormal)
 		vd.RowHeights = append(vd.RowHeights, rowHeight)

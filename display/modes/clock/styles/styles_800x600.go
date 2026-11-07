@@ -173,6 +173,7 @@ func einkPoster800x480(data source.ClockData, pol source.Policy, ctx style.Style
 	}
 
 	return style.ViewData{
+		PaddingPct: 2,
 		Items:       items,
 		Tiers:       tiers,
 		LineOffsets: offsets,

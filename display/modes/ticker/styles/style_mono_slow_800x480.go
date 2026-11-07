@@ -68,6 +68,7 @@ func monoSlow800x480Build(snap source.TickerSnapshot, pol source.Policy, ctx sty
 		}
 
 		return style.ViewData{
+			PaddingPct: 2,
 			Items:       []string{emptyText},
 			Tiers:       []tiercatalog.Tier{tiercatalog.TierLarge},
 			LineOffsets: []layout.TTYX{offsetX},
@@ -118,6 +119,7 @@ func monoSlow800x480Build(snap source.TickerSnapshot, pol source.Policy, ctx sty
 	}
 
 	return style.ViewData{
+		PaddingPct: 2,
 		Items:       lines,
 		Tiers:       tiers,
 		LineOffsets: offsets,

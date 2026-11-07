@@ -91,6 +91,7 @@ func buildBarsStyle(snapshot source.StorageSnapshot, pol source.Policy, ctx styl
 
 	vd := style.ViewData{
 		OffsetY:    offsetY,
+		PaddingPct: 4,
 		Static:     true,
 		Tiers:      make([]tiercatalog.Tier, 0, len(mounts)),
 		RowHeights: make([]int, 0, len(mounts)),

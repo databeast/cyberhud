@@ -226,5 +226,5 @@ func posterBuild(snapshot source.StemmaSnapshot, ctx style.StyleContext, p Param
 		items[i] = r.text
 		tiers[i] = r.tier
 	}
-	return style.ViewData{Items: items, Tiers: tiers, LineOffsets: offsets, OffsetY: offsetY, Static: true, Sprites: sprites}
+	return style.ViewData{Items: items, Tiers: tiers, LineOffsets: offsets, OffsetY: offsetY, Static: true, Sprites: sprites, PaddingPct: 2}
 }

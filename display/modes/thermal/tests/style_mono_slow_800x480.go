@@ -188,6 +188,7 @@ func (s MonoSlow800x480Style) Build(snap thermal.ThermalSnapshot, ctx style.Styl
 	}
 
 	return style.ViewData{
+		PaddingPct: 2,
 		Items:       items,
 		Tiers:       tiers,
 		LineOffsets: offsets,

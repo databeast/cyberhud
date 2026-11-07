@@ -9,6 +9,7 @@ import (
 
 	"github.com/databeast/cyberhud/display/modes/stemma/source"
 	sharedcolor "github.com/databeast/cyberhud/display/style/color"
+	"github.com/databeast/cyberhud/display/style/layout"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/display/widgets"
 )
@@ -98,9 +99,10 @@ func BuildColors(devs []*source.Device, present, absent color.Color) []color.Col
 }
 
 // BuildSprites returns a Sprite per device using check (present) or error (absent) icons.
-// Each sprite is positioned at column 0 of the device's row.
+// Each sprite is positioned at column 0 of the device's row, in world pixels via
+// bridge.CellToPixel measured with m.
 // The getIcon parameter resolves icon names to images.
-func BuildSprites(devs []*source.Device, rowHeight int, getIcon func(name string) (image.Image, bool)) []widgets.Sprite {
+func BuildSprites(devs []*source.Device, bridge layout.LayoutCalculator, m layout.Metrics, getIcon func(name string) (image.Image, bool)) []widgets.Sprite {
 	if len(devs) == 0 {
 		return nil
 	}
@@ -126,7 +128,7 @@ func BuildSprites(devs []*source.Device, rowHeight int, getIcon func(name string
 		}
 		sprites = append(sprites, widgets.Sprite{
 			Image:    img,
-			Position: image.Pt(0, i*rowHeight),
+			Position: bridge.CellToPixel(i, 0, m),
 			Label:    fmt.Sprintf("stemma-0x%02X-status", d.Addr),
 		})
 		_ = iconName // icon name preserved in Label for debug purposes

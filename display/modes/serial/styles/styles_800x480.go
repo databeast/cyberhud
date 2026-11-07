@@ -131,6 +131,7 @@ func posterPanel800x480(snap source.Snapshot, pol source.Policy, ctx style.Style
 	placeDataLines(comp, snap, ox, y, cw, bodyH, bodyAdvance, bodyFace, budget, maxChars, true)
 
 	return style.ViewData{
+		PaddingPct: 3,
 		Sprites: comp.Sprites(),
 		Static:  false,
 		Cursor:  -1,

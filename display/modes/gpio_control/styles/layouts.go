@@ -7,6 +7,7 @@ import (
 
 	"github.com/databeast/cyberhud/display/modes/gpio_control/source"
 	"github.com/databeast/cyberhud/display/style"
+	"github.com/databeast/cyberhud/display/style/layout"
 	font "github.com/databeast/cyberhud/display/surface/fonts"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/display/widgets"
@@ -35,18 +36,16 @@ func BuildColors(pins []gpiomgr.PinState) []color.Color {
 }
 
 // BuildSprites returns one Sprite per output pin, positioned at the left
-// edge of the corresponding row. Uses the Compositor pattern with led.New()
-// to produce state indicators: led.On for HIGH, led.Off for LOW.
+// edge of the corresponding row (world pixels, via bridge.CellToPixel measured
+// with m). Uses the Compositor pattern with led.New() to produce state
+// indicators: led.On for HIGH, led.Off for LOW.
 // Input pins have no Sprite. If pins is empty, returns nil.
-func BuildSprites(pins []gpiomgr.PinState, hints textlayout.TextHints) []widgets.Sprite {
+func BuildSprites(pins []gpiomgr.PinState, bridge layout.LayoutCalculator, m layout.Metrics) []widgets.Sprite {
 	if len(pins) == 0 {
 		return nil
 	}
 
-	rowHeight := hints.RowHeight
-	if rowHeight <= 0 {
-		rowHeight = textlayout.RowHeight
-	}
+	rowHeight := m.RowHeight()
 
 	// LED diameter matches row height for alignment with text.
 	diameter := led.DiameterForRow(rowHeight)
@@ -67,7 +66,7 @@ func BuildSprites(pins []gpiomgr.PinState, hints textlayout.TextHints) []widgets
 			State:      state,
 			Brightness: -1.0,
 			Diameter:   diameter,
-			Bounds:     image.Rectangle{Min: image.Pt(0, i*rowHeight)},
+			Bounds:     image.Rectangle{Min: bridge.CellToPixel(i, 0, m)},
 			Foreground: ColorOutput,
 		}, widgets.WithLabel(fmt.Sprintf("pin%d-state", p.Number))))
 	}
@@ -178,16 +177,13 @@ func BuildGridView(pins []gpiomgr.PinState, hints textlayout.TextHints, cursor i
 // Returns nil if any textlabel widget returns nil (triggering fallback to Items).
 // Returns an empty non-nil slice if there are no rows to render.
 // Uses the Compositor pattern for widget orchestration.
-func buildControlTextLabelSprites(pins []gpiomgr.PinState, items []string, hints textlayout.TextHints, face font.Face, colors []color.Color, maxRows int) []widgets.Sprite {
+func buildControlTextLabelSprites(pins []gpiomgr.PinState, items []string, bridge layout.LayoutCalculator, m layout.Metrics, face font.Face, colors []color.Color, maxRows int) []widgets.Sprite {
 	if len(pins) == 0 {
 		return []widgets.Sprite{}
 	}
 
-	rowHeight := hints.RowHeight
-	if rowHeight <= 0 {
-		rowHeight = textlayout.RowHeight
-	}
-	pixelWidth := hints.PixelWidth
+	rowHeight := m.RowHeight()
+	pixelWidth := bridge.AvailableContentWidth()
 
 	// Use the truncated/limited items list for rendering.
 	visibleItems := items
@@ -222,9 +218,10 @@ func buildControlTextLabelSprites(pins []gpiomgr.PinState, items []string, hints
 			}
 		}
 
+		rowOrigin := bridge.CellToPixel(i, 0, m)
 		comp.Add(textlabel.New(textlabel.Config{
 			Text:       rowText,
-			Bounds:     image.Rect(0, i*rowHeight, pixelWidth, (i+1)*rowHeight),
+			Bounds:     image.Rect(rowOrigin.X, rowOrigin.Y, rowOrigin.X+pixelWidth, rowOrigin.Y+rowHeight),
 			Font:       face,
 			Alignment:  textlabel.Left,
 			Foreground: fg,
@@ -243,7 +240,6 @@ func buildControlTextLabelSprites(pins []gpiomgr.PinState, items []string, hints
 // whose BuildFn is nil. Produces text-based rows with cursor navigation.
 // Output is always Static=true.
 func sharedListBuild(data source.Data, _ source.Policy, ctx style.StyleContext, d def) style.ViewData {
-	hints := ctx.Hints()
 	bridge := ctx.Layout(0)
 
 	pins := data.Pins
@@ -254,7 +250,8 @@ func sharedListBuild(data source.Data, _ source.Policy, ctx style.StyleContext, 
 		return style.ViewData{Items: items, Colors: colors, Static: true}
 	}
 
-	sprites := BuildSprites(pins, hints)
+	m := ctx.DefaultMetrics()
+	sprites := BuildSprites(pins, bridge, m)
 
 	// Add cursor indicator to the selected row.
 	for i := range items {
@@ -264,8 +261,6 @@ func sharedListBuild(data source.Data, _ source.Policy, ctx style.StyleContext, 
 			items[i] = " " + items[i]
 		}
 	}
-
-	m := ctx.DefaultMetrics()
 
 	// Truncate text to available width.
 	maxCols := bridge.MaxChars(m)
