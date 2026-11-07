@@ -65,7 +65,7 @@ func BuildView(hints textlayout.TextHints) style.ViewData {
 	// E-ink path: a single frozen calm frame, no animation.
 	if isEink {
 		isEinkPanel = true
-		return buildEinkFrame(p, panelWidth, panelHeight, hints)
+		return buildEinkFrame(p, panelWidth, panelHeight, hints, isMono)
 	}
 	isEinkPanel = false
 
@@ -254,10 +254,10 @@ func fillCell(img *image.RGBA, x0, y0, cs, width, height int, c color.RGBA) {
 
 // buildEinkFrame renders a single static calm frame for e-ink panels: the base
 // field with a few cells frozen mid-pulse, no animation.
-func buildEinkFrame(p source.Policy, width, height int, hints textlayout.TextHints) style.ViewData {
+func buildEinkFrame(p source.Policy, width, height int, hints textlayout.TextHints, mono bool) style.ViewData {
 	// A fixed instant chosen to show a handful of cells lit.
 	const frozenT = 2.3
-	sprite := renderGrid(p, width, height, frozenT, true)
+	sprite := renderGrid(p, width, height, frozenT, mono)
 
 	compositor := widgets.NewCompositor(widgets.SuppressionContext{
 		IsEink:          true,
@@ -334,7 +334,7 @@ func resolveBestStyleName(hints textlayout.TextHints) string {
 func resolvePanelType(hints textlayout.TextHints) (mono bool, eink bool) {
 	s, _ := style.ResolveStyle(popsquaresRegistry, hints, "attract_popsquares", "")
 	reqs := s.Requirements()
-	mono = reqs.Capability == style.MonoFast
+	mono = reqs.Capability == style.MonoFast || reqs.Capability == style.MonoSlow || reqs.Capability == style.GrayscaleSlow
 	eink = reqs.Capability == style.MonoSlow || reqs.Capability == style.GrayscaleSlow || reqs.Capability == style.ColorSlow
 	return
 }
