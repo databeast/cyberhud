@@ -220,7 +220,7 @@ func BuildView(hints textlayout.TextHints) style.ViewData {
 	if isEink {
 		sprites := buildEinkSprites(p, panelWidth, panelHeight)
 		return style.ViewData{
-			Static:  true,
+			
 			Sprites: sprites,
 		}
 	}
@@ -240,7 +240,6 @@ func BuildView(hints textlayout.TextHints) style.ViewData {
 	snap := source.Data{Sprites: sprites, IsEink: false}
 	vd := s.Build(snap, p, ctx)
 
-	vd.Static = false
 	vd.StyleReport = style.StyleReport{Name: s.Name(), Reason: reason}
 
 	return vd

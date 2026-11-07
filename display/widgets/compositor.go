@@ -46,6 +46,12 @@ func (c *Compositor) AddIf(condition bool, r Renderable) {
 }
 
 // Sprites returns the accumulated sprite slice in insertion order.
+//
+// Insertion order is z-order only within a single compositing depth: the region
+// renderer orders sprites across depths by Sprite.Z (ascending, around the text
+// plane) and preserves this insertion order to break ties within equal Z. A
+// backdrop added first but left at the default Z still composites above a later
+// sprite given a positive Z — the depth wins, insertion order only settles ties.
 // The insertion order defines z-order: first added renders below,
 // last added renders on top.
 func (c *Compositor) Sprites() []Sprite {

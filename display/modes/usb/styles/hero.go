@@ -48,7 +48,7 @@ func buildHero(snapshot source.Snapshot, pol source.Policy, ctx style.StyleConte
 	if !snapshot.HasLast {
 		sp := centeredLine(ctx, "Waiting for USB...", tiercatalog.TierLarge,
 			image.Rect(ox, oy, ox+availW, oy+availH), white)
-		vd := style.ViewData{Static: true, PaddingPct: 6}
+		vd := style.ViewData{PaddingPct: 6}
 		if sp != nil {
 			vd.Sprites = append(vd.Sprites, *sp)
 		}
@@ -173,7 +173,7 @@ func buildHero(snapshot source.Snapshot, pol source.Policy, ctx style.StyleConte
 
 	return style.ViewData{
 		Sprites:    sprites,
-		Static:     true,
+		
 		PaddingPct: 6,
 	}
 }
@@ -299,7 +299,7 @@ func buildCompactBadge(snapshot source.Snapshot, ctx style.StyleContext, name, s
 		}
 	}
 
-	return style.ViewData{Sprites: sprites, Static: true, PaddingPct: 6}
+	return style.ViewData{Sprites: sprites, PaddingPct: 6}
 }
 
 // detailRows returns the supporting identity lines beneath the title.

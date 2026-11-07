@@ -35,5 +35,5 @@ func (s BokehColorSlowStyle) Supports(hints textlayout.TextHints) style.Fitness 
 }
 
 func (s BokehColorSlowStyle) Build(_ source.BokehFrame, _ source.Policy, _ style.StyleContext) style.ViewData {
-	return style.ViewData{Static: true}
+	return style.ViewData{}
 }

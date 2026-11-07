@@ -37,7 +37,7 @@ func (s ColorFastStyle) Supports(hints textlayout.TextHints) style.Fitness {
 func (s ColorFastStyle) Build(snapshot source.Snapshot, pol source.Policy, ctx style.StyleContext) style.ViewData {
 	hints := ctx.Hints()
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: snapshot.IsEink}
+	return style.ViewData{}
 }
 
 // ─── MonoFast ─────────────────────────────────────────────────────────────────
@@ -67,7 +67,7 @@ func (s MonoFastStyle) Supports(hints textlayout.TextHints) style.Fitness {
 func (s MonoFastStyle) Build(snapshot source.Snapshot, pol source.Policy, ctx style.StyleContext) style.ViewData {
 	hints := ctx.Hints()
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: snapshot.IsEink}
+	return style.ViewData{}
 }
 
 // ─── MonoSlow (e-ink) ─────────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ func (s MonoSlowStyle) Supports(hints textlayout.TextHints) style.Fitness {
 func (s MonoSlowStyle) Build(snapshot source.Snapshot, pol source.Policy, ctx style.StyleContext) style.ViewData {
 	hints := ctx.Hints()
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: true}
+	return style.ViewData{}
 }
 
 // ─── GrayscaleSlow ────────────────────────────────────────────────────────────
@@ -129,7 +129,7 @@ func (s GrayscaleSlowStyle) Supports(hints textlayout.TextHints) style.Fitness {
 func (s GrayscaleSlowStyle) Build(snapshot source.Snapshot, pol source.Policy, ctx style.StyleContext) style.ViewData {
 	hints := ctx.Hints()
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: true}
+	return style.ViewData{}
 }
 
 // ─── GrayscaleFast ────────────────────────────────────────────────────────────
@@ -161,7 +161,7 @@ func (s GrayscaleFastStyle) Supports(hints textlayout.TextHints) style.Fitness {
 func (s GrayscaleFastStyle) Build(snapshot source.Snapshot, pol source.Policy, ctx style.StyleContext) style.ViewData {
 	hints := ctx.Hints()
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: snapshot.IsEink}
+	return style.ViewData{}
 }
 
 // ─── ColorSlow ────────────────────────────────────────────────────────────────
@@ -191,5 +191,5 @@ func (s ColorSlowStyle) Supports(hints textlayout.TextHints) style.Fitness {
 func (s ColorSlowStyle) Build(snapshot source.Snapshot, pol source.Policy, ctx style.StyleContext) style.ViewData {
 	hints := ctx.Hints()
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: true}
+	return style.ViewData{}
 }

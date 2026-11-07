@@ -22,7 +22,7 @@ func RenderEInkBokehPicture(panelWidth, panelHeight int, p Policy) style.ViewDat
 	img := renderEinkFrame(panelWidth, panelHeight, p)
 
 	return style.ViewData{
-		Static: true,
+		
 		Sprites: []widgets.Sprite{
 			{
 				Image:    img,

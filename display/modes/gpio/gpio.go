@@ -9,6 +9,7 @@ import (
 	"github.com/databeast/cyberhud/display/modes/gpio/styles"
 	"github.com/databeast/cyberhud/display/style"
 	sharedcolor "github.com/databeast/cyberhud/display/style/color"
+	"github.com/databeast/cyberhud/display/style/layout"
 	"github.com/databeast/cyberhud/display/widgets"
 	"github.com/databeast/cyberhud/display/widgets/led"
 	gpiomgr "github.com/databeast/cyberhud/hardware/gpio"
@@ -325,11 +326,13 @@ func BuildColors(pins []gpiomgr.PinState, colorEnabled bool) []color.Color {
 
 // BuildSprites returns sprites for output-mode pins using the Compositor pattern.
 // Input-only pins do not receive a sprite.
-// The sprite is positioned at (0, row * rowHeight).
+// The sprite is positioned at the pin's text row via bridge.CellToPixel
+// (measured with m), in world pixels.
 //
 // Framework pattern demonstrated: Compositor — widget sprite compositing with
 // conditional inclusion based on pin mode.
-func BuildSprites(pins []gpiomgr.PinState, rowHeight int, glyphWidth, glyphHeight int) []widgets.Sprite {
+func BuildSprites(pins []gpiomgr.PinState, bridge layout.LayoutCalculator, m layout.Metrics) []widgets.Sprite {
+	rowHeight := m.RowHeight()
 	diameter := led.DiameterForRow(rowHeight)
 
 	ctx := widgets.SuppressionContext{
@@ -347,7 +350,7 @@ func BuildSprites(pins []gpiomgr.PinState, rowHeight int, glyphWidth, glyphHeigh
 			State:      state,
 			Brightness: -1.0,
 			Diameter:   diameter,
-			Bounds:     image.Rectangle{Min: image.Pt(0, i*rowHeight)},
+			Bounds:     image.Rectangle{Min: bridge.CellToPixel(i, 0, m)},
 			Foreground: ColorHigh,
 		}))
 	}

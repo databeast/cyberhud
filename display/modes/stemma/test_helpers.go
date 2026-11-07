@@ -8,6 +8,7 @@ import (
 	"github.com/databeast/cyberhud/display/modes/stemma/source"
 	"github.com/databeast/cyberhud/display/modes/stemma/styles"
 	"github.com/databeast/cyberhud/display/style"
+	"github.com/databeast/cyberhud/display/style/layout"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/display/widgets"
 )
@@ -22,7 +23,8 @@ func BuildColors(devs []*source.Device, present, absent color.Color) []color.Col
 	return styles.BuildColors(devs, present, absent)
 }
 func BuildSprites(devs []*source.Device, rowHeight int, getIcon func(string) (image.Image, bool)) []widgets.Sprite {
-	return styles.BuildSprites(devs, rowHeight, getIcon)
+	bridge := layout.NewLayoutBridge(textlayout.TextHints{}, layout.BridgeConfig{})
+	return styles.BuildSprites(devs, bridge, layout.NewMetrics(1, rowHeight, ""), getIcon)
 }
 
 func StemmaRegistryEnumerate() []style.Style[source.StemmaSnapshot, source.Policy] {

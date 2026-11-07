@@ -52,7 +52,6 @@ func (i *instance) BuildView() style.ViewData {
 	}
 	vd := s.Build(snap, p, ctx)
 	vd.StyleReport = style.StyleReport{Name: s.Name(), Reason: reason}
-	vd.Static = true
 	return vd
 }
 

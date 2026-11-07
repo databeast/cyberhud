@@ -149,9 +149,51 @@ type ViewData struct {
 	// the two in agreement. Zero is both the default and the common case.
 	PaddingPct int
 
-	Cursor      int
-	TopRow      int
-	Static      bool
+	// Cursor is the index of the highlighted row, set by a mode whose action
+	// handler moves a selection in response to navigation input. A negative value
+	// means "no highlight" and is the correct resting state for every view that
+	// does not navigate — see IsNavigable for how this field (with TopRow) selects
+	// the render path.
+	//
+	// The trap it guards: the zero value is 0, a valid row index. A view that
+	// leaves Cursor unset but is rendered as a list would silently highlight row 0;
+	// on a monochrome panel that highlight draws the row invisibly (dark text on a
+	// background that thresholds to the same ink), so a single-row status view
+	// renders blank. Only genuine navigable lists (menu, gpio, gpio-control) carry
+	// a Cursor >= 0; they set it from their action handler. Everything else leaves
+	// it negative — wifi, zmq, serial and dashboard set Cursor: -1 by hand. The
+	// renderer treats any Cursor < 0 as no-highlight.
+	Cursor int
+
+	// TopRow is the index of the first visible row when a navigable list has
+	// scrolled. Zero (the top) for every non-scrolling view. With Cursor it
+	// defines whether the view is a list — see IsNavigable.
+	TopRow int
+
 	Sprites     []widgets.Sprite
 	StyleReport StyleReport // Style resolution metadata; zero value = no style dispatch.
+}
+
+// IsNavigable reports whether this view is a navigable list rather than a static
+// block, which selects the renderer's draw path: a list is windowed from TopRow
+// and draws a highlighted Cursor row; a block is a centered, non-scrolling frame.
+//
+// The distinction is derived, not declared. A view is a list exactly when it
+// carries live navigation state — a selected row (Cursor >= 0) or a scroll offset
+// (TopRow > 0) — and that state only ever changes when a mode's action handler
+// responds to navigation input (see e.g. gpio's HandleAction advancing its
+// cursor). A mode that does not handle navigation input never sets these fields,
+// so they rest at Cursor: -1 / TopRow: 0 and the view is a block. "Is this a
+// list?" is therefore the same question as "does this mode participate in input
+// navigation?", answered by the fields that input drives rather than by a
+// separate flag a mode could set inconsistently with its own input behaviour.
+//
+// This replaced the former ViewData.Static bool, whose single reader was this
+// render-path choice. Static conflated the list/block decision with refresh
+// cadence (which is owned elsewhere: the TickRateResolver and driver-side frame
+// dedup), and could silently disagree with a mode's input behaviour — a
+// non-interactive mode emitting Static: false got list rendering it never wanted,
+// which is how a status view ended up blank on monochrome panels.
+func (v ViewData) IsNavigable() bool {
+	return v.Cursor >= 0 || v.TopRow > 0
 }

@@ -22,7 +22,7 @@ import (
 // tier so the bar, positioned a row below the text, never collides with it.
 func buildFocusStyle(snapshot source.StorageSnapshot, pol source.Policy, ctx style.StyleContext, _ def) style.ViewData {
 	if len(snapshot.Mounts) == 0 {
-		return style.ViewData{Items: []string{"no storage"}, Static: true}
+		return style.ViewData{Items: []string{"no storage"}}
 	}
 
 	m := snapshot.Mounts[0]
@@ -52,7 +52,7 @@ func buildFocusStyle(snapshot source.StorageSnapshot, pol source.Policy, ctx sty
 		fmt.Sprintf("free %s", source.FormatBytes(m.FreeBytes, pol.Unit)),
 	}
 
-	vd := style.ViewData{Static: true}
+	vd := style.ViewData{PaddingPct: 6}
 	for range rows {
 		vd.Tiers = append(vd.Tiers, tiercatalog.TierNormal)
 		vd.RowHeights = append(vd.RowHeights, rowHeight)
@@ -70,7 +70,7 @@ func buildFocusStyle(snapshot source.StorageSnapshot, pol source.Policy, ctx sty
 		if barHeight < 2 {
 			barHeight = 2
 		}
-		barY := oy + len(rows)*rowHeight + 1
+		barY := bridge.CellToPixel(len(rows), 0, layout.NewMetrics(entry.GlyphAdvance, rowHeight, entry.FontID)).Y + 1
 		if barY+barHeight <= oy+contentHeight {
 			barResult := progressbar.Render(progressbar.Config{
 				Style:      progressbar.Linear,

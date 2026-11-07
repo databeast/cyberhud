@@ -2,7 +2,23 @@ package source
 
 import (
 	"math"
+	"sync"
 )
+
+// Gatherer retains the station-info fallback state for one WiFi mode instance.
+type Gatherer struct {
+	mu                  sync.Mutex
+	useBSSSignal        bool
+	missingSignalLogged bool
+}
+
+// Reset starts a new WiFi mode lifetime.
+func (g *Gatherer) Reset() {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	g.useBSSSignal = false
+	g.missingSignalLogged = false
+}
 
 // ConnectionState represents the WiFi adapter state.
 type ConnectionState int
@@ -20,16 +36,17 @@ const (
 // WifiData holds all WiFi state consumed by style Build methods.
 // It is produced by gatherWifiState and passed to the active style's Build method.
 type WifiData struct {
-	SSID            string  // network name, max 32 chars
-	SignalStrength  int     // dBm, -100 to 0
-	LinkQuality     int     // 0-100 percentage
-	IPAddress       string  // IPv4 address string
-	Frequency       float64 // GHz
-	Channel         int     // derived from Frequency via frequencyToChannel
-	InterfaceName   string  // e.g. "wlan0"
-	LinkSpeed       int     // Mbps, 0 if unavailable
-	ConnectionState ConnectionState
-	StatusMessage   string // "No Network" or "WiFi N/A" when disconnected/unavailable
+	SSID              string  // network name, max 32 chars
+	SignalStrength    int     // dBm, -100 to 0
+	SignalUnavailable bool    // no usable signal reading
+	LinkQuality       int     // 0-100 percentage
+	IPAddress         string  // IPv4 address string
+	Frequency         float64 // GHz
+	Channel           int     // derived from Frequency via frequencyToChannel
+	InterfaceName     string  // e.g. "wlan0"
+	LinkSpeed         int     // Mbps, 0 if unavailable
+	ConnectionState   ConnectionState
+	StatusMessage     string // "No Network" or "WiFi N/A" when disconnected/unavailable
 }
 
 // frequencyToChannel maps a WiFi frequency in GHz to the corresponding channel number.

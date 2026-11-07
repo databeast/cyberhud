@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/color"
 	"log"
+	"sort"
 	"sync"
 	"unicode/utf8"
 
@@ -143,13 +144,25 @@ func (rr *RegionRenderer) Render(r *region.Region) error {
 	// physically-sized font that may be far too wide for the pixel budget.
 	resolveTextFitFonts(&v, r.TextHints().Catalog, bridge.AvailableContentWidth())
 
-	// Static selects between a centred block and a scrolling cursor list. Both paths
-	// honour the same ViewData layout contract; they differ only in windowing and
-	// cursor highlighting.
-	if v.Static {
-		rr.renderStaticItems(surf, v, bridge)
-	} else {
+	// Compositing depth. The text/cell plane is the fixed datum, drawn at depth 0.
+	// Sprites are drawn in ascending Z order around it: anything with Z < 0 sinks
+	// beneath the text (a full-panel gradient or backdrop), everything else (the
+	// default Z: 0 included) draws on top of it. Splitting the sprite list here —
+	// rather than the former unconditional "text, then all sprites" — is what lets
+	// a style put a backdrop behind text with a single Z: -1, instead of silently
+	// burying the text under an opaque full-panel sprite.
+	below, above := splitSpritesByDepth(v.Sprites)
+
+	// Below-text sprites first, so the text plane lands on top of them.
+	rr.renderSprites(surf, below)
+
+	// A navigable list is windowed and cursor-highlighted; everything else is a
+	// centred static block. The distinction is derived from the view's own
+	// navigation state, not a separate flag — see ViewData.IsNavigable.
+	if v.IsNavigable() {
 		rr.renderItems(surf, v, bridge)
+	} else {
+		rr.renderStaticItems(surf, v, bridge)
 	}
 
 	// Sprites are positioned in absolute panel coordinates by the style, not relative
@@ -157,7 +170,9 @@ func (rr *RegionRenderer) Render(r *region.Region) error {
 	// freeform, and widgets frequently want to sit outside the text insets (the clock's
 	// border frame hugs the panel edge). Do not route Sprite bounds through the
 	// LayoutCalculator.
-	rr.renderSprites(surf, v.Sprites)
+	//
+	// Above-text sprites last, composited over the text plane.
+	rr.renderSprites(surf, above)
 
 	return nil
 }
@@ -409,8 +424,14 @@ func (rr *RegionRenderer) renderItems(surf *surface.Surface, v style.ViewData, b
 		if m.GlyphHeight > 0 {
 			textY = y + max(0, (rh-m.GlyphHeight)/2)
 		}
+		// Highlight is opt-in: only a non-negative cursor selects a row. A negative
+		// cursor (the correct default for non-list views) never matches, so the row
+		// draws plain. Guarding on cursor >= 0 is what stops an unset Cursor (zero
+		// value 0) from spuriously highlighting row 0 — which rendered invisibly on
+		// monochrome panels. See ViewData.Cursor.
+		highlighted := cursor >= 0 && absIdx == cursor
 		var bg, fg color.Color
-		if absIdx == cursor {
+		if highlighted {
 			bg = colHighlight
 			fg = rr.textOnBg(colHighlight)
 		} else {
@@ -419,7 +440,7 @@ func (rr *RegionRenderer) renderItems(surf *surface.Surface, v style.ViewData, b
 		}
 		if v.Colors != nil && absIdx < len(v.Colors) && v.Colors[absIdx] != nil {
 			fg = v.Colors[absIdx]
-			if rr.monochrome && absIdx == cursor {
+			if rr.monochrome && highlighted {
 				fg = rr.textOnBg(bg)
 			}
 		}
@@ -526,6 +547,28 @@ func (rr *RegionRenderer) staticVisibleCount(surf *surface.Surface, v style.View
 		return v.VisibleCount
 	}
 	return rr.maxVisible(surf)
+}
+
+// splitSpritesByDepth partitions sprites into those drawn beneath the text plane
+// (Z < 0) and those drawn above it (Z >= 0, the default), each stably ordered by
+// ascending Z. Declaration order breaks ties within a depth, preserving the
+// compositor's insertion-order-is-z-order contract inside each band.
+//
+// The returned slices are copies; the input is not mutated. The common case —
+// every sprite at the default Z: 0 — yields an empty below slice and an above
+// slice in the original order, so no existing style changes output.
+func splitSpritesByDepth(sprites []widgets.Sprite) (below, above []widgets.Sprite) {
+	for _, sp := range sprites {
+		if sp.Z < 0 {
+			below = append(below, sp)
+		} else {
+			above = append(above, sp)
+		}
+	}
+	// Stable so equal-Z sprites keep declaration order.
+	sort.SliceStable(below, func(i, j int) bool { return below[i].Z < below[j].Z })
+	sort.SliceStable(above, func(i, j int) bool { return above[i].Z < above[j].Z })
+	return below, above
 }
 
 func (rr *RegionRenderer) renderSprites(surf *surface.Surface, sprites []widgets.Sprite) {

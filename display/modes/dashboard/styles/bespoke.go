@@ -37,7 +37,7 @@ func buildGrayscaleFast128x128(data source.DashboardContent, pol source.Policy, 
 	// clip past the panel edge.
 	tiers := uniformTiers(len(items))
 
-	return style.ViewData{Items: items, Colors: colors, Tiers: tiers, LineOffsets: offsets, Static: true}
+	return style.ViewData{Items: items, Colors: colors, Tiers: tiers, LineOffsets: offsets}
 }
 
 func buildMonoStyle128x128(data source.DashboardContent, pol source.Policy, ctx style.StyleContext, d styleDef) style.ViewData {
@@ -63,7 +63,7 @@ func buildMonoStyle128x128(data source.DashboardContent, pol source.Policy, ctx 
 		offsets[i] = layout.CenterX(len([]rune(item)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
-	return style.ViewData{Items: items, Tiers: uniformTiers(len(items)), LineOffsets: offsets, Static: true}
+	return style.ViewData{Items: items, Tiers: uniformTiers(len(items)), LineOffsets: offsets}
 }
 
 func buildMonoStyle32x128(data source.DashboardContent, pol source.Policy, ctx style.StyleContext, d styleDef) style.ViewData {
@@ -86,7 +86,7 @@ func buildMonoStyle32x128(data source.DashboardContent, pol source.Policy, ctx s
 		offsets[i] = layout.CenterX(len([]rune(item)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
-	return style.ViewData{Items: items, Tiers: uniformTiers(len(items)), LineOffsets: offsets, Static: true}
+	return style.ViewData{Items: items, Tiers: uniformTiers(len(items)), LineOffsets: offsets}
 }
 
 func buildMonoStyle128x32(data source.DashboardContent, pol source.Policy, ctx style.StyleContext, d styleDef) style.ViewData {
@@ -115,7 +115,7 @@ func buildMonoStyle128x32(data source.DashboardContent, pol source.Policy, ctx s
 		Items:       items,
 		Tiers:       uniformTiers(len(items)),
 		LineOffsets: offsets,
-		Static:      true,
+		
 	}
 }
 
@@ -141,7 +141,7 @@ func buildMonoStyle64x128(data source.DashboardContent, pol source.Policy, ctx s
 		offsets[i] = layout.CenterX(len([]rune(item)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
-	return style.ViewData{Items: items, Tiers: uniformTiers(len(items)), LineOffsets: offsets, Static: true}
+	return style.ViewData{Items: items, Tiers: uniformTiers(len(items)), LineOffsets: offsets}
 }
 
 func buildGrayscaleFast128x160(data source.DashboardContent, pol source.Policy, ctx style.StyleContext, d styleDef) style.ViewData {
@@ -154,7 +154,7 @@ func buildGrayscaleFast128x160(data source.DashboardContent, pol source.Policy, 
 		color.RGBA{255, 255, 255, 255},
 		color.RGBA{180, 180, 180, 255},
 	}
-	return style.ViewData{Items: items, Colors: colors, Static: true}
+	return style.ViewData{Items: items, Colors: colors}
 }
 
 func buildColorStyle160x128(data source.DashboardContent, pol source.Policy, ctx style.StyleContext, d styleDef) style.ViewData {
@@ -175,7 +175,7 @@ func buildColorStyle160x128(data source.DashboardContent, pol source.Policy, ctx
 
 	maxRows := layout.MaxVisibleRows(ctx.Metrics(tiercatalog.TierNormal))
 	if maxRows <= 0 {
-		return style.ViewData{Items: []string{}, Static: true}
+		return style.ViewData{Items: []string{}}
 	}
 	if len(allItems) > maxRows {
 		allItems = allItems[:maxRows]
@@ -222,7 +222,7 @@ func buildColorStyle160x128(data source.DashboardContent, pol source.Policy, ctx
 		Tiers:       tiers,
 		LineOffsets: offsets,
 		OffsetY:     offsetY,
-		Static:      true,
+		
 	}
 }
 
@@ -231,7 +231,7 @@ func buildGrayscaleFast80x160(data source.DashboardContent, pol source.Policy, c
 	accent := source.ResolveUptimeAccent(pol.ColorAccent)
 	// Single combined line: hostname + uptime
 	line := data.Hostname + " " + data.Uptime
-	return style.ViewData{Items: []string{line}, Colors: []color.Color{accent}, Static: true}
+	return style.ViewData{Items: []string{line}, Colors: []color.Color{accent}}
 }
 
 func buildColorStyle160x80(data source.DashboardContent, pol source.Policy, ctx style.StyleContext, d styleDef) style.ViewData {
@@ -251,7 +251,7 @@ func buildColorStyle160x80(data source.DashboardContent, pol source.Policy, ctx 
 
 	maxRows := layout.MaxVisibleRows(ctx.Metrics(tiercatalog.TierNormal))
 	if maxRows <= 0 {
-		return style.ViewData{Items: []string{}, Static: true}
+		return style.ViewData{Items: []string{}}
 	}
 	if len(allItems) > maxRows {
 		allItems = allItems[:maxRows]
@@ -298,7 +298,7 @@ func buildColorStyle160x80(data source.DashboardContent, pol source.Policy, ctx 
 		Tiers:       tiers,
 		LineOffsets: offsets,
 		OffsetY:     offsetY,
-		Static:      true,
+		
 	}
 }
 
@@ -355,7 +355,7 @@ func buildColorStyle135x240(data source.DashboardContent, pol source.Policy, ctx
 		offsets[i] = layout.CenterX(len([]rune(item)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
-	return style.ViewData{Items: items, Colors: colors, Tiers: tiers, LineOffsets: offsets, Static: true}
+	return style.ViewData{Items: items, Colors: colors, Tiers: tiers, LineOffsets: offsets}
 }
 
 func buildGrayscaleFast240x135(data source.DashboardContent, pol source.Policy, ctx style.StyleContext, d styleDef) style.ViewData {
@@ -375,7 +375,7 @@ func buildGrayscaleFast240x135(data source.DashboardContent, pol source.Policy, 
 		color.RGBA{180, 180, 180, 255}, // clock: dimmed
 	}
 
-	return style.ViewData{Items: items, Colors: colors, Static: true}
+	return style.ViewData{Items: items, Colors: colors}
 }
 
 func buildColorStyle240x240(data source.DashboardContent, pol source.Policy, ctx style.StyleContext, d styleDef) style.ViewData {
@@ -444,7 +444,7 @@ func buildColorStyle240x240(data source.DashboardContent, pol source.Policy, ctx
 		offsets[i] = layout.CenterX(len([]rune(item)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
-	return style.ViewData{Items: items, Colors: colors, Tiers: tiers, LineOffsets: offsets, OffsetY: offsetY, Static: true}
+	return style.ViewData{Items: items, Colors: colors, Tiers: tiers, LineOffsets: offsets, OffsetY: offsetY}
 }
 
 func buildColorStyle320x240(data source.DashboardContent, pol source.Policy, ctx style.StyleContext, d styleDef) style.ViewData {
@@ -513,7 +513,7 @@ func buildColorStyle320x240(data source.DashboardContent, pol source.Policy, ctx
 		offsets[i] = layout.CenterX(len([]rune(item)), ctx.Metrics(tiercatalog.TierNormal))
 	}
 
-	return style.ViewData{Items: items, Colors: colors, Tiers: tiers, LineOffsets: offsets, OffsetY: offsetY, Static: true}
+	return style.ViewData{Items: items, Colors: colors, Tiers: tiers, LineOffsets: offsets, OffsetY: offsetY}
 }
 
 func buildMonoSlow800x480Style(data source.DashboardContent, pol source.Policy, ctx style.StyleContext, d styleDef) style.ViewData {
@@ -641,7 +641,7 @@ func buildMonoSlow800x480Style(data source.DashboardContent, pol source.Policy, 
 		Tiers:       tiers,
 		LineOffsets: offsets,
 		OffsetY:     offsetY,
-		Static:      true,
+		
 		Sprites:     sprites,
 	}
 }

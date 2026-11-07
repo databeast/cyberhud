@@ -58,7 +58,7 @@ func buildSignalForwardWifi(data source.WifiData, pol source.Policy, ctx style.S
 	cw := bridge.AvailableContentWidth()
 	chh := bridge.AvailableContentHeight()
 	if cw <= 0 || chh <= 0 {
-		return style.ViewData{Items: []string{"(too small)"}, Static: false, PaddingPct: paddingPct}
+		return style.ViewData{Items: []string{"(too small)"}, PaddingPct: paddingPct}
 	}
 
 	accent := color.RGBA{255, 255, 255, 255} // white default for non-color panels
@@ -130,7 +130,7 @@ func signalForwardStatus(bridge layout.LayoutCalculator, ctx style.StyleContext,
 
 	return style.ViewData{
 		Sprites:    sprites,
-		Static:     false,
+		
 		Cursor:     -1,
 		PaddingPct: paddingPct,
 	}
@@ -256,7 +256,7 @@ func signalForwardConnected(data source.WifiData, pol source.Policy, bridge layo
 
 	return style.ViewData{
 		Sprites:    sprites,
-		Static:     false,
+		
 		Cursor:     -1,
 		PaddingPct: paddingPct,
 	}
@@ -286,7 +286,7 @@ func signalForwardCompact(data source.WifiData, pol source.Policy, bridge layout
 			msgColor = color.RGBA{255, 255, 255, 255}
 		}
 		sprites = placeLabel(sprites, ctx, msg, ox, oy, cw, chh, msgColor, "wifi-status")
-		return style.ViewData{Sprites: sprites, Static: false, Cursor: -1, PaddingPct: paddingPct}
+		return style.ViewData{Sprites: sprites, Cursor: -1, PaddingPct: paddingPct}
 	}
 
 	barLevel := source.SignalToBarLevel(data.SignalStrength)
@@ -319,17 +319,21 @@ func signalForwardCompact(data source.WifiData, pol source.Policy, bridge layout
 	// Horizontal signal bar.
 	barH := clampInt(rowH, 4, 8)
 	if y+barH <= oy+chh {
-		bar := progressbar.Render(progressbar.Config{
-			Style:       progressbar.Linear,
-			Orientation: progressbar.OrientHorizontal,
-			Value:       fill,
-			Bounds:      image.Rect(ox, y, ox+cw, y+barH),
-			Foreground:  qColor,
-			Background:  color.RGBA{34, 34, 34, 255},
-			RoundedCaps: true,
-		})
-		if bar != nil {
-			sprites = append(sprites, *bar)
+		if data.SignalUnavailable {
+			sprites = placeLabel(sprites, ctx, "N/A", ox, y, cw, barH, qColor, "signal-readout")
+		} else {
+			bar := progressbar.Render(progressbar.Config{
+				Style:       progressbar.Linear,
+				Orientation: progressbar.OrientHorizontal,
+				Value:       fill,
+				Bounds:      image.Rect(ox, y, ox+cw, y+barH),
+				Foreground:  qColor,
+				Background:  color.RGBA{34, 34, 34, 255},
+				RoundedCaps: true,
+			})
+			if bar != nil {
+				sprites = append(sprites, *bar)
+			}
 		}
 		y += barH + 1
 	}
@@ -340,7 +344,7 @@ func signalForwardCompact(data source.WifiData, pol source.Policy, bridge layout
 		sprites = placeLabel(sprites, ctx, data.IPAddress, ox, y, cw, rowH, dimmed, "wifi-ip")
 	}
 
-	return style.ViewData{Sprites: sprites, Static: false, Cursor: -1, PaddingPct: paddingPct}
+	return style.ViewData{Sprites: sprites, Cursor: -1, PaddingPct: paddingPct}
 }
 
 // signalForwardCompactVertical is the narrow-tall degradation of the signal-
@@ -389,7 +393,9 @@ func signalForwardCompactVertical(data source.WifiData, bridge layout.LayoutCalc
 		barW = cw
 		barX = ox
 	}
-	if barH >= 8 && barW >= 3 {
+	if data.SignalUnavailable {
+		sprites = placeLabel(sprites, ctx, "N/A", ox, barTop+(barH-labelH)/2, cw, labelH, qColor, "signal-readout")
+	} else if barH >= 8 && barW >= 3 {
 		bar := progressbar.Render(progressbar.Config{
 			Style:       progressbar.Linear,
 			Orientation: progressbar.OrientVertical,
@@ -410,7 +416,7 @@ func signalForwardCompactVertical(data source.WifiData, bridge layout.LayoutCalc
 		sprites = placeLabel(sprites, ctx, data.IPAddress, ox, oy+chh-botBand, cw, botBand, dimmed, "wifi-ip")
 	}
 
-	return style.ViewData{Sprites: sprites, Static: false, Cursor: -1, PaddingPct: paddingPct}
+	return style.ViewData{Sprites: sprites, Cursor: -1, PaddingPct: paddingPct}
 }
 
 // signalForwardReadout returns the text shown inside the gauge.
@@ -423,6 +429,9 @@ func signalForwardCompactVertical(data source.WifiData, bridge layout.LayoutCalc
 // percentage modes instead surface the exact figure for the user who asked to
 // see it.
 func signalForwardReadout(data source.WifiData, pol source.Policy, barLevel int) string {
+	if data.SignalUnavailable {
+		return "N/A"
+	}
 	switch pol.SignalDisplay {
 	case "dbm":
 		return source.FormatDbm(data.SignalStrength)

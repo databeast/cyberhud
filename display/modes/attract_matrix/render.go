@@ -78,7 +78,6 @@ func BuildView(hints textlayout.TextHints) style.ViewData {
 		s := matrixRegistry.Lookup(bestStyleName)
 		vd := s.Build(snapshot, p, ctx)
 
-		vd.Static = true
 		vd.Sprites = compositor.Sprites()
 		vd.StyleReport = style.StyleReport{Name: bestStyleName, Reason: "fitness"}
 
@@ -145,7 +144,6 @@ func BuildView(hints textlayout.TextHints) style.ViewData {
 	sAnim := matrixRegistry.Lookup(bestStyleName)
 	vdAnim := sAnim.Build(snapshot, p, ctx)
 
-	vdAnim.Static = false
 	vdAnim.Sprites = compositor.Sprites()
 	vdAnim.StyleReport = style.StyleReport{Name: bestStyleName, Reason: "fitness"}
 
@@ -157,7 +155,7 @@ func buildUltraLowResView(snapshot source.MatrixSnapshot, styleName string) styl
 	h := snapshot.PanelHeight
 	if w <= 0 || h <= 0 {
 		return style.ViewData{
-			Static:      false,
+			
 			StyleReport: style.StyleReport{Name: styleName, Reason: "fitness"},
 		}
 	}
@@ -199,7 +197,7 @@ func buildUltraLowResView(snapshot source.MatrixSnapshot, styleName string) styl
 	}
 
 	return style.ViewData{
-		Static: false,
+		
 		Sprites: []widgets.Sprite{
 			{
 				Image:    img,

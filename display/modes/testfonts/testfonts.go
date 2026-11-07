@@ -265,7 +265,7 @@ func BuildView(hints textlayout.TextHints, now time.Time) ViewData {
 		comp := widgets.NewCompositor(ctx)
 		comp.Add(&frameRenderable{img: img, label: "testfonts"})
 
-		return ViewData{Title: "TEST FONTS", Hint: "", Static: false, Image: img, Sprites: comp.Sprites(), FontIndex: 0}
+		return ViewData{Title: "TEST FONTS", Hint: "", Image: img, Sprites: comp.Sprites(), FontIndex: 0}
 	}
 
 	index := int(now.UnixMilli()/displayDuration.Milliseconds()) % len(rows)
@@ -287,7 +287,7 @@ func BuildView(hints textlayout.TextHints, now time.Time) ViewData {
 	comp := widgets.NewCompositor(ctx)
 	comp.Add(&frameRenderable{img: img, label: "testfonts"})
 
-	return ViewData{Title: "TEST FONTS", Hint: "", Static: false, Image: img, Sprites: comp.Sprites(), FontIndex: index}
+	return ViewData{Title: "TEST FONTS", Hint: "", Image: img, Sprites: comp.Sprites(), FontIndex: index}
 }
 
 // RenderCacheKey returns a string that changes when the displayed font or color changes.

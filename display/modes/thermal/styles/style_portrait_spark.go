@@ -45,6 +45,7 @@ func buildPortraitSparkStyle(snapshot source.ThermalSnapshot, pol source.Policy,
 	}
 
 	vd := style.ViewData{
+		PaddingPct: 5,
 		Items:  []string{"thermal"},
 		Colors: []color.Color{color.RGBA{R: 255, G: 255, B: 255, A: 255}},
 	}

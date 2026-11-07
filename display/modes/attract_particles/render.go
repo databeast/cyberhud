@@ -74,7 +74,6 @@ func BuildView(hints textlayout.TextHints) style.ViewData {
 	s := particlesRegistry.Lookup(bestStyleName)
 	vd := s.Build(snap, p, ctx)
 
-	vd.Static = false
 	vd.StyleReport = style.StyleReport{Name: bestStyleName, Reason: "fitness"}
 
 	return vd

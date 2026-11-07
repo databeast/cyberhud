@@ -210,8 +210,6 @@ func (s ColorSlowStyle) Build(_ source.MatrixSnapshot, _ source.Policy, ctx styl
 // buildFrame is the shared rendering function for all matrix styles.
 // It produces a single frame of matrix rain output. Currently returns
 // a minimal ViewData; the full column-drop rendering pipeline is not yet implemented.
-func buildFrame(snapshot source.MatrixSnapshot) style.ViewData {
-	return style.ViewData{
-		Static: snapshot.Eink,
-	}
+func buildFrame(_ source.MatrixSnapshot) style.ViewData {
+	return style.ViewData{}
 }

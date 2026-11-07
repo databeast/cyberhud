@@ -55,7 +55,7 @@ func (d def) Build(data source.GaugeSet, pol source.Policy, ctx style.StyleConte
 func buildGaugeView(data source.GaugeSet, pol source.Policy, ctx style.StyleContext, d def) style.ViewData {
 	bridge := ctx.Layout(maxInt(d.p.PaddingPct, pol.PaddingPct))
 	if bridge.AvailableContentWidth() <= 0 || bridge.AvailableContentHeight() <= 0 {
-		return style.ViewData{Static: true}
+		return style.ViewData{}
 	}
 
 	gauges := data.Gauges
@@ -147,7 +147,7 @@ func buildGaugeView(data source.GaugeSet, pol source.Policy, ctx style.StyleCont
 	return style.ViewData{
 		Sprites:    sprites,
 		PaddingPct: maxInt(d.p.PaddingPct, pol.PaddingPct),
-		Static:     true,
+		
 	}
 }
 
@@ -165,9 +165,9 @@ func placeholderView(ctx style.StyleContext, bridge layout.LayoutCalculator, tex
 		Foreground: stylecolor.Lookup("white"),
 	})
 	if label == nil {
-		return style.ViewData{Items: []string{text}, Static: true}
+		return style.ViewData{Items: []string{text}}
 	}
-	return style.ViewData{Sprites: []widgets.Sprite{*label}, Static: true}
+	return style.ViewData{Sprites: []widgets.Sprite{*label}}
 }
 
 func autoColumns(count, width, height int) int {

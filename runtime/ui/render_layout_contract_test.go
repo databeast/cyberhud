@@ -108,7 +108,6 @@ func contractView(static bool) style.ViewData {
 		VisibleCount: 2,
 		OffsetY:      10,
 		Cursor:       -1,
-		Static:       static,
 	}
 }
 
@@ -277,7 +276,6 @@ func TestLayoutContract_VisibleCountHonoured(t *testing.T) {
 				VisibleCount: 2, // third row must not be drawn
 				OffsetY:      10,
 				Cursor:       -1, // no highlight rect; see contractView
-				Static:       static,
 			}
 
 			if static {

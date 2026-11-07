@@ -20,7 +20,7 @@ func monoSlow800x480Build(snap source.TickerSnapshot, pol source.Policy, ctx sty
 	// Step 1 (Guard): LayoutBridge with PaddingPct:2, early return for zero dims.
 	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 2})
 	if bridge.AvailableContentWidth() <= 0 || bridge.AvailableContentHeight() <= 0 {
-		return style.ViewData{Items: []string{"(too small)"}, Static: true}
+		return style.ViewData{Items: []string{"(too small)"}}
 	}
 
 	// Step 2 (Borderframe): Theme "sharp", e-ink safe.
@@ -68,11 +68,12 @@ func monoSlow800x480Build(snap source.TickerSnapshot, pol source.Policy, ctx sty
 		}
 
 		return style.ViewData{
+			PaddingPct: 2,
 			Items:       []string{emptyText},
 			Tiers:       []tiercatalog.Tier{tiercatalog.TierLarge},
 			LineOffsets: []layout.TTYX{offsetX},
 			OffsetY:     offsetY,
-			Static:      true,
+			
 			Sprites:     sprites,
 		}
 	}
@@ -118,11 +119,12 @@ func monoSlow800x480Build(snap source.TickerSnapshot, pol source.Policy, ctx sty
 	}
 
 	return style.ViewData{
+		PaddingPct: 2,
 		Items:       lines,
 		Tiers:       tiers,
 		LineOffsets: offsets,
 		OffsetY:     offsetY,
-		Static:      true,
+		
 		Sprites:     sprites,
 	}
 }

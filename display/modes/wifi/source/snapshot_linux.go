@@ -15,6 +15,10 @@ import (
 // error and returns a snapshot with ConnectionState set to Unavailable or
 // Disconnected as appropriate — it never panics.
 func GatherWifiState() WifiData {
+	return new(Gatherer).GatherWifiState()
+}
+
+func (g *Gatherer) GatherWifiState() WifiData {
 	if data, ok := getTestOverride(); ok {
 		return data
 	}
@@ -63,32 +67,30 @@ func GatherWifiState() WifiData {
 		}
 	}
 
-	// We have an associated BSS — gather station info for signal & bitrate.
-	var signalDBm int
-	var linkSpeedMbps int
-	stations, err := c.StationInfo(ifi)
-	if err == nil && len(stations) > 0 {
-		sta := stations[0]
-		signalDBm = sta.Signal
-		// TransmitBitrate is in bits/second; convert to Mbps.
-		linkSpeedMbps = sta.TransmitBitrate / 1_000_000
-	}
+	signalDBm, linkSpeedMbps, signalUnavailable := g.signalInfo(ifi.Name, bss.Signal, func() ([]*nlwifi.StationInfo, error) {
+		return c.StationInfo(ifi)
+	})
 
 	// Frequency from BSS is in MHz; convert to GHz.
 	freqGHz := float64(bss.Frequency) / 1000.0
 	channel := frequencyToChannel(freqGHz)
 	ipAddr := resolveIPAddress(ifi.Name)
+	linkQuality := 0
+	if !signalUnavailable {
+		linkQuality = signalToQuality(signalDBm)
+	}
 
 	return WifiData{
-		SSID:            truncateSSID(bss.SSID),
-		SignalStrength:  clampSignal(signalDBm),
-		LinkQuality:     signalToQuality(signalDBm),
-		IPAddress:       ipAddr,
-		Frequency:       freqGHz,
-		Channel:         channel,
-		InterfaceName:   ifi.Name,
-		LinkSpeed:       linkSpeedMbps,
-		ConnectionState: Connected,
+		SSID:              truncateSSID(bss.SSID),
+		SignalStrength:    clampSignal(signalDBm),
+		SignalUnavailable: signalUnavailable,
+		LinkQuality:       linkQuality,
+		IPAddress:         ipAddr,
+		Frequency:         freqGHz,
+		Channel:           channel,
+		InterfaceName:     ifi.Name,
+		LinkSpeed:         linkSpeedMbps,
+		ConnectionState:   Connected,
 	}
 }
 

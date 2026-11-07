@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/databeast/cyberhud/display/modes/attract_popsquares/source"
+	"github.com/databeast/cyberhud/display/surface/textlayout"
 )
 
 // TestTunePolicyForUltraLowResCapsActivity verifies the ultra-low-res tuning
@@ -86,6 +87,7 @@ func TestFrozenFrameIsNonBlank(t *testing.T) {
 	if sprite.Image == nil {
 		t.Fatal("frozen frame produced no image")
 	}
+
 	b := sprite.Image.Bounds()
 	var black, white, total int
 	for y := b.Min.Y; y < b.Max.Y; y += 3 {
@@ -106,5 +108,27 @@ func TestFrozenFrameIsNonBlank(t *testing.T) {
 	}
 	if white == total {
 		t.Fatal("frozen frame is entirely white")
+	}
+}
+
+func TestSlowFrameRemainsStatic(t *testing.T) {
+	oldPolicy := GetPolicy()
+	oldFrameCounter, oldLastTick, oldTimePhase, oldEinkPanel := frameCounter, lastTick, timePhase, isEinkPanel
+	t.Cleanup(func() {
+		SetPolicy(oldPolicy)
+		frameCounter, lastTick, timePhase, isEinkPanel = oldFrameCounter, oldLastTick, oldTimePhase, oldEinkPanel
+	})
+	SetPolicy(DefaultPolicy())
+
+	for _, capability := range []int{
+		textlayout.CapMonoSlow, textlayout.CapGrayscaleSlow, textlayout.CapColorSlow,
+	} {
+		hints := textlayout.TextHints{PixelWidth: 300, PixelHeight: 400, Capability: capability}
+		_ = BuildView(hints)
+		key := RenderCacheKey()
+		_ = BuildView(hints)
+		if key != RenderCacheKey() {
+			t.Errorf("capability %v: slow frame cache key changed", capability)
+		}
 	}
 }

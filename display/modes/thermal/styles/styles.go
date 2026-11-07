@@ -130,8 +130,6 @@ func buildTimegraphStyle(snapshot source.ThermalSnapshot, pol source.Policy, ctx
 	if len(result.Items) == 0 || allEmptyItems(result.Items) {
 		result.Items = []string{"thermal"}
 	}
-	// Time-graph is non-static: sparklines animate on fast panels.
-	result.Static = false
 	return result
 }
 
@@ -160,7 +158,6 @@ func buildOverview(snap source.ThermalSnapshot, pol source.Policy, ctx style.Sty
 	hints := ctx.Hints()
 	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 5})
 
-	ox, oy := bridge.ContentOrigin()
 	width := bridge.AvailableContentWidth()
 	hasBorder := pol.ShowBorder && hints.PixelWidth >= 16 && hints.PixelHeight >= 16
 	m := ctx.DefaultMetrics()
@@ -174,6 +171,7 @@ func buildOverview(snap source.ThermalSnapshot, pol source.Policy, ctx style.Sty
 	offsetY := bridge.CenterBlockY(uniformRowHeights(len(zones), rowHeight), 0)
 
 	vd := style.ViewData{
+		PaddingPct: 5,
 		OffsetY: offsetY,
 	}
 
@@ -224,14 +222,13 @@ func buildOverview(snap source.ThermalSnapshot, pol source.Policy, ctx style.Sty
 		vd.Items = append(vd.Items, row)
 		vd.Colors = append(vd.Colors, labelColor)
 
-		// Compute Y position for this row using content origin.
-		yPos := oy + int(offsetY) + i*rowHeight
-
 		// Render progressbar widget for this zone using severity-driven bar fill color.
 		// Position: to the right of text area, leaving space for label+temp text.
 		textChars := utf8.RuneCountInString(z.Label) + 1 + utf8.RuneCountInString(tempStr) + 1
 		glyphAdvance := m.Advance()
-		barX := ox + textChars*glyphAdvance
+		barOrigin := bridge.CellToPixel(i, textChars, m).Add(image.Pt(0, int(offsetY)))
+		yPos := barOrigin.Y
+		barX := barOrigin.X
 		barPixelWidth := width - textChars*glyphAdvance
 		if barPixelWidth < 1 {
 			barPixelWidth = 1
@@ -336,7 +333,7 @@ func buildDetail(snap source.ThermalSnapshot, pol source.Policy, ctx style.Style
 	isColor := pol.FGColor != "none"
 	nativeFG := color.RGBA{R: 255, G: 255, B: 255, A: 255}
 
-	ox, oy := bridge.ContentOrigin()
+	ox, _ := bridge.ContentOrigin()
 	width := bridge.AvailableContentWidth()
 	height := bridge.AvailableContentHeight()
 	hasBorder := pol.ShowBorder && hints.PixelWidth >= 16 && hints.PixelHeight >= 16
@@ -364,7 +361,7 @@ func buildDetail(snap source.ThermalSnapshot, pol source.Policy, ctx style.Style
 	minTemp, maxTemp := computeMinMax(history)
 
 	// Build Items.
-	vd := style.ViewData{OffsetY: 0}
+	vd := style.ViewData{OffsetY: 0, PaddingPct: 5}
 
 	// Add borderframe sprites if applicable (panel-covering).
 	if hasBorder {
@@ -430,7 +427,8 @@ func buildDetail(snap source.ThermalSnapshot, pol source.Policy, ctx style.Style
 
 	// Render sparkline widget for temperature history.
 	if !suppressSparkAndTrips && sparkRowIndex >= 0 && sparkRowIndex < len(vd.Items) {
-		sparkY := oy + int(vd.OffsetY) + sparkRowIndex*rowHeight
+		sparkOrigin := bridge.CellToPixel(sparkRowIndex, 0, ctx.DefaultMetrics()).Add(image.Pt(0, int(vd.OffsetY)))
+		sparkY := sparkOrigin.Y
 		sparkWidth := width
 		if sparkWidth < 1 {
 			sparkWidth = hints.PixelWidth
@@ -535,7 +533,6 @@ func buildGraph(snap source.ThermalSnapshot, pol source.Policy, ctx style.StyleC
 	hints := ctx.Hints()
 	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 5})
 
-	ox, oy := bridge.ContentOrigin()
 	width := bridge.AvailableContentWidth()
 
 	m := ctx.DefaultMetrics()
@@ -547,7 +544,7 @@ func buildGraph(snap source.ThermalSnapshot, pol source.Policy, ctx style.StyleC
 		zones = zones[:maxRows]
 	}
 	offsetY := bridge.CenterBlockY(uniformRowHeights(len(zones), rowHeight), 0)
-	vd := style.ViewData{OffsetY: offsetY}
+	vd := style.ViewData{OffsetY: offsetY, PaddingPct: 5}
 
 	hasBorder := pol.ShowBorder && hints.PixelWidth >= 16 && hints.PixelHeight >= 16
 
@@ -602,13 +599,13 @@ func buildGraph(snap source.ThermalSnapshot, pol source.Policy, ctx style.StyleC
 		vd.Colors = append(vd.Colors, sevColor)
 
 		// Compute Y position and prefix width for sparkline widget placement.
-		yPos := oy + int(offsetY) + i*rowHeight
+		yPos := bridge.CellToPixel(i, 0, m).Y + int(offsetY)
 		prefixPixelWidth := prefixLen * glyphAdvance
 
 		// Suppress sparkline widgets when panel is too narrow (show text only).
 		if width >= 64 {
 			// Render sparkline widget for this zone stacked vertically.
-			sparkX := ox + prefixPixelWidth
+			sparkX := bridge.CellToPixel(i, prefixLen, m).X
 			sparkPixelWidth := width - prefixPixelWidth
 			if sparkPixelWidth < 1 {
 				sparkPixelWidth = 1
@@ -687,6 +684,7 @@ func buildMinimal(snap source.ThermalSnapshot, pol source.Policy, ctx style.Styl
 	tempColor := resolveAccentForTemp(pol.FGColor, isColor, sev, nativeFG)
 
 	vd := style.ViewData{
+		PaddingPct: 5,
 		OffsetY: 0,
 	}
 
@@ -784,7 +782,7 @@ func buildMonoOLEDCompact(snap source.ThermalSnapshot, pol source.Policy, ctx st
 	isColor := pol.FGColor != "none"
 	nativeFG := color.RGBA{R: 255, G: 255, B: 255, A: 255}
 
-	ox, oy := bridge.ContentOrigin()
+	ox, _ := bridge.ContentOrigin()
 	width := bridge.AvailableContentWidth()
 	m := ctx.DefaultMetrics()
 	rowHeight := m.RowHeight()
@@ -812,7 +810,7 @@ func buildMonoOLEDCompact(snap source.ThermalSnapshot, pol source.Policy, ctx st
 	minTemp, maxTemp := computeMinMax(history)
 	sparkData := normalizeSparkline(history, ec)
 
-	vd := style.ViewData{OffsetY: 0}
+	vd := style.ViewData{OffsetY: 0, PaddingPct: 5}
 
 	if hasBorder {
 		cfg := borderframe.Config{Bounds: image.Rect(0, 0, hints.PixelWidth, hints.PixelHeight)}
@@ -836,7 +834,7 @@ func buildMonoOLEDCompact(snap source.ThermalSnapshot, pol source.Policy, ctx st
 	vd.Items = append(vd.Items, "")
 	vd.Colors = append(vd.Colors, tempColor)
 
-	sparkY := oy + rowHeight
+	sparkY := bridge.CellToPixel(1, 0, m).Y
 	sparkH := rowHeight - 2
 	if sparkH < 1 {
 		sparkH = 1
@@ -900,14 +898,15 @@ func buildMonoOLEDCompact(snap source.ThermalSnapshot, pol source.Policy, ctx st
 		bar := renderTextBar(zfill, barWidth)
 
 		rowIdx := len(vd.Items)
-		yPos := bridge.RowY(rowIdx, 0, m)
+		barOrigin := bridge.CellToPixel(rowIdx, prefixLen, m)
+		yPos := barOrigin.Y
 
 		vd.Items = append(vd.Items, fmt.Sprintf("%s %s %s", abbr, zTempStr, bar))
 		vd.Colors = append(vd.Colors, zColor)
 
 		// Pixel progress bar overlaid on the text bar region.
 		prefixPx := prefixLen * glyphAdvance
-		barX := ox + prefixPx
+		barX := barOrigin.X
 		barPxWidth := width - prefixPx
 		if barPxWidth < 1 {
 			barPxWidth = 1

@@ -38,7 +38,7 @@ func buildSlowWifi(data source.WifiData, pol source.Policy, ctx style.StyleConte
 	cw := bridge.AvailableContentWidth()
 	chh := bridge.AvailableContentHeight()
 	if cw <= 0 || chh <= 0 {
-		return style.ViewData{Items: []string{"(too small)"}, Static: true, PaddingPct: paddingPct}
+		return style.ViewData{Items: []string{"(too small)"}, PaddingPct: paddingPct}
 	}
 
 	hints := ctx.Hints()
@@ -74,7 +74,7 @@ func buildSlowWifi(data source.WifiData, pol source.Policy, ctx style.StyleConte
 
 	return style.ViewData{
 		Sprites:    sprites,
-		Static:     true,
+		
 		Cursor:     -1,
 		PaddingPct: paddingPct,
 	}
@@ -255,7 +255,9 @@ func slowConnectedVertical(sprites []widgets.Sprite, data source.WifiData, bridg
 		barW = cw
 		barX = ox
 	}
-	if barH >= 8 && barW >= 3 {
+	if data.SignalUnavailable {
+		sprites = placeLabel(sprites, ctx, "N/A", ox, barTop+(barH-labelH)/2, cw, labelH, qColor, "signal-readout")
+	} else if barH >= 8 && barW >= 3 {
 		bar := progressbar.Render(progressbar.Config{
 			Style:       progressbar.Segmented,
 			Orientation: progressbar.OrientVertical,

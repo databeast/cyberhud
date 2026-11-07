@@ -32,7 +32,7 @@ func (s ColorFastStyle) Build(snapshot source.Data, pol source.Policy, ctx style
 	hints := ctx.Hints()
 	_ = pol
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: false, Sprites: snapshot.Sprites}
+	return style.ViewData{Sprites: snapshot.Sprites}
 }
 
 // MonoFastStyle targets monochrome OLED panels.
@@ -49,7 +49,7 @@ func (s MonoFastStyle) Build(snapshot source.Data, pol source.Policy, ctx style.
 	hints := ctx.Hints()
 	_ = pol
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: false, Sprites: snapshot.Sprites}
+	return style.ViewData{Sprites: snapshot.Sprites}
 }
 
 // MonoSlowStyle targets mono e-ink panels.
@@ -66,7 +66,7 @@ func (s MonoSlowStyle) Build(snapshot source.Data, pol source.Policy, ctx style.
 	hints := ctx.Hints()
 	_ = pol
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: true, Sprites: snapshot.Sprites}
+	return style.ViewData{Sprites: snapshot.Sprites}
 }
 
 // GrayscaleFastStyle targets grayscale fast panels.
@@ -85,7 +85,7 @@ func (s GrayscaleFastStyle) Build(snapshot source.Data, pol source.Policy, ctx s
 	hints := ctx.Hints()
 	_ = pol
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: false, Sprites: snapshot.Sprites}
+	return style.ViewData{Sprites: snapshot.Sprites}
 }
 
 // GrayscaleSlowStyle targets grayscale e-paper panels.
@@ -104,7 +104,7 @@ func (s GrayscaleSlowStyle) Build(snapshot source.Data, pol source.Policy, ctx s
 	hints := ctx.Hints()
 	_ = pol
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: true, Sprites: snapshot.Sprites}
+	return style.ViewData{Sprites: snapshot.Sprites}
 }
 
 // ColorSlowStyle targets color e-paper panels.
@@ -121,5 +121,5 @@ func (s ColorSlowStyle) Build(snapshot source.Data, pol source.Policy, ctx style
 	hints := ctx.Hints()
 	_ = pol
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: true, Sprites: snapshot.Sprites}
+	return style.ViewData{Sprites: snapshot.Sprites}
 }

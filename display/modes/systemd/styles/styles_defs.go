@@ -347,73 +347,73 @@ var ColorSlow480x320Style = def{
 var MonoSlow104x212Style = def{
 	name: "mono-slow-104x212",
 	reqs: style.SurfaceRequirements{MinWidth: 104, MinHeight: 212, Capability: style.MonoSlow},
-	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
+	p:    Params{EinkSuppressed: true, ContentMaxRows: true},
 }
 
 var MonoSlow122x250Style = def{
 	name: "mono-slow-122x250",
 	reqs: style.SurfaceRequirements{MinWidth: 122, MinHeight: 250, Capability: style.MonoSlow},
-	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
+	p:    Params{EinkSuppressed: true, ContentMaxRows: true},
 }
 
 var MonoSlow128x296Style = def{
 	name: "mono-slow-128x296",
 	reqs: style.SurfaceRequirements{MinWidth: 128, MinHeight: 296, Capability: style.MonoSlow},
-	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
+	p:    Params{EinkSuppressed: true, ContentMaxRows: true},
 }
 
 var MonoSlow176x264Style = def{
 	name: "mono-slow-176x264",
 	reqs: style.SurfaceRequirements{MinWidth: 176, MinHeight: 264, Capability: style.MonoSlow},
-	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
+	p:    Params{EinkSuppressed: true, ContentMaxRows: true},
 }
 
 var MonoSlow200x200Style = def{
 	name: "mono-slow-200x200",
 	reqs: style.SurfaceRequirements{MinWidth: 200, MinHeight: 200, Capability: style.MonoSlow},
-	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
+	p:    Params{EinkSuppressed: true, ContentMaxRows: true},
 }
 
 var MonoSlow212x104Style = def{
 	name: "mono-slow-212x104",
 	reqs: style.SurfaceRequirements{MinWidth: 212, MinHeight: 104, Capability: style.MonoSlow},
-	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
+	p:    Params{EinkSuppressed: true, ContentMaxRows: true},
 }
 
 var MonoSlow250x122Style = def{
 	name: "mono-slow-250x122",
 	reqs: style.SurfaceRequirements{MinWidth: 250, MinHeight: 122, Capability: style.MonoSlow},
-	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
+	p:    Params{EinkSuppressed: true, ContentMaxRows: true},
 }
 
 var MonoSlow264x176Style = def{
 	name: "mono-slow-264x176",
 	reqs: style.SurfaceRequirements{MinWidth: 264, MinHeight: 176, Capability: style.MonoSlow},
-	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
+	p:    Params{EinkSuppressed: true, ContentMaxRows: true},
 }
 
 var MonoSlow296x128Style = def{
 	name: "mono-slow-296x128",
 	reqs: style.SurfaceRequirements{MinWidth: 296, MinHeight: 128, Capability: style.MonoSlow},
-	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
+	p:    Params{EinkSuppressed: true, ContentMaxRows: true},
 }
 
 var MonoSlow300x400Style = def{
 	name: "mono-slow-300x400",
 	reqs: style.SurfaceRequirements{MinWidth: 300, MinHeight: 400, Capability: style.MonoSlow},
-	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
+	p:    Params{EinkSuppressed: true, ContentMaxRows: true},
 }
 
 var MonoSlow400x300Style = def{
 	name: "mono-slow-400x300",
 	reqs: style.SurfaceRequirements{MinWidth: 400, MinHeight: 300, Capability: style.MonoSlow},
-	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
+	p:    Params{EinkSuppressed: true, ContentMaxRows: true},
 }
 
 var MonoSlow480x800Style = def{
 	name: "mono-slow-480x800",
 	reqs: style.SurfaceRequirements{MinWidth: 480, MinHeight: 800, Capability: style.MonoSlow},
-	p:    Params{EinkSuppressed: true, ContentMaxRows: true, Static: true},
+	p:    Params{EinkSuppressed: true, ContentMaxRows: true},
 }
 
 var MonoSlow800x480Style = def{
@@ -449,7 +449,7 @@ var GrayscaleFast160x128Style = def{
 var GrayscaleFast160x80Style = def{
 	name: "grayscale-fast-160x80",
 	reqs: style.SurfaceRequirements{MinWidth: 160, MinHeight: 80, Capability: style.GrayscaleFast},
-	p:    Params{SingleLabel: true, Static: true},
+	p:    Params{SingleLabel: true},
 }
 
 var GrayscaleFast240x135Style = def{

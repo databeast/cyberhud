@@ -136,7 +136,7 @@ func BuildView(hints textlayout.TextHints, now time.Time) ViewData {
 	comp := widgets.NewCompositor(ctx)
 	comp.Add(&frameRenderable{img: img, label: "testwidgets"})
 
-	return ViewData{Title: "TEST WIDGETS", Hint: "", Static: false, VisibleCount: 1, Image: img, Sprites: comp.Sprites()}
+	return ViewData{Title: "TEST WIDGETS", Hint: "", VisibleCount: 1, Image: img, Sprites: comp.Sprites()}
 }
 
 func buildVisibleWidget(names []string, start int, hints textlayout.TextHints, now time.Time) (string, *widgets.Sprite) {
@@ -322,7 +322,7 @@ func buildPlaceholderView(hints textlayout.TextHints, labelText string) ViewData
 	comp := widgets.NewCompositor(ctx)
 	comp.Add(&frameRenderable{img: img, label: "testwidgets"})
 
-	return ViewData{Title: "TEST WIDGETS", Hint: "", Static: false, VisibleCount: 1, Image: img, Sprites: comp.Sprites()}
+	return ViewData{Title: "TEST WIDGETS", Hint: "", VisibleCount: 1, Image: img, Sprites: comp.Sprites()}
 }
 
 // RenderCacheKey returns a string that changes when the displayed widget changes.

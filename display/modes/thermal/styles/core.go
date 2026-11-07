@@ -44,7 +44,7 @@ func (d def) Build(snapshot source.ThermalSnapshot, pol source.Policy, ctx style
 //   - Very small panels (< 128px wide): buildMinimal (single temperature)
 func adaptiveBuild(snapshot source.ThermalSnapshot, pol source.Policy, ctx style.StyleContext, d def) style.ViewData {
 	if len(snapshot.Zones) == 0 {
-		return style.ViewData{Items: []string{"no thermal data"}, Static: true}
+		return style.ViewData{Items: []string{"no thermal data"}}
 	}
 
 	hints := ctx.Hints()
@@ -64,6 +64,5 @@ func adaptiveBuild(snapshot source.ThermalSnapshot, pol source.Policy, ctx style
 	if len(result.Items) == 0 || allEmptyItems(result.Items) {
 		result.Items = []string{"thermal"}
 	}
-	result.Static = true
 	return result
 }

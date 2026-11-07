@@ -18,7 +18,6 @@ var CompactStyle = def{
 }
 
 func compactBuild(snapshot source.Data, _ source.Policy, ctx style.StyleContext, d def) style.ViewData {
-	hints := ctx.Hints()
 	bridge := ctx.Layout(0)
 
 	pins := snapshot.Pins
@@ -34,9 +33,8 @@ func compactBuild(snapshot source.Data, _ source.Policy, ctx style.StyleContext,
 	}
 
 	// Build LED sprites using bridge metrics.
-	sprites := BuildSprites(pins, hints)
-
 	m := ctx.DefaultMetrics()
+	sprites := BuildSprites(pins, bridge, m)
 
 	// Truncate text to MaxCharsPerRow.
 	maxCols := bridge.MaxChars(m)
@@ -61,6 +59,6 @@ func compactBuild(snapshot source.Data, _ source.Policy, ctx style.StyleContext,
 		Items:   items,
 		Colors:  colors,
 		Sprites: sprites,
-		Static:  true,
+		
 	}
 }

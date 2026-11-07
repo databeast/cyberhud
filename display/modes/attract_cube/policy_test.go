@@ -79,7 +79,7 @@ func TestInstanceColorAndPanelCapabilities(t *testing.T) {
 	i.Activate()
 	firstKey := i.RenderCacheKey()
 	first := i.BuildView()
-	if first.Static || len(first.Sprites) != 1 {
+	if len(first.Sprites) != 1 {
 		t.Fatalf("invalid color-fast view: %+v", first)
 	}
 	frameclock.Advance(time.Second)
@@ -98,7 +98,7 @@ func TestInstanceColorAndPanelCapabilities(t *testing.T) {
 	slowKey := i.RenderCacheKey()
 	slow := i.BuildView()
 	frameclock.Advance(time.Second)
-	if !slow.Static || len(slow.Sprites) != 1 || i.RenderCacheKey() != slowKey {
+	if len(slow.Sprites) != 1 || i.RenderCacheKey() != slowKey {
 		t.Fatal("slow color view must stay static")
 	}
 	if err := SetPolicy(Policy{BaseColor: "amber"}); err != nil {
@@ -109,7 +109,7 @@ func TestInstanceColorAndPanelCapabilities(t *testing.T) {
 	}
 	i.SetPanelHints(textlayout.TextHints{PixelWidth: 128, PixelHeight: 64, Capability: -1})
 	unsupported := i.BuildView()
-	if !unsupported.Static || len(unsupported.Sprites) != 0 || len(unsupported.Items) == 0 {
+	if len(unsupported.Sprites) != 0 || len(unsupported.Items) == 0 {
 		t.Fatal("unsupported panel should receive an explanatory message")
 	}
 }

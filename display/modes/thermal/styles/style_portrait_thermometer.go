@@ -43,6 +43,7 @@ func buildPortraitThermometerStyle(snapshot source.ThermalSnapshot, pol source.P
 	tempLabel := formatTemp(hottest.TempC, pol.Unit)
 
 	vd := style.ViewData{
+		PaddingPct: 5,
 		Items:  []string{tempLabel},
 		Colors: []color.Color{sevColor},
 	}

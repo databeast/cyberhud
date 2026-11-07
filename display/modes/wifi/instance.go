@@ -13,25 +13,27 @@ func init() {
 }
 
 // instance implements displaymodes.ModeInstance for the wifi mode.
-type instance struct{}
+type instance struct {
+	gatherer source.Gatherer
+}
 
 func newInstance() displaymodes.ModeInstance {
 	return &instance{}
 }
 
 func (i *instance) ID() string                    { return "wifi" }
-func (i *instance) Activate()                     {} // wifi has no background work
+func (i *instance) Activate()                     { i.gatherer.Reset() }
 func (i *instance) Deactivate()                   {} // wifi has no background work
 func (i *instance) ActionHandler() action.Handler { return Handler{} }
 
 func (i *instance) BuildView() style.ViewData {
-	vd := BuildView()
+	vd := buildView(i.gatherer.GatherWifiState())
 
 	return vd
 }
 
 func (i *instance) RenderCacheKey() uint32 {
-	return RenderCacheKey()
+	return renderCacheKey(i.gatherer.GatherWifiState())
 }
 
 func init() {

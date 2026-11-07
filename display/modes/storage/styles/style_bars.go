@@ -27,7 +27,7 @@ import (
 // advance overlaps the text.
 func buildBarsStyle(snapshot source.StorageSnapshot, pol source.Policy, ctx style.StyleContext, _ def) style.ViewData {
 	if len(snapshot.Mounts) == 0 {
-		return style.ViewData{Items: []string{"no storage data"}, Static: true}
+		return style.ViewData{Items: []string{"no storage data"}}
 	}
 
 	hints := ctx.Hints()
@@ -43,7 +43,8 @@ func buildBarsStyle(snapshot source.StorageSnapshot, pol source.Policy, ctx styl
 		rowHeight = textlayout.RowHeight
 	}
 
-	ox, oy := bridge.ContentOrigin()
+	rowMetrics := layout.NewMetrics(glyphAdvance, rowHeight, entry.FontID)
+	ox, _ := bridge.ContentOrigin()
 	contentWidth := bridge.AvailableContentWidth()
 
 	// How many rows fit at this tier's row height.
@@ -90,7 +91,8 @@ func buildBarsStyle(snapshot source.StorageSnapshot, pol source.Policy, ctx styl
 
 	vd := style.ViewData{
 		OffsetY:    offsetY,
-		Static:     true,
+		PaddingPct: 4,
+		
 		Tiers:      make([]tiercatalog.Tier, 0, len(mounts)),
 		RowHeights: make([]int, 0, len(mounts)),
 	}
@@ -120,7 +122,7 @@ func buildBarsStyle(snapshot source.StorageSnapshot, pol source.Policy, ctx styl
 			barHeight = 2
 		}
 		barX := ox + contentWidth - barBandWidth
-		yPos := oy + int(offsetY) + i*rowHeight + (rowHeight-barHeight)/2
+		yPos := bridge.CellToPixel(i, 0, rowMetrics).Y + int(offsetY) + (rowHeight-barHeight)/2
 
 		barResult := progressbar.Render(progressbar.Config{
 			Style:      progressbar.Linear,

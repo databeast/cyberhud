@@ -65,7 +65,7 @@ func placeScroll(snap source.PagerSnapshot, _ source.Policy, ctx style.StyleCont
 		LineOffsets: offsets,
 		OffsetY:     style.TTYY(snap.OffsetY), // pager scroll offset is TTY-block space
 		PaddingPct:  pagerPaddingPct,
-		Static:      false,
+		
 	}
 }
 
@@ -88,7 +88,7 @@ func placePage(snap source.PagerSnapshot, _ source.Policy, ctx style.StyleContex
 	}
 
 	return style.ViewData{
-		Static:     true,
+		
 		PaddingPct: pagerPaddingPct,
 		Sprites: []widgets.Sprite{{
 			Image:    page,
@@ -134,7 +134,7 @@ func renderPageImage(snap source.PagerSnapshot, bridge layout.LayoutCalculator, 
 	}
 	fg := color.RGBA{R: 255, G: 255, B: 255, A: uint8(alpha * 255)}
 
-	ox, oy := bridge.ContentOrigin()
+	rowMetrics := layout.NewMetrics(metrics.GlyphAdvance, rowHeight, "")
 	contentW := bridge.AvailableContentWidth()
 	contentH := bridge.AvailableContentHeight()
 	maxRows := contentH / rowHeight
@@ -144,12 +144,12 @@ func renderPageImage(snap source.PagerSnapshot, bridge layout.LayoutCalculator, 
 
 	img := image.NewRGBA(image.Rect(0, 0, w, h))
 	for row := 0; row < len(snap.Lines) && row < maxRows; row++ {
-		y := oy + row*rowHeight
+		origin := bridge.CellToPixel(row, 0, rowMetrics)
 		yOffset := 0
 		if rowHeight > metrics.GlyphHeight {
 			yOffset = (rowHeight - metrics.GlyphHeight) / 2
 		}
-		font.DrawText(img, face, snap.Lines[row], ox, y+yOffset, fg, ox+contentW)
+		font.DrawText(img, face, snap.Lines[row], origin.X, origin.Y+yOffset, fg, origin.X+contentW)
 	}
 	return img
 }
@@ -177,14 +177,14 @@ func centeredEmptyView(ctx style.StyleContext, bridge layout.LayoutCalculator, s
 		LineOffsets: []style.TTYX{offsetX},
 		OffsetY:     offsetY,
 		PaddingPct:  pagerPaddingPct,
-		Static:      static,
+		
 	}
 }
 
 // tooSmallView is the degenerate placement for a panel with no usable content
 // area.
 func tooSmallView() style.ViewData {
-	return style.ViewData{Items: []string{"(too small)"}, Static: true, PaddingPct: pagerPaddingPct}
+	return style.ViewData{Items: []string{"(too small)"}, PaddingPct: pagerPaddingPct}
 }
 
 // resolvePageFace picks the font face for the page sprite, matching the row

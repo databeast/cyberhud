@@ -55,7 +55,7 @@ func BuildView() style.ViewData {
 	if isEink {
 		sprites := styles.BuildEinkSprites(p, panelWidth, panelHeight)
 		return style.ViewData{
-			Static:  true,
+			
 			Sprites: sprites,
 		}
 	}
@@ -82,7 +82,6 @@ func BuildView() style.ViewData {
 	s := shapesRegistry.Lookup(bestStyleName)
 	vd := s.Build(snap, p, ctx)
 
-	vd.Static = false
 	vd.StyleReport = style.StyleReport{Name: bestStyleName, Reason: "fitness"}
 
 	return vd

@@ -3,6 +3,7 @@ package styles
 import (
 	"github.com/databeast/cyberhud/display/modes/gpio_control/source"
 	"github.com/databeast/cyberhud/display/style"
+	"github.com/databeast/cyberhud/display/style/layout"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 )
@@ -38,9 +39,8 @@ func listBuild(snapshot source.Data, _ source.Policy, ctx style.StyleContext, d 
 	}
 
 	// Build LED sprites using bridge metrics.
-	sprites := BuildSprites(pins, hints)
-
 	m := ctx.DefaultMetrics()
+	sprites := BuildSprites(pins, bridge, m)
 
 	// Truncate text to MaxCharsPerRow.
 	maxCols := bridge.MaxChars(m)
@@ -65,8 +65,9 @@ func listBuild(snapshot source.Data, _ source.Policy, ctx style.StyleContext, d 
 	if hints.Catalog.PixelWidth() > 0 {
 		spriteFace := hints.Face("terminus", tiercatalog.TierNormal)
 		if spriteFace != nil {
-			reboundHints := textlayout.WithFont(hints, spriteFace)
-			textLabelSprites := buildControlTextLabelSprites(pins, items, reboundHints, spriteFace, colors, textlayout.MaxVisibleRows(reboundHints, 0))
+			fm := spriteFace.Metrics()
+			faceMetrics := layout.NewMetrics(fm.GlyphAdvance, fm.RowHeight, "")
+			textLabelSprites := buildControlTextLabelSprites(pins, items, bridge, faceMetrics, spriteFace, colors, textlayout.MaxVisibleRows(textlayout.WithFont(hints, spriteFace), 0))
 			if textLabelSprites != nil {
 				sprites = append(sprites, textLabelSprites...)
 			}
@@ -77,6 +78,6 @@ func listBuild(snapshot source.Data, _ source.Policy, ctx style.StyleContext, d 
 		Items:   items,
 		Colors:  colors,
 		Sprites: sprites,
-		Static:  true,
+		
 	}
 }

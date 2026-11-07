@@ -71,7 +71,7 @@ func buildPanel(snap source.Snapshot, pol source.Policy, ctx style.StyleContext,
 	cw := bridge.AvailableContentWidth()
 	chh := bridge.AvailableContentHeight()
 	if cw <= 0 || chh <= 0 {
-		return style.ViewData{Items: []string{"(too small)"}, Static: opts.static}
+		return style.ViewData{Items: []string{"(too small)"}}
 	}
 
 	// Raw mode: just the output bytes, no chrome. Same at every panel size.
@@ -179,7 +179,6 @@ func buildPanel(snap source.Snapshot, pol source.Policy, ctx style.StyleContext,
 
 	return style.ViewData{
 		Sprites: comp.Sprites(),
-		Static:  opts.static,
 		Cursor:  -1,
 	}
 }
@@ -298,7 +297,6 @@ func rawView(snap source.Snapshot, ctx style.StyleContext, bridge layout.LayoutC
 		Items:       items,
 		Colors:      colors,
 		LineOffsets: offsets,
-		Static:      static,
 		Cursor:      -1,
 	}
 }

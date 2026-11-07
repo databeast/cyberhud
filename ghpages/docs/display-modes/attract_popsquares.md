@@ -42,7 +42,7 @@ cyberhudctl display config 0 grid_scale=1.5 warmth=0.3
 
 ### E-Ink Behavior
 
-On e-ink panels, the pop-squares mode renders a single frozen frame — the calm base field with a handful of cells caught mid-pulse — and holds it. The RenderCacheKey remains stable after the initial frame, preventing unnecessary refreshes that would cause flicker or ghosting on e-ink displays.
+On e-ink panels, the pop-squares mode renders a single frozen frame — the calm base field with a handful of cells caught mid-pulse — and holds it. Color e-ink panels retain the color palette; monochrome and grayscale panels use grayscale. The RenderCacheKey remains stable after the initial frame, preventing unnecessary refreshes that would cause flicker or ghosting on e-ink displays.
 
 ## Related Pages
 

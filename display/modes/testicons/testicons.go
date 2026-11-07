@@ -82,7 +82,7 @@ func BuildView(hints textlayout.TextHints, now time.Time) ViewData {
 		comp := widgets.NewCompositor(ctx)
 		comp.Add(&frameRenderable{img: img, label: "testicons"})
 
-		return ViewData{Title: "TEST ICONS", Hint: "", Static: false, Image: img, Sprites: comp.Sprites()}
+		return ViewData{Title: "TEST ICONS", Hint: "", Image: img, Sprites: comp.Sprites()}
 	}
 
 	index := int(now.UnixMilli()/displayDuration) % len(names)
@@ -173,7 +173,7 @@ func BuildView(hints textlayout.TextHints, now time.Time) ViewData {
 	comp := widgets.NewCompositor(ctx)
 	comp.Add(&frameRenderable{img: img, label: "testicons"})
 
-	return ViewData{Title: "TEST ICONS", Hint: "", Static: false, Image: img, Sprites: comp.Sprites()}
+	return ViewData{Title: "TEST ICONS", Hint: "", Image: img, Sprites: comp.Sprites()}
 }
 
 // RenderCacheKey returns a string that changes when the displayed icon changes.

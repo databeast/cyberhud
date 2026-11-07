@@ -106,7 +106,7 @@ func (s GeometricMonoSlowStyle) Supports(hints textlayout.TextHints) style.Fitne
 }
 
 func (s GeometricMonoSlowStyle) Build(_ source.GeometricFrame, _ source.Policy, _ style.StyleContext) style.ViewData {
-	return style.ViewData{Static: true}
+	return style.ViewData{}
 }
 
 // ─── GrayscaleFast ────────────────────────────────────────────────────────────
@@ -166,7 +166,7 @@ func (s GeometricGrayscaleSlowStyle) Supports(hints textlayout.TextHints) style.
 }
 
 func (s GeometricGrayscaleSlowStyle) Build(_ source.GeometricFrame, _ source.Policy, _ style.StyleContext) style.ViewData {
-	return style.ViewData{Static: true}
+	return style.ViewData{}
 }
 
 // ─── ColorSlow ────────────────────────────────────────────────────────────────
@@ -196,7 +196,7 @@ func (s GeometricColorSlowStyle) Supports(hints textlayout.TextHints) style.Fitn
 }
 
 func (s GeometricColorSlowStyle) Build(_ source.GeometricFrame, _ source.Policy, _ style.StyleContext) style.ViewData {
-	return style.ViewData{Static: true}
+	return style.ViewData{}
 }
 
 // Registry returns the mode's style registry.

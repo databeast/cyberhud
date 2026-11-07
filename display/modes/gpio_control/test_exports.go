@@ -6,6 +6,7 @@ import (
 	"github.com/databeast/cyberhud/display/modes/gpio_control/source"
 	gcstyles "github.com/databeast/cyberhud/display/modes/gpio_control/styles"
 	"github.com/databeast/cyberhud/display/style"
+	"github.com/databeast/cyberhud/display/style/layout"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/display/widgets"
 	gpiomgr "github.com/databeast/cyberhud/hardware/gpio"
@@ -25,7 +26,12 @@ func SetSnapshot(pins []gpiomgr.PinState) { source.SetSnapshot(pins) }
 func BuildColors(pins []gpiomgr.PinState) []color.Color { return gcstyles.BuildColors(pins) }
 
 func BuildSprites(pins []gpiomgr.PinState, hints textlayout.TextHints) []widgets.Sprite {
-	return gcstyles.BuildSprites(pins, hints)
+	rowHeight := hints.RowHeight
+	if rowHeight <= 0 {
+		rowHeight = textlayout.RowHeight
+	}
+	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{})
+	return gcstyles.BuildSprites(pins, bridge, layout.NewMetrics(hints.GlyphAdvance, rowHeight, ""))
 }
 
 func Registry() *style.StyleRegistry[source.Data, source.Policy] { return gpioControlRegistry }

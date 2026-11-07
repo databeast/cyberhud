@@ -46,8 +46,9 @@ func framedBuild(snapshot source.MenuSnapshot, pol source.Policy, ctx style.Styl
 	comp.Add(borderframe.New(borderframe.Config{Bounds: bounds}))
 
 	return style.ViewData{
+		PaddingPct: 2,
 		Items:   items,
 		Sprites: comp.Sprites(),
-		Static:  true,
+		
 	}
 }

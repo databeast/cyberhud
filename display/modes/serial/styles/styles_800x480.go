@@ -60,7 +60,7 @@ func posterPanel800x480(snap source.Snapshot, pol source.Policy, ctx style.Style
 	cw := bridge.AvailableContentWidth()
 	chh := bridge.AvailableContentHeight()
 	if cw <= 0 || chh <= 0 {
-		return style.ViewData{Items: []string{"(too small)"}, Static: false}
+		return style.ViewData{Items: []string{"(too small)"}}
 	}
 
 	// Raw mode is a policy toggle, honoured here as everywhere: bytes only.
@@ -131,8 +131,9 @@ func posterPanel800x480(snap source.Snapshot, pol source.Policy, ctx style.Style
 	placeDataLines(comp, snap, ox, y, cw, bodyH, bodyAdvance, bodyFace, budget, maxChars, true)
 
 	return style.ViewData{
+		PaddingPct: 3,
 		Sprites: comp.Sprites(),
-		Static:  false,
+		
 		Cursor:  -1,
 	}
 }

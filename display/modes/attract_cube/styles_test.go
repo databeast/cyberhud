@@ -23,10 +23,6 @@ func TestSurfaceStyles(t *testing.T) {
 		if len(view.Sprites) != 1 || view.Sprites[0].Image.Bounds() != image.Rect(0, 0, req.MinWidth, req.MinHeight) {
 			t.Fatalf("%s: wrong sprite geometry", s.Name())
 		}
-		slow := req.Capability == style.MonoSlow || req.Capability == style.GrayscaleSlow || req.Capability == style.ColorSlow
-		if view.Static != slow {
-			t.Errorf("%s: Static = %v, want %v", s.Name(), view.Static, slow)
-		}
 	}
 	for _, cap := range []style.Capability{style.MonoSlow, style.MonoFast, style.GrayscaleSlow, style.GrayscaleFast, style.ColorSlow, style.ColorFast} {
 		if counts[cap] == 0 {
@@ -43,10 +39,6 @@ func TestNonStandardDimensionsUsePanelCapabilities(t *testing.T) {
 		view := i.BuildView()
 		if len(view.Sprites) != 1 || view.Sprites[0].Image.Bounds() != image.Rect(0, 0, 75, 55) {
 			t.Fatalf("capability %d: unexpected view %+v", cap, view)
-		}
-		wantStatic := cap == textlayout.CapMonoSlow || cap == textlayout.CapGrayscaleSlow || cap == textlayout.CapColorSlow
-		if view.Static != wantStatic {
-			t.Errorf("capability %d: Static = %v, want %v", cap, view.Static, wantStatic)
 		}
 	}
 }

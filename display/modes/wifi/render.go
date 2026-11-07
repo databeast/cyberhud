@@ -12,8 +12,11 @@ import (
 )
 
 func BuildView() style.ViewData {
+	return buildView(source.GatherWifiState())
+}
+
+func buildView(data source.WifiData) style.ViewData {
 	p := normalizePolicy(GetPolicy())
-	data := source.GatherWifiState()
 
 	hints, ok := modehints.Current()
 	if !ok {
@@ -24,7 +27,6 @@ func BuildView() style.ViewData {
 	ctx := style.NewStyleContext(hints)
 	vd := s.Build(data, p, ctx)
 	vd.StyleReport = style.ReportFor(s, reason, hints)
-	vd.Static = false
 	vd.Cursor = -1
 	if vd.Sprites == nil {
 		vd.Sprites = []widgets.Sprite{}
@@ -33,10 +35,13 @@ func BuildView() style.ViewData {
 }
 
 func RenderCacheKey() uint32 {
-	snap := source.GatherWifiState()
+	return renderCacheKey(source.GatherWifiState())
+}
+
+func renderCacheKey(snap source.WifiData) uint32 {
 	p := GetPolicy()
-	key := fmt.Sprintf("w|%d|%s|%d|%d|%s|%d|%d|%s|%s",
-		int(snap.ConnectionState), snap.SSID, snap.SignalStrength, snap.LinkQuality,
+	key := fmt.Sprintf("w|%d|%s|%d|%t|%d|%s|%d|%d|%s|%s",
+		int(snap.ConnectionState), snap.SSID, snap.SignalStrength, snap.SignalUnavailable, snap.LinkQuality,
 		snap.IPAddress, snap.Channel, snap.LinkSpeed, snap.InterfaceName, p.Fingerprint())
 	return region.CalcRegionCacheKey(key)
 }
@@ -49,7 +54,6 @@ func BuildViewWithHints(hints textlayout.TextHints) style.ViewData {
 	ctx := style.NewStyleContext(hints)
 	vd := s.Build(data, p, ctx)
 	vd.StyleReport = style.ReportFor(s, reason, hints)
-	vd.Static = false
 	vd.Cursor = -1
 	if vd.Sprites == nil {
 		vd.Sprites = []widgets.Sprite{}
