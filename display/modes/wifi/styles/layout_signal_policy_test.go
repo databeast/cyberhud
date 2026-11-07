@@ -96,6 +96,16 @@ func TestReadout_DbmMode(t *testing.T) {
 	}
 }
 
+func TestReadout_UnavailableSignal(t *testing.T) {
+	data := connectedSnapshot()
+	data.SignalUnavailable = true
+	for _, mode := range []string{"bars", "dbm", "percentage"} {
+		if got := signalForwardReadout(data, source.Policy{SignalDisplay: mode}, 0); got != "N/A" {
+			t.Errorf("%s readout = %q, want N/A", mode, got)
+		}
+	}
+}
+
 func TestReadout_PercentageMode(t *testing.T) {
 	got := signalForwardReadout(connectedSnapshot(), source.Policy{SignalDisplay: "percentage"}, 4)
 	if !strings.Contains(got, "%") {

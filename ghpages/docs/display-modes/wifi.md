@@ -12,6 +12,8 @@ cyberhudctl display set 0 wifi
 
 The WiFi mode queries the system's wireless interface via NL80211 netlink on each render cycle and displays connection details as a multi-row layout with graphical indicators. The display renders a WiFi icon sprite, signal strength bars (color-coded by quality level), a horizontal link quality progress bar, and detail rows showing SSID, frequency band, channel number, IP address, and interface name. Each render produces a data-signature fingerprint incorporating connection state, signal metrics, and all policy fields so the display runtime skips unnecessary re-renders when nothing has changed.
 
+If station information fails or is empty, the mode uses the associated BSS's cached signal for the rest of that activation and does not request station information again until WiFi mode is reactivated. The cached reading may be stale, and link speed is unavailable while using it. If the BSS has no usable signal reading, signal is shown as unavailable.
+
 When no wireless interface is detected the mode displays "WiFi N/A", and when the interface exists but is not associated it shows "No Network" — both states render gracefully without errors. The signal strength is represented in one of three formats controlled by the `signal_display` option: vertical bars (0–4 levels mapped from dBm thresholds), a percentage (linear interpolation from -100 dBm to -30 dBm), or raw dBm value. In `bars` mode the signal-bars sprite stands on its own; in `percentage` and `dbm` modes a numeric label accompanies it so the exact value is readable. On color panels, signal bars use quality-mapped colors: the accent foreground color for strong signals (3–4 bars), amber for moderate (2 bars), and red for weak (0–1 bars).
 
 The `show_frequency`, `show_channel`, and `show_interface` options add or remove their respective detail rows across every panel. When both frequency and channel are shown they are consolidated onto a single row (for example `Ch 36 (5.2GHz)`) so a height-constrained panel spends one row on radio information rather than two. IP address and link speed are always shown when available.
@@ -880,6 +882,5 @@ The mode does not require physical input controls — joystick Left/Right cycle 
 </div>
 
 <!-- snapshot-gallery:end -->
-
 
 

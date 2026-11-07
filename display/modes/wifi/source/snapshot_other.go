@@ -5,6 +5,10 @@ package source
 // gatherWifiState on non-Linux platforms returns a WifiData indicating that
 // WiFi state reading is unavailable.
 func GatherWifiState() WifiData {
+	return new(Gatherer).GatherWifiState()
+}
+
+func (g *Gatherer) GatherWifiState() WifiData {
 	if data, ok := getTestOverride(); ok {
 		return data
 	}

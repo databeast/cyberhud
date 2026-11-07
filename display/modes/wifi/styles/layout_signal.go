@@ -319,17 +319,21 @@ func signalForwardCompact(data source.WifiData, pol source.Policy, bridge layout
 	// Horizontal signal bar.
 	barH := clampInt(rowH, 4, 8)
 	if y+barH <= oy+chh {
-		bar := progressbar.Render(progressbar.Config{
-			Style:       progressbar.Linear,
-			Orientation: progressbar.OrientHorizontal,
-			Value:       fill,
-			Bounds:      image.Rect(ox, y, ox+cw, y+barH),
-			Foreground:  qColor,
-			Background:  color.RGBA{34, 34, 34, 255},
-			RoundedCaps: true,
-		})
-		if bar != nil {
-			sprites = append(sprites, *bar)
+		if data.SignalUnavailable {
+			sprites = placeLabel(sprites, ctx, "N/A", ox, y, cw, barH, qColor, "signal-readout")
+		} else {
+			bar := progressbar.Render(progressbar.Config{
+				Style:       progressbar.Linear,
+				Orientation: progressbar.OrientHorizontal,
+				Value:       fill,
+				Bounds:      image.Rect(ox, y, ox+cw, y+barH),
+				Foreground:  qColor,
+				Background:  color.RGBA{34, 34, 34, 255},
+				RoundedCaps: true,
+			})
+			if bar != nil {
+				sprites = append(sprites, *bar)
+			}
 		}
 		y += barH + 1
 	}
@@ -389,7 +393,9 @@ func signalForwardCompactVertical(data source.WifiData, bridge layout.LayoutCalc
 		barW = cw
 		barX = ox
 	}
-	if barH >= 8 && barW >= 3 {
+	if data.SignalUnavailable {
+		sprites = placeLabel(sprites, ctx, "N/A", ox, barTop+(barH-labelH)/2, cw, labelH, qColor, "signal-readout")
+	} else if barH >= 8 && barW >= 3 {
 		bar := progressbar.Render(progressbar.Config{
 			Style:       progressbar.Linear,
 			Orientation: progressbar.OrientVertical,
@@ -423,6 +429,9 @@ func signalForwardCompactVertical(data source.WifiData, bridge layout.LayoutCalc
 // percentage modes instead surface the exact figure for the user who asked to
 // see it.
 func signalForwardReadout(data source.WifiData, pol source.Policy, barLevel int) string {
+	if data.SignalUnavailable {
+		return "N/A"
+	}
 	switch pol.SignalDisplay {
 	case "dbm":
 		return source.FormatDbm(data.SignalStrength)

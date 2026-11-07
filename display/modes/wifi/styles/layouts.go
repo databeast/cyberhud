@@ -255,7 +255,9 @@ func slowConnectedVertical(sprites []widgets.Sprite, data source.WifiData, bridg
 		barW = cw
 		barX = ox
 	}
-	if barH >= 8 && barW >= 3 {
+	if data.SignalUnavailable {
+		sprites = placeLabel(sprites, ctx, "N/A", ox, barTop+(barH-labelH)/2, cw, labelH, qColor, "signal-readout")
+	} else if barH >= 8 && barW >= 3 {
 		bar := progressbar.Render(progressbar.Config{
 			Style:       progressbar.Segmented,
 			Orientation: progressbar.OrientVertical,
