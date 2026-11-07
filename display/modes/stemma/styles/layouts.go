@@ -136,14 +136,11 @@ func BuildSprites(devs []*source.Device, rowHeight int, getIcon func(name string
 
 // deviceIconRenderable wraps a single device's icon rendering as a widgets.Renderable.
 // It resolves the appropriate icon (check or error) and positions it using
-// ContentOrigin as the base coordinate.
+// the world pixel position of its text row (LayoutCalculator.CellToPixel).
 type deviceIconRenderable struct {
-	dev      *source.Device
-	rowIndex int
-	rowH     int
-	getIcon  func(name string) (image.Image, bool)
-	originX  int
-	originY  int
+	dev     *source.Device
+	getIcon func(name string) (image.Image, bool)
+	pos     image.Point
 }
 
 // RenderFrame produces a Sprite for this device's status icon, or nil if the
@@ -165,7 +162,7 @@ func (d *deviceIconRenderable) RenderFrame() *widgets.Sprite {
 
 	return &widgets.Sprite{
 		Image:    img,
-		Position: image.Pt(d.originX, d.originY+d.rowIndex*d.rowH),
+		Position: d.pos,
 		Label:    fmt.Sprintf("stemma-0x%02X-status", d.dev.Addr),
 	}
 }

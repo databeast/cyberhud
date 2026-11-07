@@ -103,8 +103,6 @@ func listBuild(snapshot source.StemmaSnapshot, ctx style.StyleContext, p Params)
 
 	vd := style.ViewData{Items: items, Colors: BuildColors(visibleDevs, ColorPresent, ColorAbsent)}
 	if snapshot.GetIcon != nil {
-		ox, oy := bridge.ContentOrigin()
-		rowH := m.RowHeight()
 		suppCtx := widgets.SuppressionContext{
 			IsEink:          false,
 			AvailableWidth:  bridge.AvailableContentWidth(),
@@ -112,7 +110,7 @@ func listBuild(snapshot source.StemmaSnapshot, ctx style.StyleContext, p Params)
 		}
 		comp := widgets.NewCompositor(suppCtx)
 		for i, dev := range visibleDevs {
-			comp.Add(&deviceIconRenderable{dev: dev, rowIndex: i, rowH: rowH, getIcon: snapshot.GetIcon, originX: ox, originY: oy})
+			comp.Add(&deviceIconRenderable{dev: dev, getIcon: snapshot.GetIcon, pos: bridge.CellToPixel(i, 0, m)})
 		}
 		vd.Sprites = comp.Sprites()
 	}

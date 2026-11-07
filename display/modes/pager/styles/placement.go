@@ -134,7 +134,7 @@ func renderPageImage(snap source.PagerSnapshot, bridge layout.LayoutCalculator, 
 	}
 	fg := color.RGBA{R: 255, G: 255, B: 255, A: uint8(alpha * 255)}
 
-	ox, oy := bridge.ContentOrigin()
+	rowMetrics := layout.NewMetrics(metrics.GlyphAdvance, rowHeight, "")
 	contentW := bridge.AvailableContentWidth()
 	contentH := bridge.AvailableContentHeight()
 	maxRows := contentH / rowHeight
@@ -144,12 +144,12 @@ func renderPageImage(snap source.PagerSnapshot, bridge layout.LayoutCalculator, 
 
 	img := image.NewRGBA(image.Rect(0, 0, w, h))
 	for row := 0; row < len(snap.Lines) && row < maxRows; row++ {
-		y := oy + row*rowHeight
+		origin := bridge.CellToPixel(row, 0, rowMetrics)
 		yOffset := 0
 		if rowHeight > metrics.GlyphHeight {
 			yOffset = (rowHeight - metrics.GlyphHeight) / 2
 		}
-		font.DrawText(img, face, snap.Lines[row], ox, y+yOffset, fg, ox+contentW)
+		font.DrawText(img, face, snap.Lines[row], origin.X, origin.Y+yOffset, fg, origin.X+contentW)
 	}
 	return img
 }

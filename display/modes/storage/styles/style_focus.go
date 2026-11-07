@@ -70,7 +70,7 @@ func buildFocusStyle(snapshot source.StorageSnapshot, pol source.Policy, ctx sty
 		if barHeight < 2 {
 			barHeight = 2
 		}
-		barY := oy + len(rows)*rowHeight + 1
+		barY := bridge.CellToPixel(len(rows), 0, layout.NewMetrics(entry.GlyphAdvance, rowHeight, entry.FontID)).Y + 1
 		if barY+barHeight <= oy+contentHeight {
 			barResult := progressbar.Render(progressbar.Config{
 				Style:      progressbar.Linear,
