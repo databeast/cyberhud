@@ -49,6 +49,6 @@ func framedBuild(snapshot source.MenuSnapshot, pol source.Policy, ctx style.Styl
 		PaddingPct: 2,
 		Items:   items,
 		Sprites: comp.Sprites(),
-		Static:  true,
+		
 	}
 }

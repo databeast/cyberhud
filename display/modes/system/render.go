@@ -42,7 +42,7 @@ func BuildView(hints textlayout.TextHints, getIcon func(name string) (image.Imag
 	result := s.Build(snap, p, ctx)
 
 	return style.ViewData{
-		Static:      true,
+		
 		Items:       result.Items,
 		Sprites:     result.Sprites,
 		Colors:      result.Colors,

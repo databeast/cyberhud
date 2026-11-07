@@ -64,7 +64,7 @@ func (d def) Build(data source.StemmaSnapshot, pol source.Policy, ctx style.Styl
 
 func summaryBuild(snapshot source.StemmaSnapshot) style.ViewData {
 	if len(snapshot.Devices) == 0 {
-		return style.ViewData{Items: []string{"(no devices found)"}, Static: true}
+		return style.ViewData{Items: []string{"(no devices found)"}}
 	}
 	presentCount := 0
 	for _, d := range snapshot.Devices {
@@ -72,12 +72,12 @@ func summaryBuild(snapshot source.StemmaSnapshot) style.ViewData {
 			presentCount++
 		}
 	}
-	return style.ViewData{Items: []string{summaryLine(presentCount, len(snapshot.Devices))}, Static: true}
+	return style.ViewData{Items: []string{summaryLine(presentCount, len(snapshot.Devices))}}
 }
 
 func listBuild(snapshot source.StemmaSnapshot, ctx style.StyleContext, p Params) style.ViewData {
 	if len(snapshot.Devices) == 0 {
-		return style.ViewData{Items: []string{"(no devices found)"}, Static: true}
+		return style.ViewData{Items: []string{"(no devices found)"}}
 	}
 
 	hints := ctx.Hints()
@@ -121,7 +121,7 @@ func posterBuild(snapshot source.StemmaSnapshot, ctx style.StyleContext, p Param
 	hints := ctx.Hints()
 	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 2})
 	if bridge.AvailableContentWidth() <= 0 || bridge.AvailableContentHeight() <= 0 {
-		return style.ViewData{Items: []string{"(too small)"}, Static: true}
+		return style.ViewData{Items: []string{"(too small)"}}
 	}
 
 	var sprites []widgets.Sprite
@@ -226,5 +226,5 @@ func posterBuild(snapshot source.StemmaSnapshot, ctx style.StyleContext, p Param
 		items[i] = r.text
 		tiers[i] = r.tier
 	}
-	return style.ViewData{Items: items, Tiers: tiers, LineOffsets: offsets, OffsetY: offsetY, Static: true, Sprites: sprites, PaddingPct: 2}
+	return style.ViewData{Items: items, Tiers: tiers, LineOffsets: offsets, OffsetY: offsetY, Sprites: sprites, PaddingPct: 2}
 }

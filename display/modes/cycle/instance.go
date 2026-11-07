@@ -111,7 +111,7 @@ func (Handler) HandleAction(act action.Action, cursor, itemCount int) action.Res
 func (i *cycleInstance) BuildView() style.ViewData {
 	state := style.ViewData{
 		Items:  []string{"Cycling modes..."},
-		Static: true,
+		
 	}
 
 	return state

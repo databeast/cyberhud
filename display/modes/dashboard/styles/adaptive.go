@@ -83,7 +83,7 @@ func buildAdaptive(data source.DashboardContent, ctx style.StyleContext, coloriz
 	maxRows := lc.MaxVisibleRows(m)
 	if maxRows <= 0 {
 		// No room for even one row: show the mode's name so the panel is not blank.
-		return style.ViewData{Items: []string{"DASHBOARD"}, Static: true}
+		return style.ViewData{Items: []string{"DASHBOARD"}}
 	}
 
 	rows := prioritizedRows(data)
@@ -148,6 +148,6 @@ func buildAdaptive(data source.DashboardContent, ctx style.StyleContext, coloriz
 		Tiers:       tiers,
 		LineOffsets: offsets,
 		OffsetY:     offsetY,
-		Static:      true,
+		
 	}
 }

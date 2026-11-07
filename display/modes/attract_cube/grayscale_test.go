@@ -19,7 +19,7 @@ func TestGrayscaleCapabilities(t *testing.T) {
 	i.Activate()
 	firstKey := i.RenderCacheKey()
 	first := i.BuildView()
-	if first.Static || len(first.Sprites) != 1 {
+	if len(first.Sprites) != 1 {
 		t.Fatal("grayscale-fast must produce an animated sprite")
 	}
 	if err := SetPolicy(Policy{BaseColor: "#000000"}); err != nil {
@@ -37,7 +37,7 @@ func TestGrayscaleCapabilities(t *testing.T) {
 	slowKey := i.RenderCacheKey()
 	slow := i.BuildView()
 	frameclock.Advance(4 * time.Second)
-	if !slow.Static || len(slow.Sprites) != 1 || slowKey != i.RenderCacheKey() ||
+	if len(slow.Sprites) != 1 || slowKey != i.RenderCacheKey() ||
 		!bytes.Equal(slow.Sprites[0].Image.(*image.RGBA).Pix, i.BuildView().Sprites[0].Image.(*image.RGBA).Pix) {
 		t.Fatal("grayscale-slow frame and cache key must remain static")
 	}

@@ -74,7 +74,6 @@ func adaptiveBuild(snapshot source.Snapshot, pol source.Policy, ctx style.StyleC
 	if len(result.Items) == 0 || style.AllEmptyItems(result.Items) {
 		result.Items = []string{"usb"}
 	}
-	result.Static = true
 	return result
 }
 

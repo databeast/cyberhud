@@ -433,7 +433,7 @@ func TestResolveTextFitFonts_SelectsFittingFont(t *testing.T) {
 	}
 
 	msg := "[pager] no source"
-	v := style.ViewData{Items: []string{msg}, Static: true}
+	v := style.ViewData{Items: []string{msg}}
 	resolveTextFitFonts(&v, cat, 128)
 
 	if len(v.FontIDs) != 1 || v.FontIDs[0] == "" {

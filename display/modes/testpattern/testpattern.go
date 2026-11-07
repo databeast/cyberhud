@@ -62,7 +62,6 @@ type ViewData struct {
 	Hint    string
 	Image   *image.RGBA
 	Sprites []widgets.Sprite
-	Static  bool
 }
 
 // RenderCacheKey returns a deterministic string derived from the TextHints fields.
@@ -94,7 +93,7 @@ func (f *frameRenderable) RenderFrame() *widgets.Sprite {
 // BuildView renders the complete test pattern for the given TextHints.
 func BuildView(hints textlayout.TextHints, monochrome bool) ViewData {
 	if hints.PixelWidth <= 0 || hints.PixelHeight <= 0 {
-		return ViewData{Title: "TEST PATTERN", Hint: "", Image: image.NewRGBA(image.Rect(0, 0, 0, 0)), Static: true}
+		return ViewData{Title: "TEST PATTERN", Hint: "", Image: image.NewRGBA(image.Rect(0, 0, 0, 0))}
 	}
 
 	img := image.NewRGBA(image.Rect(0, 0, hints.PixelWidth, hints.PixelHeight))
@@ -120,7 +119,7 @@ func BuildView(hints textlayout.TextHints, monochrome bool) ViewData {
 	comp := widgets.NewCompositor(ctx)
 	comp.Add(&frameRenderable{img: img, label: "testpattern"})
 
-	return ViewData{Title: "TEST PATTERN", Hint: "", Image: img, Sprites: comp.Sprites(), Static: true}
+	return ViewData{Title: "TEST PATTERN", Hint: "", Image: img, Sprites: comp.Sprites()}
 }
 
 // --- Rendering sub-function stubs ---

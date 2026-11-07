@@ -47,7 +47,7 @@ func (s ColorFastStyle) Build(snapshot source.Data, pol source.Policy, ctx style
 	hints := ctx.Hints()
 	_ = pol
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: snapshot.IsEink, Sprites: snapshot.Sprites}
+	return style.ViewData{Sprites: snapshot.Sprites}
 }
 
 // ─── MonoFast ─────────────────────────────────────────────────────────────────
@@ -78,7 +78,7 @@ func (s MonoFastStyle) Build(snapshot source.Data, pol source.Policy, ctx style.
 	hints := ctx.Hints()
 	_ = pol
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: snapshot.IsEink, Sprites: snapshot.Sprites}
+	return style.ViewData{Sprites: snapshot.Sprites}
 }
 
 // ─── MonoSlow (e-ink mono) ────────────────────────────────────────────────────
@@ -109,7 +109,7 @@ func (s MonoSlowStyle) Build(snapshot source.Data, pol source.Policy, ctx style.
 	hints := ctx.Hints()
 	_ = pol
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: true, Sprites: snapshot.Sprites}
+	return style.ViewData{Sprites: snapshot.Sprites}
 }
 
 // ─── GrayscaleFast ────────────────────────────────────────────────────────────
@@ -142,7 +142,7 @@ func (s GrayscaleFastStyle) Build(snapshot source.Data, pol source.Policy, ctx s
 	hints := ctx.Hints()
 	_ = pol
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: snapshot.IsEink, Sprites: snapshot.Sprites}
+	return style.ViewData{Sprites: snapshot.Sprites}
 }
 
 // ─── GrayscaleSlow ────────────────────────────────────────────────────────────
@@ -175,7 +175,7 @@ func (s GrayscaleSlowStyle) Build(snapshot source.Data, pol source.Policy, ctx s
 	hints := ctx.Hints()
 	_ = pol
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: true, Sprites: snapshot.Sprites}
+	return style.ViewData{Sprites: snapshot.Sprites}
 }
 
 // ─── ColorSlow ────────────────────────────────────────────────────────────────
@@ -206,5 +206,5 @@ func (s ColorSlowStyle) Build(snapshot source.Data, pol source.Policy, ctx style
 	hints := ctx.Hints()
 	_ = pol
 	_ = layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 0})
-	return style.ViewData{Static: true, Sprites: snapshot.Sprites}
+	return style.ViewData{Sprites: snapshot.Sprites}
 }

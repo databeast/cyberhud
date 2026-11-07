@@ -22,7 +22,7 @@ func buildView(hints textlayout.TextHints) style.ViewData {
 		if fresh, ok := source.SampleActive(pol.ShowAll); ok {
 			snap = fresh
 		} else {
-			return style.ViewData{Items: []string{"Scanning..."}, Static: true}
+			return style.ViewData{Items: []string{"Scanning..."}}
 		}
 	}
 
@@ -32,7 +32,6 @@ func buildView(hints textlayout.TextHints) style.ViewData {
 	ctx := style.NewStyleContext(hints)
 	vd := s.Build(snap, pol, ctx)
 
-	vd.Static = true
 	vd.StyleReport = style.ReportFor(s, reason, hints)
 	if vd.OffsetY < 0 {
 		vd.OffsetY = 0

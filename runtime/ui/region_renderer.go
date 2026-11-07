@@ -156,13 +156,13 @@ func (rr *RegionRenderer) Render(r *region.Region) error {
 	// Below-text sprites first, so the text plane lands on top of them.
 	rr.renderSprites(surf, below)
 
-	// Static selects between a centred block and a scrolling cursor list. Both paths
-	// honour the same ViewData layout contract; they differ only in windowing and
-	// cursor highlighting.
-	if v.Static {
-		rr.renderStaticItems(surf, v, bridge)
-	} else {
+	// A navigable list is windowed and cursor-highlighted; everything else is a
+	// centred static block. The distinction is derived from the view's own
+	// navigation state, not a separate flag — see ViewData.IsNavigable.
+	if v.IsNavigable() {
 		rr.renderItems(surf, v, bridge)
+	} else {
+		rr.renderStaticItems(surf, v, bridge)
 	}
 
 	// Sprites are positioned in absolute panel coordinates by the style, not relative

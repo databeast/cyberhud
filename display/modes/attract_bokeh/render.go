@@ -66,7 +66,6 @@ func BuildView() style.ViewData {
 	s := bokehRegistry.Lookup(resolveBestStyleName(hints))
 	vd := s.Build(snap, p, ctx)
 
-	vd.Static = false
 	vd.Sprites = []widgets.Sprite{
 		{
 			Image:    img,

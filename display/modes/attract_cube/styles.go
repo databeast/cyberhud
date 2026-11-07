@@ -46,14 +46,14 @@ func (s cubeStyle) Build(f frame, policy Policy, ctx style.StyleContext) style.V
 	case textlayout.CapColorFast, textlayout.CapColorSlow:
 		_, base, err := source.ParseBaseColor(policy.BaseColor)
 		if err != nil {
-			return style.ViewData{Items: []string{"cube: invalid base color"}, Static: true}
+			return style.ViewData{Items: []string{"cube: invalid base color"}}
 		}
 		img = source.RenderFrame(w, h, f.seconds, base)
 	default:
-		return style.ViewData{Items: []string{"cube: unsupported display"}, Static: true}
+		return style.ViewData{Items: []string{"cube: unsupported display"}}
 	}
 	return style.ViewData{
-		Static:  static,
+		
 		Sprites: []widgets.Sprite{{Image: img, Bounds: image.Rect(0, 0, w, h), Label: "cube"}},
 	}
 }

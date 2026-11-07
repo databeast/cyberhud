@@ -484,7 +484,6 @@ func BuildView() style.ViewData {
 	vd := s.Build(snap, p, ctx)
 
 	vd.StyleReport = style.ReportFor(s, reason, hints)
-	vd.Static = true
 	return vd
 }
 

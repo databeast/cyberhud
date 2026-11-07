@@ -59,7 +59,7 @@ func (d def) Build(data GpioSnapshot, pol Policy, ctx style.StyleContext) style.
 func adaptiveBuild(data GpioSnapshot, pol Policy, ctx style.StyleContext, d def) style.ViewData {
 	hints := ctx.Hints()
 	if hints.PixelWidth == 0 || hints.PixelHeight == 0 {
-		return style.ViewData{Static: true}
+		return style.ViewData{}
 	}
 	// On a roomy panel, draw the physical connector as a live map: position
 	// carries identity (and "where"), color/shape carry state — the vivid view

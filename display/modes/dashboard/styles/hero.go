@@ -54,7 +54,7 @@ func buildColorHero(data source.DashboardContent, pol source.Policy, ctx style.S
 	cw := bridge.AvailableContentWidth()
 	chh := bridge.AvailableContentHeight()
 	if cw <= 0 || chh <= 0 {
-		return style.ViewData{Items: []string{"(too small)"}, Static: false}
+		return style.ViewData{Items: []string{"(too small)"}}
 	}
 
 	accent := source.ResolveUptimeAccent(pol.ColorAccent)
@@ -148,7 +148,7 @@ func buildColorHero(data source.DashboardContent, pol source.Policy, ctx style.S
 	return style.ViewData{
 		PaddingPct: 4,
 		Sprites: sprites,
-		Static:  false, // heartbeat animates
+		// heartbeat animates
 		Cursor:  -1,
 	}
 }

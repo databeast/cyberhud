@@ -43,7 +43,7 @@ func (s MonoSlow800x480Style) Build(snap thermal.ThermalSnapshot, ctx style.Styl
 	// Step 1 (Guard): LayoutBridge with PaddingPct:2, early return for zero dims.
 	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 2})
 	if bridge.AvailableContentWidth() <= 0 || bridge.AvailableContentHeight() <= 0 {
-		return style.ViewData{Items: []string{"(too small)"}, Static: true}
+		return style.ViewData{Items: []string{"(too small)"}}
 	}
 
 	// Step 2 (Borderframe): Theme "sharp", e-ink safe (all animation/glow/gradient zero).
@@ -179,7 +179,7 @@ func (s MonoSlow800x480Style) Build(snap thermal.ThermalSnapshot, ctx style.Styl
 		offsetY = 0
 	}
 
-	// Step 9 (Emit): ViewData with Items, Tiers, LineOffsets, OffsetY, Static:true, Sprites.
+	// Step 9 (Emit): ViewData with Items, Tiers, LineOffsets, OffsetY, Sprites.
 	items := make([]string, len(visibleRows))
 	tiers := make([]tiercatalog.Tier, len(visibleRows))
 	for i, r := range visibleRows {
@@ -193,7 +193,7 @@ func (s MonoSlow800x480Style) Build(snap thermal.ThermalSnapshot, ctx style.Styl
 		Tiers:       tiers,
 		LineOffsets: offsets,
 		OffsetY:     offsetY,
-		Static:      true,
+		
 		Sprites:     sprites,
 	}
 }

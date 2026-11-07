@@ -948,14 +948,6 @@ func TestProperty9_DeterministicOutputAndStaticFlag(t *testing.T) {
 		view1 := BuildView(hints, false)
 		view2 := BuildView(hints, false)
 
-		// Static flag must be true.
-		if !view1.Static {
-			t.Fatal("BuildView returned Static=false, want true")
-		}
-		if !view2.Static {
-			t.Fatal("BuildView returned Static=false on second call, want true")
-		}
-
 		// Images must be byte-identical.
 		if !bytes.Equal(view1.Image.Pix, view2.Image.Pix) {
 			t.Fatal("BuildView produced different image bytes for same hints")
@@ -1162,10 +1154,5 @@ func TestPixelSpotCheck240x135(t *testing.T) {
 	centerColor := img.RGBAAt(120, 67)
 	if centerColor == white {
 		t.Error("pixel (120,67) [center] is white; expected interior content color")
-	}
-
-	// Static flag should be true for the test pattern mode.
-	if !view.Static {
-		t.Fatal("view.Static = false, want true")
 	}
 }

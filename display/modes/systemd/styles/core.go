@@ -29,10 +29,6 @@ type Params struct {
 	// ColorText renders rows in white at TierNormal for color skeleton styles.
 	ColorText bool
 
-	// Static marks the ViewData static for e-ink/slow-refresh layouts that should
-	// not be continuously refreshed.
-	Static bool
-
 	// SingleLabel renders only source.BootStatusLabel centered on the panel.
 	SingleLabel bool
 
@@ -91,7 +87,7 @@ func rowsBuild(snap source.Snapshot, ctx style.StyleContext, d def) style.ViewDa
 	bridge := ctx.Layout(0)
 
 	if bridge.AvailableContentWidth() == 0 || bridge.AvailableContentHeight() == 0 {
-		return style.ViewData{Items: []string{"(no data)"}, Static: d.p.Static}
+		return style.ViewData{Items: []string{"(no data)"}}
 	}
 
 	var sprites []widgets.Sprite
@@ -165,12 +161,9 @@ func rowsBuild(snap source.Snapshot, ctx style.StyleContext, d def) style.ViewDa
 		VisibleCount: result.VisibleCount,
 		PaddingPct:   0,
 		Sprites:      sprites,
-		// Boot status is a non-interactive readout: render it as a centered static
-		// block, never the scrolling cursor list. Routing through the cursor path
-		// (Static:false) made the single row land at the default Cursor 0 and draw
-		// highlighted — invisible on monochrome panels. It is categorically static
-		// regardless of the per-def Static knob.
-		Static: true,
+		// Boot status is a non-interactive readout: a centered block, never a
+		// cursor list. Cursor: -1 keeps it on the static path and out of the
+		// row-0-highlight trap that renders invisibly on monochrome panels.
 		Cursor: -1,
 	}
 }
@@ -257,7 +250,7 @@ func singleLabelBuild(snap source.Snapshot, ctx style.StyleContext, d def) style
 	if sprite, ok := centeredLabelSprite(bridge, face, label, white); ok {
 		return style.ViewData{
 			Sprites: []widgets.Sprite{sprite},
-			Static:  d.p.Static,
+			Cursor:  -1,
 		}
 	}
 
@@ -269,7 +262,7 @@ func singleLabelBuild(snap source.Snapshot, ctx style.StyleContext, d def) style
 		Items:       []string{label},
 		LineOffsets: offsets,
 		OffsetY:     offsetY,
-		Static:      d.p.Static,
+		Cursor:      -1,
 	}
 }
 
@@ -478,7 +471,7 @@ func monoSlowPoster800x480(snap source.Snapshot, pol source.Policy, ctx style.St
 		Tiers:       tiers,
 		LineOffsets: offsets,
 		OffsetY:     offsetY,
-		Static:      true,
+		
 		Sprites:     sprites,
 	}
 }

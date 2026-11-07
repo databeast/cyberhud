@@ -41,10 +41,10 @@ func (i *instance) RenderCacheKey() uint32 {
 func (i *instance) BuildView() style.ViewData {
 	hints, ok := i.Hints()
 	if !ok || hints.PixelWidth <= 0 || hints.PixelHeight <= 0 {
-		return style.ViewData{Items: []string{"cube: no panel dimensions"}, Static: true}
+		return style.ViewData{Items: []string{"cube: no panel dimensions"}}
 	}
 	if hints.Capability < textlayout.CapMonoSlow || hints.Capability > textlayout.CapColorFast {
-		return style.ViewData{Items: []string{"cube: unsupported display"}, Static: true}
+		return style.ViewData{Items: []string{"cube: unsupported display"}}
 	}
 	seconds := frameclock.Now().Sub(i.start).Seconds()
 	if seconds < 0 {

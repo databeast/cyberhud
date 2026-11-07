@@ -67,7 +67,7 @@ func buildBoardMap(snap GpioSnapshot, ctx style.StyleContext) style.ViewData {
 	availW := bridge.AvailableContentWidth()
 	availH := bridge.AvailableContentHeight()
 	if availW == 0 || availH == 0 {
-		return style.ViewData{Static: true}
+		return style.ViewData{}
 	}
 
 	originX, originY := bridge.ContentOrigin()
@@ -198,6 +198,6 @@ func buildBoardMap(snap GpioSnapshot, ctx style.StyleContext) style.ViewData {
 
 	return style.ViewData{
 		Sprites: comp.Sprites(),
-		Static:  true,
+		
 	}
 }

@@ -59,6 +59,6 @@ func compactBuild(snapshot source.Data, _ source.Policy, ctx style.StyleContext,
 		Items:   items,
 		Colors:  colors,
 		Sprites: sprites,
-		Static:  true,
+		
 	}
 }

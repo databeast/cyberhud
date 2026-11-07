@@ -56,7 +56,6 @@ func BuildView() style.ViewData {
 	s := styles.Registry().Lookup(styles.ResolveBestStyleName(hints))
 	vd := s.Build(snap, policy, ctx)
 
-	vd.Static = false
 	vd.Sprites = []widgets.Sprite{
 		{
 			Image:    img,

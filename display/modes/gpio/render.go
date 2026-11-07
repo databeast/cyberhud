@@ -96,7 +96,7 @@ func BuildView(pins []gpiomgr.PinState, hints textlayout.TextHints, warnings []s
 		if len(warnings) > 0 && warnings[0] != "" {
 			msg = warnings[0]
 		}
-		return style.ViewData{Items: []string{msg}, Static: true}
+		return style.ViewData{Items: []string{msg}}
 	}
 
 	pol := GetPolicy()

@@ -74,7 +74,6 @@ func BuildView(hints textlayout.TextHints) style.ViewData {
 	snap := source.Snapshot{Policy: p, IsEink: false}
 	vd := s.Build(snap, p, ctx)
 
-	vd.Static = false
 	vd.Sprites = compositor.Sprites()
 	vd.StyleReport = style.StyleReport{Name: s.Name(), Reason: reason}
 

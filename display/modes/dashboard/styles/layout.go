@@ -27,7 +27,7 @@ func compactLandscapeLayout(data source.DashboardContent, pol source.Policy, ctx
 
 	maxRows := layout.MaxVisibleRows(ctx.Metrics(tiercatalog.TierNormal))
 	if maxRows <= 0 {
-		return style.ViewData{Items: []string{}, Static: true}
+		return style.ViewData{Items: []string{}}
 	}
 	if len(allItems) > maxRows {
 		allItems = allItems[:maxRows]
@@ -59,7 +59,6 @@ func compactLandscapeLayout(data source.DashboardContent, pol source.Policy, ctx
 	view.Colors = colors
 	view.Tiers = tiers
 	view.LineOffsets = offsets
-	view.Static = true
 
 	return view
 }
@@ -81,7 +80,7 @@ func compactPorttraitLayout(data source.DashboardContent, pol source.Policy, ctx
 
 	maxRows := layout.MaxVisibleRows(ctx.Metrics(tiercatalog.TierNormal))
 	if maxRows <= 0 {
-		return style.ViewData{Items: []string{}, Static: true}
+		return style.ViewData{Items: []string{}}
 	}
 	if len(allItems) > maxRows {
 		allItems = allItems[:maxRows]
@@ -113,7 +112,6 @@ func compactPorttraitLayout(data source.DashboardContent, pol source.Policy, ctx
 	view.Colors = colors
 	view.Tiers = tiers
 	view.LineOffsets = offsets
-	view.Static = true
 
 	return view
 }

@@ -88,7 +88,6 @@ func BuildView(hints textlayout.TextHints) style.ViewData {
 	s := plasmaRegistry.Lookup(bestStyleName)
 	vd := s.Build(snap, p, ctx)
 
-	vd.Static = false
 	vd.StyleReport = style.StyleReport{Name: bestStyleName, Reason: "fitness"}
 
 	return vd
@@ -199,7 +198,6 @@ func buildEinkFrame(p source.Policy, panelWidth, panelHeight int, hints textlayo
 	snap := source.Snapshot{Sprites: compositor.Sprites(), Policy: p, IsEink: true}
 	s := plasmaRegistry.Lookup(styleName)
 	vd := s.Build(snap, p, ctx)
-	vd.Static = true
 	vd.StyleReport = style.StyleReport{Name: styleName, Reason: "fitness"}
 	return vd
 }

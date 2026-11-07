@@ -78,6 +78,6 @@ func listBuild(snapshot source.Data, _ source.Policy, ctx style.StyleContext, d 
 		Items:   items,
 		Colors:  colors,
 		Sprites: sprites,
-		Static:  true,
+		
 	}
 }

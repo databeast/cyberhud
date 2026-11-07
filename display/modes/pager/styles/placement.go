@@ -65,7 +65,7 @@ func placeScroll(snap source.PagerSnapshot, _ source.Policy, ctx style.StyleCont
 		LineOffsets: offsets,
 		OffsetY:     style.TTYY(snap.OffsetY), // pager scroll offset is TTY-block space
 		PaddingPct:  pagerPaddingPct,
-		Static:      false,
+		
 	}
 }
 
@@ -88,7 +88,7 @@ func placePage(snap source.PagerSnapshot, _ source.Policy, ctx style.StyleContex
 	}
 
 	return style.ViewData{
-		Static:     true,
+		
 		PaddingPct: pagerPaddingPct,
 		Sprites: []widgets.Sprite{{
 			Image:    page,
@@ -177,14 +177,14 @@ func centeredEmptyView(ctx style.StyleContext, bridge layout.LayoutCalculator, s
 		LineOffsets: []style.TTYX{offsetX},
 		OffsetY:     offsetY,
 		PaddingPct:  pagerPaddingPct,
-		Static:      static,
+		
 	}
 }
 
 // tooSmallView is the degenerate placement for a panel with no usable content
 // area.
 func tooSmallView() style.ViewData {
-	return style.ViewData{Items: []string{"(too small)"}, Static: true, PaddingPct: pagerPaddingPct}
+	return style.ViewData{Items: []string{"(too small)"}, PaddingPct: pagerPaddingPct}
 }
 
 // resolvePageFace picks the font face for the page sprite, matching the row

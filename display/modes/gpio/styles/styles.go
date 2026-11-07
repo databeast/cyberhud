@@ -92,7 +92,7 @@ func buildListInternal(snap GpioSnapshot, ctx style.StyleContext) style.ViewData
 	bridge := ctx.Layout(0)
 
 	if bridge.AvailableContentWidth() == 0 || bridge.AvailableContentHeight() == 0 {
-		return style.ViewData{Static: true}
+		return style.ViewData{}
 	}
 
 	entry := ctx.Entry(tiercatalog.TierNormal)
@@ -109,7 +109,7 @@ func buildListInternal(snap GpioSnapshot, ctx style.StyleContext) style.ViewData
 		if maxChars > 0 {
 			msg = textlayout.Truncate(msg, maxChars)
 		}
-		return style.ViewData{Items: []string{msg}, Static: true}
+		return style.ViewData{Items: []string{msg}}
 	}
 
 	originX, originY := bridge.ContentOrigin()
@@ -223,6 +223,6 @@ func buildListInternal(snap GpioSnapshot, ctx style.StyleContext) style.ViewData
 
 	return style.ViewData{
 		Sprites: comp.Sprites(),
-		Static:  true,
+		
 	}
 }

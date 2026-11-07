@@ -16,7 +16,6 @@ func BuildView(hints textlayout.TextHints) style.ViewData {
 
 	vd := resolved.Build(snap, pol, ctx)
 	vd.StyleReport = style.StyleReport{Name: resolved.Name(), Reason: reason}
-	vd.Static = true
 	if vd.PaddingPct == 0 {
 		vd.PaddingPct = pol.PaddingPct
 	}

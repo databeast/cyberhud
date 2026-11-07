@@ -58,7 +58,7 @@ func buildSignalForwardWifi(data source.WifiData, pol source.Policy, ctx style.S
 	cw := bridge.AvailableContentWidth()
 	chh := bridge.AvailableContentHeight()
 	if cw <= 0 || chh <= 0 {
-		return style.ViewData{Items: []string{"(too small)"}, Static: false, PaddingPct: paddingPct}
+		return style.ViewData{Items: []string{"(too small)"}, PaddingPct: paddingPct}
 	}
 
 	accent := color.RGBA{255, 255, 255, 255} // white default for non-color panels
@@ -130,7 +130,7 @@ func signalForwardStatus(bridge layout.LayoutCalculator, ctx style.StyleContext,
 
 	return style.ViewData{
 		Sprites:    sprites,
-		Static:     false,
+		
 		Cursor:     -1,
 		PaddingPct: paddingPct,
 	}
@@ -256,7 +256,7 @@ func signalForwardConnected(data source.WifiData, pol source.Policy, bridge layo
 
 	return style.ViewData{
 		Sprites:    sprites,
-		Static:     false,
+		
 		Cursor:     -1,
 		PaddingPct: paddingPct,
 	}
@@ -286,7 +286,7 @@ func signalForwardCompact(data source.WifiData, pol source.Policy, bridge layout
 			msgColor = color.RGBA{255, 255, 255, 255}
 		}
 		sprites = placeLabel(sprites, ctx, msg, ox, oy, cw, chh, msgColor, "wifi-status")
-		return style.ViewData{Sprites: sprites, Static: false, Cursor: -1, PaddingPct: paddingPct}
+		return style.ViewData{Sprites: sprites, Cursor: -1, PaddingPct: paddingPct}
 	}
 
 	barLevel := source.SignalToBarLevel(data.SignalStrength)
@@ -344,7 +344,7 @@ func signalForwardCompact(data source.WifiData, pol source.Policy, bridge layout
 		sprites = placeLabel(sprites, ctx, data.IPAddress, ox, y, cw, rowH, dimmed, "wifi-ip")
 	}
 
-	return style.ViewData{Sprites: sprites, Static: false, Cursor: -1, PaddingPct: paddingPct}
+	return style.ViewData{Sprites: sprites, Cursor: -1, PaddingPct: paddingPct}
 }
 
 // signalForwardCompactVertical is the narrow-tall degradation of the signal-
@@ -416,7 +416,7 @@ func signalForwardCompactVertical(data source.WifiData, bridge layout.LayoutCalc
 		sprites = placeLabel(sprites, ctx, data.IPAddress, ox, oy+chh-botBand, cw, botBand, dimmed, "wifi-ip")
 	}
 
-	return style.ViewData{Sprites: sprites, Static: false, Cursor: -1, PaddingPct: paddingPct}
+	return style.ViewData{Sprites: sprites, Cursor: -1, PaddingPct: paddingPct}
 }
 
 // signalForwardReadout returns the text shown inside the gauge.

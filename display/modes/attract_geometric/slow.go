@@ -47,7 +47,7 @@ func BuildSlowView(hints textlayout.TextHints) style.ViewData {
 		slowRefreshState.panelW == panelWidth &&
 		slowRefreshState.panelH == panelHeight {
 		return style.ViewData{
-			Static: true,
+			
 			Sprites: []widgets.Sprite{
 				{
 					Image:    slowRefreshState.img,
@@ -84,7 +84,7 @@ func BuildSlowView(hints textlayout.TextHints) style.ViewData {
 	slowRefreshState.panelH = panelHeight
 
 	return style.ViewData{
-		Static: true,
+		
 		Sprites: []widgets.Sprite{
 			{
 				Image:    img,

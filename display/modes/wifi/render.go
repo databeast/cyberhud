@@ -27,7 +27,6 @@ func buildView(data source.WifiData) style.ViewData {
 	ctx := style.NewStyleContext(hints)
 	vd := s.Build(data, p, ctx)
 	vd.StyleReport = style.ReportFor(s, reason, hints)
-	vd.Static = false
 	vd.Cursor = -1
 	if vd.Sprites == nil {
 		vd.Sprites = []widgets.Sprite{}
@@ -55,7 +54,6 @@ func BuildViewWithHints(hints textlayout.TextHints) style.ViewData {
 	ctx := style.NewStyleContext(hints)
 	vd := s.Build(data, p, ctx)
 	vd.StyleReport = style.ReportFor(s, reason, hints)
-	vd.Static = false
 	vd.Cursor = -1
 	if vd.Sprites == nil {
 		vd.Sprites = []widgets.Sprite{}

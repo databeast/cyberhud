@@ -22,7 +22,7 @@ import (
 // tier so the bar, positioned a row below the text, never collides with it.
 func buildFocusStyle(snapshot source.StorageSnapshot, pol source.Policy, ctx style.StyleContext, _ def) style.ViewData {
 	if len(snapshot.Mounts) == 0 {
-		return style.ViewData{Items: []string{"no storage"}, Static: true}
+		return style.ViewData{Items: []string{"no storage"}}
 	}
 
 	m := snapshot.Mounts[0]
@@ -52,7 +52,7 @@ func buildFocusStyle(snapshot source.StorageSnapshot, pol source.Policy, ctx sty
 		fmt.Sprintf("free %s", source.FormatBytes(m.FreeBytes, pol.Unit)),
 	}
 
-	vd := style.ViewData{Static: true, PaddingPct: 6}
+	vd := style.ViewData{PaddingPct: 6}
 	for range rows {
 		vd.Tiers = append(vd.Tiers, tiercatalog.TierNormal)
 		vd.RowHeights = append(vd.RowHeights, rowHeight)

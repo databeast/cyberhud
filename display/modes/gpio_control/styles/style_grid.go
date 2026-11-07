@@ -38,6 +38,6 @@ func gridBuild(snapshot source.Data, _ source.Policy, ctx style.StyleContext, d 
 		Items:   items,
 		Colors:  colors,
 		Sprites: gridSprites,
-		Static:  true,
+		
 	}
 }

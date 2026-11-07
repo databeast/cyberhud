@@ -118,7 +118,7 @@ func slowBuild(snapshot source.TickerSnapshot, pol source.Policy, ctx style.Styl
 		Tiers:   tiers,
 		Sprites: borderSprites,
 		OffsetY: offsetY,
-		Static:  true,
+		
 	}
 }
 

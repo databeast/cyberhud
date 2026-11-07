@@ -31,6 +31,6 @@ func plainBuild(snapshot source.MenuSnapshot, pol source.Policy, ctx style.Style
 
 	return style.ViewData{
 		Items:  items,
-		Static: true,
+		
 	}
 }

@@ -130,8 +130,6 @@ func buildTimegraphStyle(snapshot source.ThermalSnapshot, pol source.Policy, ctx
 	if len(result.Items) == 0 || allEmptyItems(result.Items) {
 		result.Items = []string{"thermal"}
 	}
-	// Time-graph is non-static: sparklines animate on fast panels.
-	result.Static = false
 	return result
 }
 

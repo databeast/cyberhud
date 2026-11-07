@@ -34,7 +34,6 @@ func (i *instance) BuildView() style.ViewData {
 	}
 	view := BuildView(hints, false)
 	state := style.ViewData{
-		Static:  view.Static,
 		Sprites: view.Sprites,
 	}
 

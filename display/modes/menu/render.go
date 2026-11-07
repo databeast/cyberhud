@@ -16,7 +16,6 @@ func BuildView(hints textlayout.TextHints, borderBuilder BorderBuilder) style.Vi
 	ctx := style.NewStyleContext(hints)
 	svd := s.Build(snap, p, ctx)
 	svd.StyleReport = style.ReportFor(s, reason, hints)
-	svd.Static = false
 
 	return svd
 }

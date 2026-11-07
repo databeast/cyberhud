@@ -29,7 +29,7 @@ func buildColorItemsOnly(snap content.ZMQData, _ content.Policy, ctx style.Style
 	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: cfg.paddingPct})
 
 	if bridge.AvailableContentWidth() <= 0 || bridge.AvailableContentHeight() <= 0 {
-		return style.ViewData{Items: []string{"(too small)"}, Static: true}
+		return style.ViewData{Items: []string{"(too small)"}}
 	}
 
 	entry := ctx.Entry(resolveTier(cfg.tier))
@@ -67,7 +67,7 @@ func buildColorItemsOnly(snap content.ZMQData, _ content.Policy, ctx style.Style
 		PaddingPct:   cfg.paddingPct,
 		// See buildItemsOnly: a feed is a non-interactive static tail.
 		Cursor: -1,
-		Static: true,
+		
 	}
 }
 

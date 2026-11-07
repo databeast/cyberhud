@@ -24,7 +24,7 @@ func BuildEinkView(panelWidth, panelHeight int, p source.Policy) style.ViewData 
 	compositor.Add(source.NewStaticSprite(sprite))
 
 	return style.ViewData{
-		Static:  true,
+		
 		Sprites: compositor.Sprites(),
 	}
 }

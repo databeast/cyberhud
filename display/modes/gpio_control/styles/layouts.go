@@ -247,7 +247,7 @@ func sharedListBuild(data source.Data, _ source.Policy, ctx style.StyleContext, 
 	colors := BuildColors(pins)
 
 	if len(pins) == 0 {
-		return style.ViewData{Items: items, Colors: colors, Static: true}
+		return style.ViewData{Items: items, Colors: colors}
 	}
 
 	m := ctx.DefaultMetrics()
@@ -296,7 +296,7 @@ func sharedListBuild(data source.Data, _ source.Policy, ctx style.StyleContext, 
 		Sprites: sprites,
 		Cursor:  data.Cursor,
 		TopRow:  data.TopRow,
-		Static:  true,
+		
 	}
 }
 
@@ -311,7 +311,7 @@ func sharedGridBuild(data source.Data, _ source.Policy, ctx style.StyleContext, 
 	colors := BuildColors(pins)
 
 	if len(pins) == 0 {
-		return style.ViewData{Items: items, Colors: colors, Static: true}
+		return style.ViewData{Items: items, Colors: colors}
 	}
 
 	gridSprites := BuildGridView(pins, hints, data.Cursor)
@@ -320,7 +320,7 @@ func sharedGridBuild(data source.Data, _ source.Policy, ctx style.StyleContext, 
 		Items:   items,
 		Colors:  colors,
 		Sprites: gridSprites,
-		Static:  true,
+		
 	}
 }
 

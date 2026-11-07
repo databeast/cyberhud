@@ -191,7 +191,7 @@ func adaptiveBuild(data source.ClockData, pol source.Policy, ctx style.StyleCont
 		VisibleCount: result.VisibleCount,
 		PaddingPct:   clockPaddingPct,
 		Colors:       colors,
-		Static:       true,
+		
 	}
 	style.GuardEmptyItems(&vd)
 

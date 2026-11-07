@@ -38,7 +38,6 @@ func (i *instance) BuildView() style.ViewData {
 	}
 	view := BuildView(hints, nowFunc())
 	state := style.ViewData{
-		Static:  view.Static,
 		Sprites: view.Sprites,
 	}
 

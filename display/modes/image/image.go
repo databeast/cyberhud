@@ -396,7 +396,7 @@ func BuildView(hints textlayout.TextHints) ViewData {
 		Title:        "",
 		Items:        items,
 		Hint:         "[K1]menu",
-		Static:       true,
+		
 		Sprites:      sprites,
 		ScaledBounds: scaledBounds,
 	}

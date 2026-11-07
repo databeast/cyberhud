@@ -87,7 +87,6 @@ func BuildView(hints textlayout.TextHints) style.ViewData {
 	snap := source.Snapshot{Sprites: compositor.Sprites(), Policy: p, IsEink: false}
 	s := popsquaresRegistry.Lookup(bestStyleName)
 	vd := s.Build(snap, p, ctx)
-	vd.Static = false
 	vd.StyleReport = style.StyleReport{Name: bestStyleName, Reason: "fitness"}
 	return vd
 }
@@ -271,7 +270,6 @@ func buildEinkFrame(p source.Policy, width, height int, hints textlayout.TextHin
 	snap := source.Snapshot{Sprites: compositor.Sprites(), Policy: p, IsEink: true}
 	s := popsquaresRegistry.Lookup(styleName)
 	vd := s.Build(snap, p, ctx)
-	vd.Static = true
 	vd.StyleReport = style.StyleReport{Name: styleName, Reason: "fitness"}
 	return vd
 }

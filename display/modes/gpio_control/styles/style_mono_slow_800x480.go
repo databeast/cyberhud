@@ -25,7 +25,7 @@ func monoSlow800x480Build(snap source.Data, _ source.Policy, ctx style.StyleCont
 	// Step 1: Guard
 	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: 2})
 	if bridge.AvailableContentWidth() <= 0 || bridge.AvailableContentHeight() <= 0 {
-		return style.ViewData{Items: []string{"(too small)"}, Static: true}
+		return style.ViewData{Items: []string{"(too small)"}}
 	}
 
 	// Step 2: Borderframe
@@ -162,7 +162,7 @@ func monoSlow800x480Build(snap source.Data, _ source.Policy, ctx style.StyleCont
 		Tiers:       tiers,
 		LineOffsets: offsets,
 		OffsetY:     offsetY,
-		Static:      true,
+		
 		Sprites:     sprites,
 	}
 }

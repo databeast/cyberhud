@@ -111,7 +111,7 @@ func resolveFrame(sc source.SurfaceClass, layout source.Layout, pol source.Polic
 func buildNoSourceView() style.ViewData {
 	return style.ViewData{
 		Items:  []string{"[pager] no source"},
-		Static: true,
+		
 	}
 }
 

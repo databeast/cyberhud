@@ -90,7 +90,7 @@ func (i *instance) ActionHandler() action.Handler { return nil }
 func (i *instance) BuildView() style.ViewData {
 	hints, ok := i.Hints()
 	if !ok {
-		return style.ViewData{Items: []string{"[pager] no panel hints available"}, Static: true}
+		return style.ViewData{Items: []string{"[pager] no panel hints available"}}
 	}
 
 	// Swap animation strategy if the panel's classification changed since the

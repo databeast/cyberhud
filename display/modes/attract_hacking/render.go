@@ -52,7 +52,6 @@ func BuildView(hints textlayout.TextHints) style.ViewData {
 	ctx := style.NewStyleContext(hints)
 	s, reason := style.ResolveStyle(hackingRegistry, hints, "attract_hacking", "")
 	vd := s.Build(snap, p, ctx)
-	vd.Static = false
 	vd.StyleReport = style.StyleReport{Name: s.Name(), Reason: reason}
 	return vd
 }

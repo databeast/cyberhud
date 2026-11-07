@@ -38,7 +38,7 @@ func buildSlowWifi(data source.WifiData, pol source.Policy, ctx style.StyleConte
 	cw := bridge.AvailableContentWidth()
 	chh := bridge.AvailableContentHeight()
 	if cw <= 0 || chh <= 0 {
-		return style.ViewData{Items: []string{"(too small)"}, Static: true, PaddingPct: paddingPct}
+		return style.ViewData{Items: []string{"(too small)"}, PaddingPct: paddingPct}
 	}
 
 	hints := ctx.Hints()
@@ -74,7 +74,7 @@ func buildSlowWifi(data source.WifiData, pol source.Policy, ctx style.StyleConte
 
 	return style.ViewData{
 		Sprites:    sprites,
-		Static:     true,
+		
 		Cursor:     -1,
 		PaddingPct: paddingPct,
 	}

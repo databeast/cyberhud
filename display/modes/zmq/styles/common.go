@@ -38,7 +38,7 @@ func buildItemsOnly(snap content.ZMQData, _ content.Policy, ctx style.StyleConte
 	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{PaddingPct: cfg.paddingPct})
 
 	if bridge.AvailableContentWidth() <= 0 || bridge.AvailableContentHeight() <= 0 {
-		return style.ViewData{Items: []string{"(too small)"}, Static: true}
+		return style.ViewData{Items: []string{"(too small)"}}
 	}
 
 	entry := ctx.Entry(resolveTier(cfg.tier))
@@ -77,7 +77,7 @@ func buildItemsOnly(snap content.ZMQData, _ content.Policy, ctx style.StyleConte
 		// would highlight the first row), and Static renders it as a plain block
 		// rather than routing through the cursor/scroll path.
 		Cursor: -1,
-		Static: true,
+		
 	}
 }
 

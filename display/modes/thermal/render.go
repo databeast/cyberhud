@@ -30,7 +30,7 @@ func buildView(hints textlayout.TextHints) style.ViewData {
 		} else {
 			return style.ViewData{
 				Items:  []string{"Sampling..."},
-				Static: true,
+				
 			}
 		}
 	}
@@ -68,7 +68,6 @@ func buildView(hints textlayout.TextHints) style.ViewData {
 	}
 
 	// Populate constant fields — suppress title/hint on constrained panels.
-	vd.Static = true
 
 	if vd.OffsetY < 0 {
 		vd.OffsetY = 0
