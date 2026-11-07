@@ -149,6 +149,19 @@ type ViewData struct {
 	// the two in agreement. Zero is both the default and the common case.
 	PaddingPct int
 
+	// Cursor is the index of the highlighted row in the scrolling list path
+	// (renderItems). A negative value means "no highlight" and is the correct
+	// default for every non-list view.
+	//
+	// The trap this documents: the zero value is 0, which is a valid row index, so
+	// a view that leaves Cursor unset but renders through renderItems (Static:
+	// false) silently highlights row 0. On a monochrome panel the highlight draws
+	// the row invisibly (dark text on a background that thresholds to the same
+	// ink), so a single-row status view renders blank. Only genuine navigable
+	// lists (menu, gpio, gpio-control) should carry a Cursor >= 0; they set it
+	// explicitly from their action handler. Everything else must leave it negative
+	// — which is why wifi, zmq, serial and dashboard all set Cursor: -1 by hand.
+	// The renderer treats any Cursor < 0 as no-highlight.
 	Cursor      int
 	TopRow      int
 	Static      bool

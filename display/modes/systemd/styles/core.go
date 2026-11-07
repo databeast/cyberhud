@@ -14,11 +14,13 @@ import (
 	"github.com/databeast/cyberhud/display/modes/systemd/source"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/display/style/layout"
+	font "github.com/databeast/cyberhud/display/surface/fonts"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
 	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 	"github.com/databeast/cyberhud/display/widgets"
 	"github.com/databeast/cyberhud/display/widgets/borderframe"
 	"github.com/databeast/cyberhud/display/widgets/gradient"
+	"github.com/databeast/cyberhud/display/widgets/textlabel"
 )
 
 // Params holds the hand-tweakable knobs for a single per-resolution style.
@@ -105,53 +107,139 @@ func rowsBuild(snap source.Snapshot, ctx style.StyleContext, d def) style.ViewDa
 
 	items := source.BuildDefaultItems(snap)
 
+	// Every row is drawn at TierNormal — the boot status is a uniform block. Look
+	// up that face once; its metrics measure the rows and name the drawn font.
 	entry := ctx.Entry(tiercatalog.TierNormal)
-	m := ctx.Metrics(tiercatalog.TierNormal)
-	if d.p.ContentMaxRows {
-		if entry.RowHeight > 0 {
-			maxRows := bridge.AvailableContentHeight() / entry.RowHeight
-			if maxRows > 0 && len(items) > maxRows {
-				items = items[:maxRows]
-			}
-		}
-	} else {
-		maxRows := bridge.MaxVisibleRows(m)
+	m := layout.NewMetrics(entry.GlyphAdvance, entry.RowHeight, entry.FontID)
+
+	// ContentMaxRows is the e-ink pre-clamp: cap rows by raw content height so the
+	// static poster never overflows. The remaining fit decision is FitRows' job via
+	// LayoutRows below.
+	if d.p.ContentMaxRows && entry.RowHeight > 0 {
+		maxRows := bridge.AvailableContentHeight() / entry.RowHeight
 		if maxRows > 0 && len(items) > maxRows {
 			items = items[:maxRows]
 		}
 	}
 
+	// Solve the whole block in one call, exactly as the clock does: per-row
+	// centering, row heights, vertical offset, inter-row spacing and the visible
+	// count all come from LayoutRows/FitRows. Hand the complete RowsResult to the
+	// renderer — omitting RowHeights/Spacing/VisibleCount makes it re-derive a row
+	// budget from the surface's current face, which collapses to zero rows on the
+	// mono path and renders blank. (This is why the hand-rolled version drew
+	// nothing on mono-fast.)
+	rowInputs := make([]layout.RowInput, len(items))
+	for i, item := range items {
+		rowInputs[i] = layout.RowInput{TextLen: len(item), Font: m}
+	}
+	result := bridge.LayoutRows(rowInputs)
+
+	// Bind every row to the measured tier so the renderer draws the face the rows
+	// were centered against, instead of letting resolveTextFitFonts re-pick a wider
+	// font (which leans the block right and clips the last glyph).
+	tiers := make([]tiercatalog.Tier, len(items))
+	for i := range items {
+		tiers[i] = tiercatalog.TierNormal
+	}
+
+	// ColorText paints the rows white on color skeleton styles; independent of the
+	// tier binding above.
 	var colors []color.Color
-	var tiers []tiercatalog.Tier
 	if d.p.ColorText {
 		white := color.RGBA{255, 255, 255, 255}
 		colors = make([]color.Color, len(items))
-		tiers = make([]tiercatalog.Tier, len(items))
 		for i := range items {
 			colors[i] = white
-			tiers[i] = tiercatalog.TierNormal
 		}
 	}
 
-	offsets := make([]style.TTYX, len(items))
-	for i, item := range items {
-		offsets[i] = bridge.CenterX(len(item), m)
-	}
-	rowHeights := make([]int, len(items))
-	for i := range items {
-		rowHeights[i] = entry.RowHeight
-	}
-	offsetY := bridge.CenterBlockY(rowHeights, 0)
-
 	return style.ViewData{
-		Items:       items,
-		Colors:      colors,
-		Tiers:       tiers,
-		LineOffsets: offsets,
-		OffsetY:     offsetY,
-		Sprites:     sprites,
-		Static:      d.p.Static,
+		Items:        items,
+		Colors:       colors,
+		Tiers:        tiers,
+		LineOffsets:  result.Offsets,
+		OffsetY:      result.OffsetY,
+		RowHeights:   result.RowHeights,
+		Spacing:      result.Spacing,
+		VisibleCount: result.VisibleCount,
+		PaddingPct:   0,
+		Sprites:      sprites,
+		// Boot status is a non-interactive readout: render it as a centered static
+		// block, never the scrolling cursor list. Routing through the cursor path
+		// (Static:false) made the single row land at the default Cursor 0 and draw
+		// highlighted — invisible on monochrome panels. It is categorically static
+		// regardless of the per-def Static knob.
+		Static: true,
+		Cursor: -1,
 	}
+}
+
+// labelFontFamily is the font family the single-label builders rasterize their
+// centered boot-status text with. It matches the region's baseline family, so a
+// panel with no catalog still resolves a sensible face.
+const labelFontFamily = "spleen"
+
+// centeredLabelSprite rasterizes text as a single sprite centered in the content
+// area, using the face the style itself resolves.
+//
+// This is the correct-by-construction alternative to emitting a bare Items row.
+// A bare row carries no tier, so the renderer's resolveTextFitFonts fallback
+// re-picks the largest font that fits the width — a different, usually larger
+// face than the one the style measured CenterX against. The style centers for a
+// narrow face and the renderer draws a wide one, so the label leans right and
+// clips (the "BOOT COMP" overflow). Rasterizing here binds measurement and
+// drawing to one face: the sprite owns its glyphs, and the renderer composites
+// it verbatim without re-resolving anything.
+//
+// Returns a zero Sprite (nil Image) when no face is available or the text does
+// not fit; callers should fall back to an Items row in that degraded case.
+func centeredLabelSprite(bridge layout.LayoutCalculator, face font.Face, text string, fg color.RGBA) (widgets.Sprite, bool) {
+	if face == nil {
+		return widgets.Sprite{}, false
+	}
+	cw := bridge.AvailableContentWidth()
+	ch := bridge.AvailableContentHeight()
+	if cw <= 0 || ch <= 0 {
+		return widgets.Sprite{}, false
+	}
+	ox, oy := bridge.ContentOrigin()
+	m := face.Metrics()
+	rowH := m.GlyphHeight
+	if rowH <= 0 {
+		rowH = m.RowHeight
+	}
+	// Vertically center a single row band within the content height; textlabel
+	// centers the glyphs within the band it is given.
+	bandTop := oy + max(0, (ch-rowH)/2)
+	sprite := textlabel.Render(textlabel.Config{
+		Text:       text,
+		Bounds:     image.Rect(ox, bandTop, ox+cw, bandTop+rowH),
+		Font:       face,
+		Alignment:  textlabel.Center,
+		Foreground: fg,
+	})
+	if sprite == nil {
+		return widgets.Sprite{}, false
+	}
+	return *sprite, true
+}
+
+// labelBoundsText truncates text to the glyphs that fit the content width for the
+// given face, so a label can never be wider than the panel.
+func labelBoundsText(bridge layout.LayoutCalculator, face font.Face, text string) string {
+	if face == nil {
+		return text
+	}
+	adv := face.Metrics().GlyphAdvance
+	if adv <= 0 {
+		return text
+	}
+	maxChars := bridge.AvailableContentWidth() / adv
+	if maxChars > 0 && len(text) > maxChars {
+		return text[:maxChars]
+	}
+	return text
 }
 
 func singleLabelBuild(snap source.Snapshot, ctx style.StyleContext, d def) style.ViewData {
@@ -162,10 +250,21 @@ func singleLabelBuild(snap source.Snapshot, ctx style.StyleContext, d def) style
 	}
 
 	label := source.BootStatusLabel(snap)
+	face := ctx.Face(labelFontFamily, tiercatalog.TierNormal)
+	label = labelBoundsText(bridge, face, label)
+
+	white := color.RGBA{255, 255, 255, 255}
+	if sprite, ok := centeredLabelSprite(bridge, face, label, white); ok {
+		return style.ViewData{
+			Sprites: []widgets.Sprite{sprite},
+			Static:  d.p.Static,
+		}
+	}
+
+	// Degraded fallback: no face resolved, emit the row for the renderer to draw.
 	entry := ctx.Entry(tiercatalog.TierNormal)
 	offsets := []style.TTYX{bridge.CenterX(len(label), layout.NewMetrics(entry.GlyphAdvance, entry.RowHeight, entry.FontID))}
 	offsetY := bridge.CenterBlockY([]int{entry.RowHeight}, 0)
-
 	return style.ViewData{
 		Items:       []string{label},
 		LineOffsets: offsets,
@@ -186,20 +285,21 @@ func summaryBuild(snap source.Snapshot, ctx style.StyleContext) style.ViewData {
 		label = "Boot OK"
 	} else {
 		label = source.BootStatusLabel(snap)
-		maxChars := bridge.MaxChars(ctx.DefaultMetrics())
-		if maxChars > 0 && len(label) > maxChars {
-			label = label[:maxChars]
-		}
 	}
 
-	items := []string{label}
+	face := ctx.Face(labelFontFamily, tiercatalog.TierNormal)
+	label = labelBoundsText(bridge, face, label)
+
+	white := color.RGBA{255, 255, 255, 255}
+	if sprite, ok := centeredLabelSprite(bridge, face, label, white); ok {
+		return style.ViewData{Sprites: []widgets.Sprite{sprite}}
+	}
+
 	entry := ctx.Entry(tiercatalog.TierNormal)
 	offsets := []style.TTYX{bridge.CenterX(len(label), layout.NewMetrics(entry.GlyphAdvance, entry.RowHeight, entry.FontID))}
-	rowHeights := []int{entry.RowHeight}
-	offsetY := bridge.CenterBlockY(rowHeights, 0)
-
+	offsetY := bridge.CenterBlockY([]int{entry.RowHeight}, 0)
 	return style.ViewData{
-		Items:       items,
+		Items:       []string{label},
 		LineOffsets: offsets,
 		OffsetY:     offsetY,
 	}
@@ -230,16 +330,35 @@ func gradientBuild(snap source.Snapshot, pol source.Policy, ctx style.StyleConte
 		},
 	}))
 
+	// The gradient is a full-panel backdrop: sink it beneath the label so the text
+	// reads on top. Without Z: -1 the opaque gradient composites over the label
+	// (the default sprite depth draws above lower depths), burying it entirely.
+	sprites := comp.Sprites()
+	for i := range sprites {
+		sprites[i].Z = -1
+	}
+
+	// The boot label is a sprite at the default depth (0), above the Z:-1 gradient.
+	// Rasterizing it here (rather than emitting an Items row) binds its font to the
+	// one the style measured, so it centers correctly over the gradient.
 	label := source.BootStatusLabel(snap)
+	face := ctx.Face(labelFontFamily, tiercatalog.TierNormal)
+	label = labelBoundsText(bridge, face, label)
+	white := color.RGBA{255, 255, 255, 255}
+	if sprite, ok := centeredLabelSprite(bridge, face, label, white); ok {
+		sprites = append(sprites, sprite)
+		return style.ViewData{Sprites: sprites}
+	}
+
+	// Degraded fallback: emit the label as a row over the gradient backdrop.
 	entry := ctx.Entry(tiercatalog.TierNormal)
 	offsets := []style.TTYX{bridge.CenterX(len(label), layout.NewMetrics(entry.GlyphAdvance, entry.RowHeight, entry.FontID))}
 	offsetY := bridge.CenterBlockY([]int{entry.RowHeight}, 0)
-
 	return style.ViewData{
 		Items:       []string{label},
 		LineOffsets: offsets,
 		OffsetY:     offsetY,
-		Sprites:     comp.Sprites(),
+		Sprites:     sprites,
 	}
 }
 
