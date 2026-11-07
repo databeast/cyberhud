@@ -482,6 +482,38 @@ func (lb LayoutCalculator) TTYToPixel(x TTYX, y TTYY) image.Point {
 	}
 }
 
+// CellToPixel returns the world pixel of the top-left corner of the character
+// cell at (row, col), measured with font m. Negative row/col clamp to 0.
+// Not clamped to the panel.
+func (lb LayoutCalculator) CellToPixel(row, col int, m Metrics) image.Point {
+	return image.Point{X: lb.RowX(col, m), Y: lb.RowY(row, 0, m)}
+}
+
+// CellRect returns the world pixel rectangle covered by the character cell at
+// (row, col), measured with font m. Negative row/col clamp to 0.
+func (lb LayoutCalculator) CellRect(row, col int, m Metrics) image.Rectangle {
+	min := lb.CellToPixel(row, col, m)
+	return image.Rectangle{
+		Min: min,
+		Max: image.Point{X: min.X + m.advance, Y: min.Y + m.rowHeight},
+	}
+}
+
+// PixelToCell is the inverse of CellToPixel: it maps a world pixel to the
+// (row, col) of the character cell containing it. ok is false when m is
+// unusable or p lies left of or above the content origin, or at or beyond the
+// right edge of the content width.
+func (lb LayoutCalculator) PixelToCell(p image.Point, m Metrics) (row, col int, ok bool) {
+	if !m.Usable() {
+		return 0, 0, false
+	}
+	dx, dy := p.X-lb.contentOriginX, p.Y-lb.contentOriginY
+	if dx < 0 || dy < 0 || dx >= lb.availableContentWidth {
+		return 0, 0, false
+	}
+	return dy / m.rowHeight, dx / m.advance, true
+}
+
 // InlineWidgetBounds returns the pixel rectangle for a widget placed to the
 // right of text at the given character offset on a specific row, measured with
 // the row's font m. Negative rowIndex and charOffset are clamped to 0.
