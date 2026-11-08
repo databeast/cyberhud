@@ -31,7 +31,7 @@ func BuildSprites(pins []gpiomgr.PinState, hints textlayout.TextHints) []widgets
 		rowHeight = textlayout.RowHeight
 	}
 	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{})
-	return gcstyles.BuildSprites(pins, bridge, layout.NewMetrics(hints.GlyphAdvance, rowHeight, ""))
+	return gcstyles.BuildSprites(pins, bridge, layout.NewMetrics(hints.GlyphAdvance, hints.GlyphWidth, rowHeight, ""))
 }
 
 func Registry() *style.StyleRegistry[source.Data, source.Policy] { return gpioControlRegistry }

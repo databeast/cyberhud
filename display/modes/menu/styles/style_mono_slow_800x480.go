@@ -120,7 +120,7 @@ func monoSlow800x480Build(snap source.MenuSnapshot, pol source.Policy, ctx style
 	// Step 8: Horizontal centering
 	offsets := make([]style.TTYX, len(visibleRows))
 	for i, r := range visibleRows {
-		offsets[i] = bridge.CenterX(len([]rune(r.text)), layout.NewMetrics(r.entry.GlyphAdvance, r.entry.RowHeight, r.entry.FontID))
+		offsets[i] = bridge.CenterX(len([]rune(r.text)), layout.NewMetrics(r.entry.GlyphAdvance, r.entry.GlyphWidth, r.entry.RowHeight, r.entry.FontID))
 	}
 
 	// Step 9: Vertical centering

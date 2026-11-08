@@ -198,16 +198,12 @@ func buildCompactBadge(snapshot source.Snapshot, ctx style.StyleContext, name, s
 	colorPanel := isColorPanel(ctx)
 	white := color.RGBA{R: 255, G: 255, B: 255, A: 255}
 
-	// Fit the name to the largest tier that fits the (narrow) width.
-	nameTier := tiercatalog.TierSmall
-	for _, t := range nameTierLadder {
-		ga := ctx.Entry(t).GlyphAdvance
-		if ga <= 0 {
-			continue
-		}
-		if len([]rune(name))*ga <= availW {
-			nameTier = t
-			break
+	// Largest tier (≤ Large) whose whole name fits the narrow width, measured
+	// exactly (Metrics.TextWidth) rather than by the old runes*advance estimate.
+	nameTier, ok := ctx.FitTier(name, availW, tiercatalog.TierLarge)
+	if !ok {
+		if all := ctx.FontCatalog().Tiers(); len(all) > 0 {
+			nameTier = all[0]
 		}
 	}
 	nameEntry := ctx.Entry(nameTier)
@@ -325,15 +321,15 @@ func detailRows(snapshot source.Snapshot) []string {
 // fits availW, as a sprite positioned at pos. Returns the sprite and the row
 // height consumed. Uses Clip overflow (no ellipsis tofu) as a last resort.
 func heroTitle(ctx style.StyleContext, name string, availW int, pos image.Point, boundsW int, fg color.RGBA) (*widgets.Sprite, int) {
-	tier := tiercatalog.TierSmall
-	for _, t := range nameTierLadder {
-		ga := ctx.Entry(t).GlyphAdvance
-		if ga <= 0 {
-			continue
-		}
-		if len([]rune(name))*ga <= availW {
-			tier = t
-			break
+	// Largest tier (≤ Large) whose WHOLE name fits availW, measured exactly via
+	// Metrics.TextWidth — not the old runes*GlyphAdvance approximation, which
+	// over-counts the final glyph and mis-measures multibyte names. FitTier's
+	// floor is the catalog's smallest tier; when even that overflows we keep it
+	// and let textbox.Clip hard-cut at the edge (no ellipsis tofu).
+	tier, ok := ctx.FitTier(name, availW, tiercatalog.TierLarge)
+	if !ok {
+		if all := ctx.FontCatalog().Tiers(); len(all) > 0 {
+			tier = all[0] // ascending: smallest first
 		}
 	}
 	face := ctx.Face("", tier)

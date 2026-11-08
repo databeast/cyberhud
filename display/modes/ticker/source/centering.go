@@ -14,7 +14,7 @@ import (
 func ComputeOffsetY(formatted []FormattedLine, hints textlayout.TextHints, effective Policy) layout.TTYY {
 	bridge := layout.NewLayoutBridge(hints, layout.BridgeConfig{})
 	e := hints.Catalog.Entry(tiercatalog.TierNormal)
-	m := layout.NewMetrics(e.GlyphAdvance, e.RowHeight, e.FontID)
+	m := layout.NewMetrics(e.GlyphAdvance, e.GlyphWidth, e.RowHeight, e.FontID)
 	maxRows := bridge.MaxVisibleRows(m)
 
 	// Disable centering when scrolling is active and content overflows.

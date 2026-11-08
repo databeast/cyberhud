@@ -32,8 +32,8 @@ func (i *instance) BuildView() style.ViewData {
 	}
 	view := BuildView(hints, icons.Get)
 	state := style.ViewData{
-		Items:       view.Items,
-		
+		Items: view.Items,
+
 		Sprites:     view.Sprites,
 		StyleReport: view.StyleReport,
 	}

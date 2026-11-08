@@ -114,6 +114,7 @@ nav:
               - Clock: display-modes/clock.md
               - Image: display-modes/image.md
               - Pager: display-modes/pager.md
+              - Schedule: display-modes/schedule.md
               - Serial: display-modes/serial.md
               - Ticker: display-modes/ticker.md
               - ZMQ: display-modes/zmq.md

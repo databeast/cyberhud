@@ -66,7 +66,7 @@ func listBuild(snapshot source.Data, _ source.Policy, ctx style.StyleContext, d 
 		spriteFace := hints.Face("terminus", tiercatalog.TierNormal)
 		if spriteFace != nil {
 			fm := spriteFace.Metrics()
-			faceMetrics := layout.NewMetrics(fm.GlyphAdvance, fm.RowHeight, "")
+			faceMetrics := layout.NewMetrics(fm.GlyphAdvance, fm.GlyphWidth, fm.RowHeight, "")
 			textLabelSprites := buildControlTextLabelSprites(pins, items, bridge, faceMetrics, spriteFace, colors, textlayout.MaxVisibleRows(textlayout.WithFont(hints, spriteFace), 0))
 			if textLabelSprites != nil {
 				sprites = append(sprites, textLabelSprites...)

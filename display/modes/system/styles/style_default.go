@@ -7,7 +7,7 @@ import (
 	"github.com/databeast/cyberhud/display/modes/system/source"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/display/style/layout"
-	"github.com/databeast/cyberhud/display/surface/textlayout"
+	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 	"github.com/databeast/cyberhud/display/widgets"
 )
 
@@ -37,14 +37,7 @@ func buildDefaultStyle(snapshot source.SystemSnapshot, pol source.Policy, ctx st
 
 	allDataOK := snapshot.Hostname != "unknown" && snapshot.Uptime != "n/a" && len(snapshot.IPs) > 0
 
-	// Width budget for truncating values so they never clip off the edge.
-	maxChars := bridge.MaxChars(ctx.DefaultMetrics())
-	fit := func(s string) string {
-		if maxChars > 0 {
-			return textlayout.Truncate(s, maxChars)
-		}
-		return s
-	}
+	cw := bridge.AvailableContentWidth()
 
 	type row struct {
 		text string
@@ -56,25 +49,39 @@ func buildDefaultStyle(snapshot source.SystemSnapshot, pol source.Policy, ctx st
 	}
 
 	rows := []row{
-		{fit(snapshot.Hostname), pick(isColor, defHostColor, nil)},
-		{fit("OS: " + snapshot.OSArch), pick(isColor, defValueColor, nil)},
-		{fit("Up: " + snapshot.Uptime), pick(isColor, healthCol, nil)},
+		{snapshot.Hostname, pick(isColor, defHostColor, nil)},
+		{"OS: " + snapshot.OSArch, pick(isColor, defValueColor, nil)},
+		{"Up: " + snapshot.Uptime, pick(isColor, healthCol, nil)},
 	}
 	if len(snapshot.IPs) == 0 {
-		rows = append(rows, row{fit("IP: (none)"), pick(isColor, defProblemColor, nil)})
+		rows = append(rows, row{"IP: (none)", pick(isColor, defProblemColor, nil)})
 	} else {
 		for _, ip := range snapshot.IPs {
-			rows = append(rows, row{fit(ip), pick(isColor, defLabelColor, nil)})
+			rows = append(rows, row{ip, pick(isColor, defLabelColor, nil)})
 		}
 	}
 
+	// Each row keeps its whole text and is sized DOWN (from the default tier) to
+	// fit the width, rather than truncated to a clipped value. FitTier's floor is
+	// the smallest catalog tier; a value too long even there hard-clips at the
+	// edge — never an ellipsis (the bitmap fonts render U+2026 as tofu).
 	items := make([]string, len(rows))
+	tiers := make([]tiercatalog.Tier, len(rows))
+	rowHeights := make([]int, len(rows))
 	var colors []color.Color
 	if isColor {
 		colors = make([]color.Color, len(rows))
 	}
 	for i, r := range rows {
+		tier, ok := ctx.FitTier(r.text, cw, tiercatalog.TierNormal)
+		if !ok {
+			if all := ctx.FontCatalog().Tiers(); len(all) > 0 {
+				tier = all[0]
+			}
+		}
 		items[i] = r.text
+		tiers[i] = tier
+		rowHeights[i] = ctx.Metrics(tier).RowHeight()
 		if isColor {
 			colors[i] = r.col
 		}
@@ -101,7 +108,7 @@ func buildDefaultStyle(snapshot source.SystemSnapshot, pol source.Policy, ctx st
 		}
 	}
 
-	return style.ViewData{Items: items, Colors: colors, Sprites: sprites}
+	return style.ViewData{Items: items, Colors: colors, Tiers: tiers, RowHeights: rowHeights, Sprites: sprites}
 }
 
 // pick returns a when cond, else b. Used to drop per-row colors on mono panels.

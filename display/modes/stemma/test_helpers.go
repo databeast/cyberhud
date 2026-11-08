@@ -24,7 +24,7 @@ func BuildColors(devs []*source.Device, present, absent color.Color) []color.Col
 }
 func BuildSprites(devs []*source.Device, rowHeight int, getIcon func(string) (image.Image, bool)) []widgets.Sprite {
 	bridge := layout.NewLayoutBridge(textlayout.TextHints{}, layout.BridgeConfig{})
-	return styles.BuildSprites(devs, bridge, layout.NewMetrics(1, rowHeight, ""), getIcon)
+	return styles.BuildSprites(devs, bridge, layout.NewMetrics(1, 1, rowHeight, ""), getIcon)
 }
 
 func StemmaRegistryEnumerate() []style.Style[source.StemmaSnapshot, source.Policy] {

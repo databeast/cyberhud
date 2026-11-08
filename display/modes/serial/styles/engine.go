@@ -123,10 +123,9 @@ func buildPanel(snap source.Snapshot, pol source.Policy, ctx style.StyleContext,
 		}))
 		xOffset = ledSize + 1
 	}
-	header := compactHeader(snap)
-	if maxChars > 0 {
-		header = textlayout.Truncate(header, maxCharsAfter(cw, xOffset, glyphAdvance))
-	}
+	// Compact the header to the space right of the LED, shedding low-value parts
+	// (the /dev/ prefix) rather than clipping the device name. See compactHeader.
+	header := compactHeader(snap, maxCharsAfter(cw, xOffset, glyphAdvance))
 	comp.Add(textlabel.New(textlabel.Config{
 		Text:       header,
 		Bounds:     image.Rect(ox+xOffset, y, ox+cw, y+rowHeight),
@@ -136,10 +135,9 @@ func buildPanel(snap source.Snapshot, pol source.Policy, ctx style.StyleContext,
 	y += rowHeight
 
 	// --- State row ---
-	stateStr, stateCol := statusText(snap)
-	if maxChars > 0 {
-		stateStr = textlayout.Truncate(stateStr, maxChars)
-	}
+	// The error detail sheds to a bare "ERR" when the row is too narrow, rather
+	// than clipping the message mid-word; the detail is in the output stream.
+	stateStr, stateCol := statusText(snap, maxChars)
 	comp.Add(textlabel.New(textlabel.Config{
 		Text:       stateStr,
 		Bounds:     image.Rect(ox, y, ox+cw, y+rowHeight),
@@ -263,7 +261,7 @@ func rawView(snap source.Snapshot, ctx style.StyleContext, bridge layout.LayoutC
 	if glyphAdvance > 0 {
 		maxChars = cw / glyphAdvance
 	}
-	budget := bridge.MaxVisibleRows(layout.NewMetrics(glyphAdvance, rowHeight, entry.FontID))
+	budget := bridge.MaxVisibleRows(layout.NewMetrics(glyphAdvance, entry.GlyphWidth, rowHeight, entry.FontID))
 
 	var items []string
 	var colors []color.Color

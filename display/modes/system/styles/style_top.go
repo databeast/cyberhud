@@ -7,7 +7,6 @@ import (
 	"github.com/databeast/cyberhud/display/modes/system/source"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/display/style/layout"
-	"github.com/databeast/cyberhud/display/surface/textlayout"
 )
 
 // buildTopStyle is the shared "top" variant builder — the leaderboard of the
@@ -33,7 +32,7 @@ func buildTopStyle(snapshot source.SystemSnapshot, pol source.Policy, ctx style.
 		count = visibleRows
 	}
 
-	maxChars := bridge.MaxChars(m)
+	cw := bridge.AvailableContentWidth()
 
 	items := make([]string, 0, count)
 	colors := make([]color.Color, 0, count)
@@ -41,18 +40,12 @@ func buildTopStyle(snapshot source.SystemSnapshot, pol source.Policy, ctx style.
 		entry := processes[i]
 		cpuStr := fmt.Sprintf("%d%%", entry.CPUPerc)
 
-		name := entry.Name
-		// Truncate the NAME so that name + " " + cpuStr fits within maxChars;
-		// the percentage must always survive. This prevents the renderer from
-		// shrinking an overflowing row to a smaller font (which breaks the
-		// leaderboard's type rhythm).
-		if maxChars > 0 {
-			nameLimit := maxChars - len(cpuStr) - 1 // -1 for the space separator
-			if nameLimit < 1 {
-				nameLimit = 1
-			}
-			name = textlayout.Truncate(name, nameLimit)
-		}
+		// The leaderboard keeps a UNIFORM font (one type rhythm), so a long name
+		// is clipped rather than sized down — but the percentage must always
+		// survive, and the clip must not append an ellipsis (the bitmap fonts have
+		// no U+2026 glyph, so it renders as tofu). Budget the name by EXACT pixel
+		// width against the panel, reserving the " <pct>" suffix, and clip plainly.
+		name := clipNameToWidth(entry.Name, " "+cpuStr, cw, m)
 
 		items = append(items, name+" "+cpuStr)
 
@@ -63,4 +56,25 @@ func buildTopStyle(snapshot source.SystemSnapshot, pol source.Policy, ctx style.
 	}
 
 	return style.ViewData{Items: items, Colors: colors}
+}
+
+// clipNameToWidth returns name clipped to the widest rune-prefix that, together
+// with the reserved suffix, fits widthPx in font m — using exact TextWidth, with
+// no ellipsis (bitmap fonts render U+2026 as tofu). The suffix (" 42%") is never
+// clipped; the name yields. A name that already fits is returned unchanged.
+func clipNameToWidth(name, suffix string, widthPx int, m layout.Metrics) string {
+	if widthPx <= 0 || !m.Usable() {
+		return name
+	}
+	if m.Fits(name+suffix, widthPx) {
+		return name
+	}
+	runes := []rune(name)
+	for len(runes) > 0 {
+		runes = runes[:len(runes)-1]
+		if m.Fits(string(runes)+suffix, widthPx) {
+			return string(runes)
+		}
+	}
+	return ""
 }

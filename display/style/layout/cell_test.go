@@ -10,7 +10,7 @@ import (
 
 func TestCellPixelRoundTrip(t *testing.T) {
 	lb := layout.NewLayoutBridge(textlayout.TextHints{PixelWidth: 400, PixelHeight: 200}, layout.BridgeConfig{PaddingPct: 10})
-	m := layout.NewMetrics(8, 16, "test")
+	m := layout.NewMetrics(8, 8, 16, "test")
 
 	for row := 0; row < 5; row++ {
 		for col := 0; col < 10; col++ {
@@ -30,7 +30,7 @@ func TestCellPixelRoundTrip(t *testing.T) {
 
 func TestPixelToCellOutside(t *testing.T) {
 	lb := layout.NewLayoutBridge(textlayout.TextHints{PixelWidth: 400, PixelHeight: 200}, layout.BridgeConfig{PaddingPct: 10})
-	m := layout.NewMetrics(8, 16, "test")
+	m := layout.NewMetrics(8, 8, 16, "test")
 	ox, oy := lb.ContentOrigin()
 
 	for _, p := range []image.Point{{ox - 1, oy}, {ox, oy - 1}, {ox + lb.AvailableContentWidth(), oy}} {

@@ -134,7 +134,7 @@ func renderPageImage(snap source.PagerSnapshot, bridge layout.LayoutCalculator, 
 	}
 	fg := color.RGBA{R: 255, G: 255, B: 255, A: uint8(alpha * 255)}
 
-	rowMetrics := layout.NewMetrics(metrics.GlyphAdvance, rowHeight, "")
+	rowMetrics := layout.NewMetrics(metrics.GlyphAdvance, metrics.GlyphWidth, rowHeight, "")
 	contentW := bridge.AvailableContentWidth()
 	contentH := bridge.AvailableContentHeight()
 	maxRows := contentH / rowHeight

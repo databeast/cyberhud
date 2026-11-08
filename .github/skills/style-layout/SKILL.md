@@ -88,6 +88,55 @@ Two correct fixes, strongest last:
 Either way: a style must never measure with one font and let the renderer draw with
 another.
 
+## Rendered text is ASCII-only - non-ASCII glyphs render as tofu
+
+The bitmap fonts (spleen and friends) carry ASCII and little else. Any non-ASCII
+character you put in an `Items` row or a `textlabel` renders as the font's
+missing-glyph box - visible on-panel as a stray `?`. A time window written
+`"11:29–12:29"` with an en-dash shows up as `"11:29?12:29"`; the same trap caught a
+degree symbol (`52.3?C`) and a `…` ellipsis elsewhere.
+
+Use ASCII equivalents in any string a style emits for drawing:
+
+- `–` / `—` (en/em dash) and `→` (arrow) → `-` / `->`
+- `·` (middot) → `-` or `|`
+- `…` (ellipsis) → `...` (and budget three columns for it, not one)
+- `°`, `×`, curly quotes, etc. → ASCII or drop them
+
+Icons are the exception and go through a *different* path: the material-icons font
+is a private-use-area glyph set addressed by codepoint via the icon widgets, not by
+typing a Unicode character into a text row. Decorative symbols belong there, not in
+`Items`.
+
+## Fit text to the width - never truncate it
+
+A row clipped to `"Design re..."` is a visible failure, not information: the glance
+it exists for cannot use it. So a style never truncates a line to force a fit. It
+either makes the line fit, or it does not show the line.
+
+The primitive is `layout.Metrics.TextWidth(s)` - the exact horizontal pixels a
+string needs in that font, by the real draw rule ((n-1)·advance + last glyph's
+ink width, not advance·n). `Metrics.Fits(s, widthPx)` is the predicate. Both are
+pure and unit-tested in `display/style/layout` - a fit decision needs no render.
+
+The two structural responses when a line is too wide, in order:
+
+1. **Size the row down.** `ctx.FitTier(text, widthPx, ceiling)` returns the
+   largest tier (no bigger than `ceiling`) whose font renders the whole string
+   within the width. The text drives the font, capped by the tier the panel
+   height suggests. Measure and emit that tier so layout and drawing agree.
+2. **Drop the row.** When `FitTier` returns `ok == false`, the string will not fit
+   even at the smallest tier - omit the row rather than clip it. `FitRows` already
+   drops rows that do not fit *vertically*; this is the horizontal twin.
+
+The one exception is a mandatory headline (e.g. an event title): it must always
+show, so when nothing fits it falls back to the smallest tier and hard-clips at
+the panel edge - a clean cut, never an ellipsis apology. Decide per row which are
+mandatory and which are sheddable; secondary/preview rows are sheddable.
+
+`MaxChars` (width / advance) is a coarse character budget, fine for a quick bound;
+it is not the fit test. For "does this exact string fit?", use `TextWidth`/`Fits`.
+
 ## When NOT to use the cell helpers
 
 Pixel-space composition is legitimate and stays as is: centred icons or gauges, pixel
@@ -104,6 +153,12 @@ at a font's own advance and row height.
 - Measured tier == emitted tier (or the label is a face-bound sprite). No bare
   centred `Items` row relying on the renderer's font-fit fallback.
 - Any full-panel backdrop sprite is `Z: -1` so the text reads on top.
+- No non-ASCII characters in any string a style emits for drawing (dashes,
+  arrows, middots, ellipses, degree signs) - the bitmap fonts render them as
+  tofu. Use ASCII; icons go through the icon widgets, not text rows.
+- No truncation-to-fit. Every emitted row fits its width whole (size it down via
+  `ctx.FitTier`, or drop it when `ok == false`). A `...`-clipped row is a bug, not
+  a layout. Mandatory headlines may hard-clip at the edge as the sole exception.
 - `PaddingPct` set whenever padding is non-zero.
 - Run `go build ./...` and the mode's tests (snapshot tests catch positional drift).
 - To find usages and blast radius, use graphify (`$G query`, `$G affected`) before grepping.

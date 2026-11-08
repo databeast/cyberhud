@@ -77,7 +77,37 @@ func (ctx StyleContext) Entry(tier tiercatalog.Tier) tiercatalog.Entry {
 // cannot measure with a font it is not going to draw.
 func (ctx StyleContext) Metrics(tier tiercatalog.Tier) layout.Metrics {
 	e := ctx.catalog.Entry(tier)
-	return layout.NewMetrics(e.GlyphAdvance, e.RowHeight, e.FontID)
+	return layout.NewMetrics(e.GlyphAdvance, e.GlyphWidth, e.RowHeight, e.FontID)
+}
+
+// FitTier returns the largest tier, no larger than ceiling, whose font renders
+// text fully within widthPx — the "size the row down until it fits" decision,
+// made against the exact per-font width (layout.Metrics.TextWidth) rather than a
+// character-count estimate. ok is false when the string does not fit even at the
+// smallest tier, which is the signal to drop the row rather than clip it: a
+// truncated "Design re..." row carries no information a glance can use.
+//
+// The returned tier's Metrics are what the caller must both measure and emit, so
+// layout and drawing agree on the font (see [StyleContext.Metrics]). ceiling lets
+// a style cap the search at the tier it chose by panel height, so a secondary row
+// never renders larger than the headline.
+func (ctx StyleContext) FitTier(text string, widthPx int, ceiling tiercatalog.Tier) (tiercatalog.Tier, bool) {
+	tiers := ctx.catalog.Tiers() // ascending
+	ceilN := tiercatalog.NormalizeTier(ceiling)
+	// Walk from the ceiling downward, returning the first (largest) that fits.
+	started := false
+	for i := len(tiers) - 1; i >= 0; i-- {
+		if !started {
+			if tiers[i] != ceilN {
+				continue
+			}
+			started = true
+		}
+		if ctx.Metrics(tiers[i]).Fits(text, widthPx) {
+			return tiers[i], true
+		}
+	}
+	return ceilN, false
 }
 
 // DefaultMetrics returns the Metrics of the region's baseline face (the font the

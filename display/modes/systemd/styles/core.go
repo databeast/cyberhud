@@ -106,7 +106,7 @@ func rowsBuild(snap source.Snapshot, ctx style.StyleContext, d def) style.ViewDa
 	// Every row is drawn at TierNormal — the boot status is a uniform block. Look
 	// up that face once; its metrics measure the rows and name the drawn font.
 	entry := ctx.Entry(tiercatalog.TierNormal)
-	m := layout.NewMetrics(entry.GlyphAdvance, entry.RowHeight, entry.FontID)
+	m := layout.NewMetrics(entry.GlyphAdvance, entry.GlyphWidth, entry.RowHeight, entry.FontID)
 
 	// ContentMaxRows is the e-ink pre-clamp: cap rows by raw content height so the
 	// static poster never overflows. The remaining fit decision is FitRows' job via
@@ -256,7 +256,7 @@ func singleLabelBuild(snap source.Snapshot, ctx style.StyleContext, d def) style
 
 	// Degraded fallback: no face resolved, emit the row for the renderer to draw.
 	entry := ctx.Entry(tiercatalog.TierNormal)
-	offsets := []style.TTYX{bridge.CenterX(len(label), layout.NewMetrics(entry.GlyphAdvance, entry.RowHeight, entry.FontID))}
+	offsets := []style.TTYX{bridge.CenterX(len(label), layout.NewMetrics(entry.GlyphAdvance, entry.GlyphWidth, entry.RowHeight, entry.FontID))}
 	offsetY := bridge.CenterBlockY([]int{entry.RowHeight}, 0)
 	return style.ViewData{
 		Items:       []string{label},
@@ -289,7 +289,7 @@ func summaryBuild(snap source.Snapshot, ctx style.StyleContext) style.ViewData {
 	}
 
 	entry := ctx.Entry(tiercatalog.TierNormal)
-	offsets := []style.TTYX{bridge.CenterX(len(label), layout.NewMetrics(entry.GlyphAdvance, entry.RowHeight, entry.FontID))}
+	offsets := []style.TTYX{bridge.CenterX(len(label), layout.NewMetrics(entry.GlyphAdvance, entry.GlyphWidth, entry.RowHeight, entry.FontID))}
 	offsetY := bridge.CenterBlockY([]int{entry.RowHeight}, 0)
 	return style.ViewData{
 		Items:       []string{label},
@@ -345,7 +345,7 @@ func gradientBuild(snap source.Snapshot, pol source.Policy, ctx style.StyleConte
 
 	// Degraded fallback: emit the label as a row over the gradient backdrop.
 	entry := ctx.Entry(tiercatalog.TierNormal)
-	offsets := []style.TTYX{bridge.CenterX(len(label), layout.NewMetrics(entry.GlyphAdvance, entry.RowHeight, entry.FontID))}
+	offsets := []style.TTYX{bridge.CenterX(len(label), layout.NewMetrics(entry.GlyphAdvance, entry.GlyphWidth, entry.RowHeight, entry.FontID))}
 	offsetY := bridge.CenterBlockY([]int{entry.RowHeight}, 0)
 	return style.ViewData{
 		Items:       []string{label},
@@ -443,7 +443,7 @@ func monoSlowPoster800x480(snap source.Snapshot, pol source.Policy, ctx style.St
 
 	offsets := make([]style.TTYX, len(visibleRows))
 	for i, r := range visibleRows {
-		offsets[i] = bridge.CenterX(len([]rune(r.text)), layout.NewMetrics(r.entry.GlyphAdvance, r.entry.RowHeight, r.entry.FontID))
+		offsets[i] = bridge.CenterX(len([]rune(r.text)), layout.NewMetrics(r.entry.GlyphAdvance, r.entry.GlyphWidth, r.entry.RowHeight, r.entry.FontID))
 	}
 
 	var blockHeight int

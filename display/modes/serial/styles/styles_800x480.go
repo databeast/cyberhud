@@ -104,8 +104,16 @@ func posterPanel800x480(snap source.Snapshot, pol source.Policy, ctx style.Style
 		Bounds:     image.Rect(ox, y, ox+ledSize, y+ledSize),
 		Foreground: ledColor,
 	}))
+	titleAdvance := titleEntry.GlyphAdvance
+	if titleAdvance <= 0 {
+		titleAdvance = textlayout.GlyphAdvance
+	}
+	headerBudget := 0
+	if titleAdvance > 0 {
+		headerBudget = (cw - ledSize - 6) / titleAdvance
+	}
 	comp.Add(textlabel.New(textlabel.Config{
-		Text:       compactHeader(snap),
+		Text:       compactHeader(snap, headerBudget),
 		Bounds:     image.Rect(ox+ledSize+6, y, ox+cw, y+titleH),
 		Font:       titleFace,
 		Foreground: colorSerialHeader,
@@ -113,7 +121,7 @@ func posterPanel800x480(snap source.Snapshot, pol source.Policy, ctx style.Style
 	y += titleH + 4
 
 	// --- Status line ---
-	stateStr, stateCol := statusText(snap)
+	stateStr, stateCol := statusText(snap, cw/bodyAdvance)
 	comp.Add(textlabel.New(textlabel.Config{
 		Text:       stateStr,
 		Bounds:     image.Rect(ox, y, ox+cw, y+bodyH),

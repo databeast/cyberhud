@@ -28,6 +28,7 @@ import (
 	_ "github.com/databeast/cyberhud/display/modes/image"
 	_ "github.com/databeast/cyberhud/display/modes/menu"
 	_ "github.com/databeast/cyberhud/display/modes/pager"
+	_ "github.com/databeast/cyberhud/display/modes/schedule"
 	_ "github.com/databeast/cyberhud/display/modes/serial"
 	_ "github.com/databeast/cyberhud/display/modes/stemma"
 	_ "github.com/databeast/cyberhud/display/modes/storage"
@@ -59,6 +60,7 @@ var expectedModeIDs = []string{
 	"image",
 	"usb",
 	"serial",
+	"schedule",
 	"thermal",
 	"gpio-control",
 	"testpattern",

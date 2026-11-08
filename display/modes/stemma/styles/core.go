@@ -205,7 +205,7 @@ func posterBuild(snapshot source.StemmaSnapshot, ctx style.StyleContext, p Param
 
 	offsets := make([]style.TTYX, len(visibleRows))
 	for i, r := range visibleRows {
-		offsets[i] = bridge.CenterX(len([]rune(r.text)), layout.NewMetrics(r.entry.GlyphAdvance, r.entry.RowHeight, r.entry.FontID))
+		offsets[i] = bridge.CenterX(len([]rune(r.text)), layout.NewMetrics(r.entry.GlyphAdvance, r.entry.GlyphWidth, r.entry.RowHeight, r.entry.FontID))
 	}
 
 	var blockHeight int

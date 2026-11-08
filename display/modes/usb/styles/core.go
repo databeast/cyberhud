@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"image"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/databeast/cyberhud/display/modes/usb/source"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
-	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 )
 
 // IconGetter retrieves a named icon image for USB status sprites.
@@ -172,56 +170,6 @@ func coreSafeValue(v, fallback string) string {
 	return v
 }
 
-// nameTierLadder is the descending list of tiers fitName tries for the device
-// name — largest first. The name is the hero of the USB bench screen, so it gets
-// the biggest font whose whole string fits the width.
-var nameTierLadder = []tiercatalog.Tier{
-	tiercatalog.TierLarge,
-	tiercatalog.TierNormal,
-	tiercatalog.TierSmall,
-}
-
-// fitName returns the device name sized to the largest tier in nameTierLadder
-// whose full string fits within availW pixels, along with that tier. It never
-// appends an ellipsis: the bitmap fonts have no U+2026 glyph, so Truncate's
-// ellipsis renders as a tofu box (the exact defect this replaces). If the name
-// does not fit even at the smallest tier, it is hard-truncated with no indicator
-// — a plain clipped word reads as "cut", a trailing tofu box reads as "broken".
-func fitName(name string, ctx style.StyleContext, availW int) (string, tiercatalog.Tier) {
-	name = strings.TrimSpace(name)
-	if availW <= 0 {
-		return name, tiercatalog.TierSmall
-	}
-	n := utf8.RuneCountInString(name)
-	for _, tier := range nameTierLadder {
-		ga := ctx.Entry(tier).GlyphAdvance
-		if ga <= 0 {
-			continue
-		}
-		if n*ga <= availW {
-			return name, tier
-		}
-	}
-	// Does not fit at any tier: use the smallest tier and plain-truncate to width.
-	small := tiercatalog.TierSmall
-	ga := ctx.Entry(small).GlyphAdvance
-	if ga <= 0 {
-		return name, small
-	}
-	return truncatePlain(name, availW/ga), small
-}
-
-// truncatePlain returns s trimmed to at most max runes, WITHOUT appending an
-// ellipsis. Used in place of textlayout.Truncate wherever the rendered font is a
-// bitmap face that lacks the U+2026 ellipsis glyph (all the panel fonts), so the
-// indicator would otherwise render as a tofu box.
-func truncatePlain(s string, max int) string {
-	s = strings.TrimSpace(s)
-	if max <= 0 {
-		return ""
-	}
-	if utf8.RuneCountInString(s) <= max {
-		return s
-	}
-	return string([]rune(s)[:max])
-}
+// The device-name fit (largest tier whose whole name fits the width) now lives
+// in the sprite builders via ctx.FitTier (hero.go); the former hand-rolled
+// nameTierLadder / fitName / truncatePlain helpers were removed with it.

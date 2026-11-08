@@ -56,13 +56,20 @@ type BridgeConfig struct {
 // The zero Metrics is unusable (advance/rowHeight 0); measuring methods treat it
 // as "no font" and return zero rather than falling back to a hidden default.
 type Metrics struct {
-	advance   int
-	rowHeight int
-	fontID    string // the face these metrics belong to; for diagnostics
+	advance    int
+	glyphWidth int // width of a single glyph's ink box; <= advance (advance adds inter-glyph spacing)
+	rowHeight  int
+	fontID     string // the face these metrics belong to; for diagnostics
 }
 
-// Advance returns the glyph advance in pixels.
+// Advance returns the glyph advance in pixels (one glyph's horizontal step,
+// including the inter-glyph gap).
 func (m Metrics) Advance() int { return m.advance }
+
+// GlyphWidth returns the ink-box width of a single glyph in pixels. It is at most
+// Advance: the last glyph on a row occupies GlyphWidth, not a full Advance, which
+// is why TextWidth is exact rather than advance*count.
+func (m Metrics) GlyphWidth() int { return m.glyphWidth }
 
 // RowHeight returns the row height in pixels.
 func (m Metrics) RowHeight() int { return m.rowHeight }
@@ -78,8 +85,42 @@ func (m Metrics) Usable() bool { return m.advance > 0 && m.rowHeight > 0 }
 // should obtain Metrics through StyleContext, not call this directly. Kept
 // exported because the tiercatalog→layout binding lives in the style package,
 // which cannot reach into layout's unexported fields.
-func NewMetrics(advance, rowHeight int, fontID string) Metrics {
-	return Metrics{advance: advance, rowHeight: rowHeight, fontID: fontID}
+//
+// glyphWidth should be the face's single-glyph ink width; pass the same value as
+// advance if a caller genuinely only has the advance, which makes TextWidth
+// conservative (it will over-estimate the final glyph by the advance gap) rather
+// than wrong.
+func NewMetrics(advance, glyphWidth, rowHeight int, fontID string) Metrics {
+	return Metrics{advance: advance, glyphWidth: glyphWidth, rowHeight: rowHeight, fontID: fontID}
+}
+
+// TextWidth returns the exact horizontal pixels the string needs to render fully
+// in this font, by the same rule the surface and textlabel draw with: each glyph
+// steps one Advance, except the last, which occupies only GlyphWidth. An empty
+// string needs 0; an unusable Metrics (no advance) needs 0.
+//
+// This is the system's single answer to "how wide is this line?". Compare it to a
+// content width (see Fits) to decide whether a row renders whole, needs a smaller
+// font, or must be dropped — never truncate text to force a fit.
+func (m Metrics) TextWidth(s string) int {
+	if m.advance <= 0 {
+		return 0
+	}
+	n := len([]rune(s))
+	if n <= 0 {
+		return 0
+	}
+	gw := m.glyphWidth
+	if gw <= 0 {
+		gw = m.advance
+	}
+	return (n-1)*m.advance + gw
+}
+
+// Fits reports whether the string renders fully within widthPx in this font.
+// A non-positive widthPx fits only the empty string.
+func (m Metrics) Fits(s string, widthPx int) bool {
+	return m.TextWidth(s) <= widthPx
 }
 
 type LayoutCalculator struct {

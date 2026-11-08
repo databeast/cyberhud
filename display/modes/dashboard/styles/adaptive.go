@@ -5,7 +5,7 @@ import (
 
 	"github.com/databeast/cyberhud/display/modes/dashboard/source"
 	"github.com/databeast/cyberhud/display/style"
-	"github.com/databeast/cyberhud/display/surface/textlayout"
+	"github.com/databeast/cyberhud/display/style/layout"
 	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 	"github.com/databeast/cyberhud/runtime/host"
 )
@@ -93,10 +93,11 @@ func buildAdaptive(data source.DashboardContent, ctx style.StyleContext, coloriz
 		rows = rows[:maxRows]
 	}
 
-	maxChars := lc.MaxChars(m)
+	cw := lc.AvailableContentWidth()
 
 	items := make([]string, len(rows))
 	tiers := make([]tiercatalog.Tier, len(rows))
+	rowMetrics := make([]layout.Metrics, len(rows))
 	var colors []color.Color
 	if colorize {
 		colors = make([]color.Color, len(rows))
@@ -105,12 +106,21 @@ func buildAdaptive(data source.DashboardContent, ctx style.StyleContext, coloriz
 	defaultFG := color.RGBA{255, 255, 255, 255}
 
 	for i, r := range rows {
-		text := r.text
-		if maxChars > 0 {
-			text = textlayout.Truncate(text, maxChars)
+		// Keep every row — just make it fit. Size the row down from TierNormal
+		// until its whole text fits the width, rather than truncating it to a
+		// clipped "cyberdeck-0…" that tells a glance nothing. FitTier's floor is
+		// the smallest catalog tier; if even that overflows (a pathologically long
+		// hostname on a tiny panel) ok is false and we keep the smallest tier and
+		// let it hard-clip — a dashboard field is never dropped on width grounds.
+		tier, ok := ctx.FitTier(r.text, cw, tiercatalog.TierNormal)
+		if !ok {
+			if all := ctx.FontCatalog().Tiers(); len(all) > 0 {
+				tier = all[0] // ascending: smallest first
+			}
 		}
-		items[i] = text
-		tiers[i] = tiercatalog.TierNormal
+		items[i] = r.text
+		tiers[i] = tier
+		rowMetrics[i] = ctx.Metrics(tier)
 		if colorize {
 			if r.isHealth {
 				colors[i] = severityColor(r.sev, healthOKColor)
@@ -120,34 +130,41 @@ func buildAdaptive(data source.DashboardContent, ctx style.StyleContext, coloriz
 		}
 	}
 
-	// Vertically fit/center against the TierNormal row height (the height the
-	// renderer draws), so the centered block is actually centered.
+	// Vertically fit/center against each row's OWN resolved height — rows may now
+	// sit at different tiers, so a single height would mis-center the block.
 	rowHeights := make([]int, len(items))
 	for i := range items {
-		rowHeights[i] = m.RowHeight()
+		rowHeights[i] = rowMetrics[i].RowHeight()
 	}
 	_, offsetYRaw, visibleCount := lc.FitRows(rowHeights)
 	offsetY := style.TTYY(offsetYRaw)
 	if visibleCount < len(items) {
 		items = items[:visibleCount]
 		tiers = tiers[:visibleCount]
+		rowMetrics = rowMetrics[:visibleCount]
 		if colorize {
 			colors = colors[:visibleCount]
 		}
 	}
 
-	// Horizontal centering with the same TierNormal metrics the renderer draws.
+	// Horizontal centering with each row's own metrics.
 	offsets := make([]style.TTYX, len(items))
 	for i, item := range items {
-		offsets[i] = lc.CenterX(len([]rune(item)), m)
+		offsets[i] = lc.CenterX(len([]rune(item)), rowMetrics[i])
+	}
+
+	rowHeightsOut := make([]int, len(items))
+	for i := range items {
+		rowHeightsOut[i] = rowMetrics[i].RowHeight()
 	}
 
 	return style.ViewData{
-		Items:       items,
-		Colors:      colors,
-		Tiers:       tiers,
-		LineOffsets: offsets,
-		OffsetY:     offsetY,
-		
+		Items:        items,
+		Colors:       colors,
+		Tiers:        tiers,
+		LineOffsets:  offsets,
+		OffsetY:      offsetY,
+		RowHeights:   rowHeightsOut,
+		VisibleCount: len(items),
 	}
 }

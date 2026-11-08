@@ -19,6 +19,7 @@ require (
 )
 
 require (
+	github.com/arran4/golang-ical v0.3.8 // indirect
 	github.com/go-zeromq/goczmq/v4 v4.2.2 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect

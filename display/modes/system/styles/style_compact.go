@@ -6,7 +6,7 @@ import (
 	"github.com/databeast/cyberhud/display/modes/system/source"
 	"github.com/databeast/cyberhud/display/style"
 	"github.com/databeast/cyberhud/display/style/layout"
-	"github.com/databeast/cyberhud/display/surface/textlayout"
+	"github.com/databeast/cyberhud/display/surface/tiercatalog"
 )
 
 // buildCompactStyle is the shared "compact" variant builder — the name tag.
@@ -30,45 +30,53 @@ func buildCompactStyle(snapshot source.SystemSnapshot, pol source.Policy, ctx st
 	}
 
 	m := ctx.DefaultMetrics()
-	maxChars := bridge.MaxChars(m)
-	fit := func(s string) string {
-		if maxChars > 0 {
-			return textlayout.Truncate(s, maxChars)
-		}
-		return s
-	}
-
+	cw := bridge.AvailableContentWidth()
 	visibleRows := bridge.MaxVisibleRows(m)
 
-	// Short strip: one dense line, as before.
+	// fitRow sizes a row down from the default tier until its whole text fits the
+	// width (never truncated — a clipped "myhost: 192.16…" is useless, and the
+	// ellipsis would tofu on the bitmap fonts). Returns the text, its tier, and
+	// that tier's row height.
+	fitRow := func(s string) (string, tiercatalog.Tier, int) {
+		tier, ok := ctx.FitTier(s, cw, tiercatalog.TierNormal)
+		if !ok {
+			if all := ctx.FontCatalog().Tiers(); len(all) > 0 {
+				tier = all[0]
+			}
+		}
+		return s, tier, ctx.Metrics(tier).RowHeight()
+	}
+
+	// Short strip: one dense line.
 	if visibleRows <= 2 {
-		line := fit(host + ": " + ip)
+		line, tier, _ := fitRow(host + ": " + ip)
 		var colors []color.Color
 		if isColor {
 			colors = []color.Color{defHostColor}
 		}
-		return style.ViewData{Items: []string{line}, Colors: colors}
+		return style.ViewData{Items: []string{line}, Colors: colors, Tiers: []tiercatalog.Tier{tier}}
 	}
 
 	// Roomier panel: centred two-line block so the space reads as authored.
-	rowHeight := m.RowHeight()
+	hostText, hostTier, hostH := fitRow(host)
+	ipText, ipTier, ipH := fitRow(ip)
+	blockH := hostH + ipH
 	availH := bridge.AvailableContentHeight()
-	blockH := 2 * rowHeight
 	offsetY := style.TTYY(0)
 	if availH > blockH {
 		offsetY = style.TTYY((availH - blockH) / 2)
 	}
 
-	items := []string{fit(host), fit(ip)}
 	var colors []color.Color
 	if isColor {
 		colors = []color.Color{defHostColor, defLabelColor}
 	}
 
 	return style.ViewData{
-		Items:      items,
+		Items:      []string{hostText, ipText},
 		Colors:     colors,
+		Tiers:      []tiercatalog.Tier{hostTier, ipTier},
 		OffsetY:    offsetY,
-		RowHeights: uniformRowHeights(2, rowHeight),
+		RowHeights: []int{hostH, ipH},
 	}
 }

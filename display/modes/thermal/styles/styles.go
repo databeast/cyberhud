@@ -727,7 +727,7 @@ func buildMinimal(snap source.ThermalSnapshot, pol source.Policy, ctx style.Styl
 	}
 
 	// Compute centering offsets.
-	offsetX := bridge.CenterX(utf8.RuneCountInString(tempText), layout.NewMetrics(glyphAdvance, rowHeight, ""))
+	offsetX := bridge.CenterX(utf8.RuneCountInString(tempText), layout.NewMetrics(glyphAdvance, glyphAdvance, rowHeight, ""))
 	offsetY := (height - rowHeight) / 2
 	if offsetY < 0 {
 		offsetY = 0

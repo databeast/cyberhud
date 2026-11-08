@@ -161,7 +161,7 @@ func adaptiveBuild(data source.ClockData, pol source.Policy, ctx style.StyleCont
 		tiers[i] = r.tier
 		rowInputs[i] = layout.RowInput{
 			TextLen: len(r.text),
-			Font:    layout.NewMetrics(r.entry.GlyphAdvance, r.entry.RowHeight, r.entry.FontID),
+			Font:    layout.NewMetrics(r.entry.GlyphAdvance, r.entry.GlyphWidth, r.entry.RowHeight, r.entry.FontID),
 		}
 	}
 
@@ -253,7 +253,7 @@ func fastBuild(data source.ClockData, pol source.Policy, ctx style.StyleContext,
 		tiers[i] = r.tier
 		rowInputs[i] = layout.RowInput{
 			TextLen: len(r.text),
-			Font:    layout.NewMetrics(r.entry.GlyphAdvance, r.entry.RowHeight, r.entry.FontID),
+			Font:    layout.NewMetrics(r.entry.GlyphAdvance, r.entry.GlyphWidth, r.entry.RowHeight, r.entry.FontID),
 		}
 	}
 

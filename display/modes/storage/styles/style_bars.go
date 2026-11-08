@@ -43,7 +43,7 @@ func buildBarsStyle(snapshot source.StorageSnapshot, pol source.Policy, ctx styl
 		rowHeight = textlayout.RowHeight
 	}
 
-	rowMetrics := layout.NewMetrics(glyphAdvance, rowHeight, entry.FontID)
+	rowMetrics := layout.NewMetrics(glyphAdvance, entry.GlyphWidth, rowHeight, entry.FontID)
 	ox, _ := bridge.ContentOrigin()
 	contentWidth := bridge.AvailableContentWidth()
 

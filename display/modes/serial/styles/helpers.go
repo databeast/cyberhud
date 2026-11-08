@@ -10,6 +10,7 @@ package styles
 import (
 	"fmt"
 	"image/color"
+	"strings"
 
 	"github.com/databeast/cyberhud/display/modes/serial/source"
 	"github.com/databeast/cyberhud/display/surface/textlayout"
@@ -29,8 +30,16 @@ var (
 	ledRed     = color.RGBA{R: 0xFF, G: 0x00, B: 0x00, A: 0xFF}
 )
 
-// compactHeader returns a short "port @baud" string for the header row.
-func compactHeader(snap source.Snapshot) string {
+// compactHeader returns the "port @baud" header row, compacted to fit maxChars by
+// shedding low-value parts rather than clipping meaningful ones. A non-positive
+// maxChars imposes no budget (the full form).
+//
+// Priority when space is tight: the port basename identifies the device, so the
+// "/dev/" prefix is dropped first; the baud is kept because it is the other half
+// of the setting. The device basename itself is never clipped — a half-port name
+// is useless — so on a panel too narrow even for "ttyUSB0 @115200" the header
+// falls back to the basename alone.
+func compactHeader(snap source.Snapshot, maxChars int) string {
 	port := snap.Port
 	if port == "" {
 		if snap.AutoSelect {
@@ -39,17 +48,46 @@ func compactHeader(snap source.Snapshot) string {
 			port = "(none)"
 		}
 	}
-	return fmt.Sprintf("%s @%d", port, snap.Baud)
+
+	full := fmt.Sprintf("%s @%d", port, snap.Baud)
+	if maxChars <= 0 || len([]rune(full)) <= maxChars {
+		return full
+	}
+
+	// Shed the "/dev/" prefix: the basename is what identifies the device.
+	short := fmt.Sprintf("%s @%d", basename(port), snap.Baud)
+	if len([]rune(short)) <= maxChars {
+		return short
+	}
+
+	// Still too wide: keep the basename alone (never a clipped port name).
+	return basename(port)
 }
 
-// statusText returns the connection-state word and its colour: OK (connected),
-// ERR + message (error present), or disconnected.
-func statusText(snap source.Snapshot) (string, color.RGBA) {
+// basename returns the final path element of a device path, so "/dev/ttyUSB0"
+// becomes "ttyUSB0". Paths without a slash are returned unchanged.
+func basename(p string) string {
+	if i := strings.LastIndexByte(p, '/'); i >= 0 && i < len(p)-1 {
+		return p[i+1:]
+	}
+	return p
+}
+
+// statusText returns the connection-state string and its colour, compacted to
+// maxChars. OK and disconnected are already short; the error case sheds its
+// detail message (which belongs in the output stream, not a one-line status) down
+// to a bare "ERR" rather than clipping the message mid-word. A non-positive
+// maxChars imposes no budget.
+func statusText(snap source.Snapshot, maxChars int) (string, color.RGBA) {
 	switch {
 	case snap.Connected:
 		return "OK", colorSerialOK
 	case snap.LastError != "":
-		return "ERR: " + snap.LastError, colorSerialErr
+		full := "ERR: " + snap.LastError
+		if maxChars <= 0 || len([]rune(full)) <= maxChars {
+			return full, colorSerialErr
+		}
+		return "ERR", colorSerialErr
 	default:
 		return "disconnected", colorSerialWarn
 	}

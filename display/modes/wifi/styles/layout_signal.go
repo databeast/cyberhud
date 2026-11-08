@@ -492,8 +492,11 @@ func fittedLabel(ctx style.StyleContext, text string, targetW, targetH int, fg c
 		return nil
 	}
 
-	// Choose the largest tier whose native face fits BOTH the band height and the
-	// text's width at that face's advance. Walk tiers largest→smallest.
+	// Choose the largest tier whose native face renders the WHOLE text within both
+	// the band height and width. Walk tiers largest→smallest. Width is the exact
+	// render width ((n-1)*advance + last glyph's ink), rune-counted — not
+	// len(text)*advance, which both mis-measures multibyte SSIDs and over-counts
+	// the final glyph.
 	tiers := []tiercatalog.Tier{
 		tiercatalog.TierColossal, tiercatalog.TierHuge, tiercatalog.TierLarge,
 		tiercatalog.TierNormal, tiercatalog.TierSmall,
@@ -508,13 +511,16 @@ func fittedLabel(ctx style.StyleContext, text string, targetW, targetH int, fg c
 		if m.GlyphHeight <= 0 || m.GlyphAdvance <= 0 {
 			continue
 		}
-		textW := len(text) * m.GlyphAdvance
-		if m.GlyphHeight <= targetH && textW <= targetW {
+		if m.GlyphHeight <= targetH && faceTextWidth(m, text) <= targetW {
 			face = f
 			break
 		}
 	}
-	// Fallback: smallest face even if it slightly overflows (truncation handles width).
+	// Nothing fit even at the smallest tier: keep the smallest face and render the
+	// text WHOLE (never ellipsis-truncated — a clipped "MyNetwo…" tells a glance
+	// nothing). The sprite is sized to the full text; a band too narrow for it
+	// hard-clips at the panel edge, which is the honest extreme for a mandatory
+	// field like the SSID.
 	if face == nil {
 		face = ctx.Face("spleen", tiercatalog.TierSmall)
 	}
@@ -523,12 +529,10 @@ func fittedLabel(ctx style.StyleContext, text string, targetW, targetH int, fg c
 	}
 
 	m := face.Metrics()
-	// Sprite is sized to the text at native scale, capped to the band width so a
-	// too-long string is truncated with an ellipsis rather than overflowing.
-	spriteW := len(text) * m.GlyphAdvance
-	if spriteW > targetW {
-		spriteW = targetW
-	}
+	// Size the sprite to the full text width at native scale — not capped to the
+	// band — so the string is always drawn whole. placeLabel centers it in the
+	// band; when it is wider than the band it overhangs rather than being chopped.
+	spriteW := faceTextWidth(m, text)
 	// Height must be the font's full RowHeight, not GlyphHeight: textbox.Render
 	// produces zero ink when the bounds height equals the glyph height exactly
 	// (it needs the row's descender slack), so we size to RowHeight which includes
@@ -544,9 +548,25 @@ func fittedLabel(ctx style.StyleContext, text string, targetW, targetH int, fg c
 		Font:       face,
 		Alignment:  textbox.Left,
 		VAlign:     textbox.Top,
-		Overflow:   textbox.Truncate,
+		Overflow:   textbox.Clip,
 		Foreground: fg,
 	})
+}
+
+// faceTextWidth is the exact pixel width the text needs in face metrics m, by the
+// same rule layout.Metrics.TextWidth uses: each glyph steps one advance except
+// the last, which occupies only its ink width; rune-counted. Kept here (rather
+// than via layout.Metrics) because fittedLabel works in font.Face space.
+func faceTextWidth(m font.Metrics, text string) int {
+	n := len([]rune(text))
+	if n <= 0 || m.GlyphAdvance <= 0 {
+		return 0
+	}
+	gw := m.GlyphWidth
+	if gw <= 0 {
+		gw = m.GlyphAdvance
+	}
+	return (n-1)*m.GlyphAdvance + gw
 }
 
 func joinParts(parts []string, sep string) string {
