@@ -19,7 +19,7 @@ Any CLI flag overrides the corresponding config file value.
 | `waveshare-triple-screen.json` | Waveshare Triple Screen | Multi-display cyberdeck with per-screen orientation |
 | `waveshare-2.23-oled-status.json` | Waveshare 2.23" OLED (I2C) | Compact monochrome status ticker |
 | `eink-kiosk.json` | Adafruit 2.13" E-Ink | Low-power e-ink dashboard with slow refresh |
-| `headless-sensor-hub.json` | (none) | No display, I2C sensor monitoring only |
+| `headless-sensor-hub.json` | Virtual `waveshare-1.3hat` | No physical display, I2C sensor monitoring only |
 | `generic-320x240-attract.json` | ST7789 320x240 | Full-screen attract mode showcase |
 | `waveshare-1.44-clock.json` | Waveshare 1.44" LCD | Dedicated clock display with custom styling |
 | `multi-bus-lab.json` | ST7789 240x240 | Multi-I2C-bus lab bench sensor hub |

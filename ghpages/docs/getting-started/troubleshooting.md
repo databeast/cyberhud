@@ -29,7 +29,7 @@ If your display doesn't initialize or shows nothing:
 4. Try running in headless mode to isolate whether the issue is display-specific:
 
     ```sh
-    sudo ./cyberhudd -nodisplay
+    sudo ./cyberhudd -nodisplay -panel waveshare-1.3hat
     ```
 
 ## Input Not Working (Buttons/Joystick)
@@ -99,7 +99,7 @@ If you see permission denied errors:
 1. The daemon typically needs root or appropriate group membership to access SPI, I2C, and GPIO:
 
     ```sh
-    sudo ./cyberhudd
+    sudo ./cyberhudd -panel waveshare-1.3hat
     ```
 
 2. For systemd service deployment, ensure the service user has the required group memberships (`spi`, `i2c`, `gpio`). See [Systemd Integration](../configuration/systemd.md) for details.
@@ -154,7 +154,7 @@ sudo systemctl status cyberhudd.service
 Headless mode starts the daemon without display initialization, which is useful for isolating display-related issues:
 
 ```sh
-sudo ./cyberhudd -nodisplay
+sudo ./cyberhudd -nodisplay -panel waveshare-1.3hat
 ```
 
 In headless mode the daemon will still:
@@ -225,5 +225,5 @@ This overrides only the DC pin. All other fields (rst, bl, offsets, etc.) remain
 1. Check the [CLI Usage](cli.md) page for full command reference
 2. Review [Configuration](../configuration/json-config.md) for config file setup
 3. Read the [Pin Assignments](../reference/pin-assignments.md) for your specific display
-4. Try headless mode to isolate display issues: `sudo ./cyberhudd -nodisplay`
+4. Try headless mode to isolate display issues: `sudo ./cyberhudd -nodisplay -panel waveshare-1.3hat`
 5. Open an issue on [GitHub](https://github.com/databeast/cyberhud/issues) with logs and hardware details

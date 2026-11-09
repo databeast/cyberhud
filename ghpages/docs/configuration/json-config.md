@@ -20,7 +20,9 @@ The precedence order is:
 
 1. **CLI flags** (highest priority) — any flag passed on the command line wins
 2. **Config file values** — applied only when the corresponding CLI flag is absent
-3. **Built-in defaults** — used when neither CLI nor config specifies a value
+3. **Built-in defaults** — used when neither CLI nor config specifies a value, except for the required panel
+
+Specify the panel with `-panel` or `display.panel`, including in headless mode; there is no default or auto-detection.
 
 ### How It Works
 
@@ -88,7 +90,7 @@ Each example below shows the minimal JSON config needed to run CyberHUD with a s
 
 ### Waveshare 1.3-inch LCD HAT (Color, 240×240, buttons + joystick)
 
-This is the default panel. If you use this panel with default wiring, you only need:
+If you use this panel with default wiring, you only need:
 
 ```json
 {
@@ -346,7 +348,8 @@ Run the daemon without a display for testing or integration with external contro
   "i2c": "/dev/i2c-1",
   "scan": "2s",
   "display": {
-    "disabled": true
+    "disabled": true,
+    "panel": "waveshare-1.3hat"
   }
 }
 ```

@@ -11,6 +11,11 @@ import (
 // selection) or attach a bespoke BuildFn to tune the clock's look for
 // this specific resolution and PPI.
 
+var MonoSlow200x200Style = styleDef{
+	name: "mono-slow-200x200",
+	reqs: style.SurfaceRequirements{MinWidth: 200, MinHeight: 200, Capability: style.MonoSlow},
+}
+
 var GrayscaleSlow200x200Style = styleDef{
 	name: "grayscale-slow-200x200",
 	reqs: style.SurfaceRequirements{MinWidth: 200, MinHeight: 200, Capability: style.GrayscaleSlow},

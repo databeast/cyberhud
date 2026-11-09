@@ -47,7 +47,7 @@ func init() {
 	style.RegisterAliases("adafruit-1.54-ssd1681-tricolor", map[string]string{
 		"dashboard": "color-slow-200x200",
 		"clock":     "color-slow-200x200",
-		"thermal":   "overview",
+		"thermal":   "color-slow-200x200-overview",
 		"gpio":      "color-slow-200x200",
 		"serial":    "color-slow-200x200",
 	})

@@ -41,7 +41,7 @@ func init() {
 	style.RegisterAliases("waveshare-1.44", map[string]string{
 		"dashboard": "color-fast-128x160",
 		"clock":     "color-fast-128x128",
-		"thermal":   "minimal",
+		"thermal":   "color-fast-128x128-minimal",
 		"ticker":    "color-fast-128x128",
 		"wifi":      "color-fast-128x128",
 		"gpio":      "color-fast-128x128",

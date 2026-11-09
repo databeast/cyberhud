@@ -36,7 +36,7 @@ func init() {
 	style.RegisterAliases("waveshare-1.3-oled-hat", map[string]string{
 		"dashboard": "mono-fast-128x64",
 		"clock":     "mono-fast-128x64",
-		"thermal":   "mono-oled-compact",
+		"thermal":   "mono-fast-128x64",
 		"ticker":    "mono-fast-128x64",
 		"wifi":      "mono-fast-128x64",
 		"gpio":      "list",

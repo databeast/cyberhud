@@ -7,17 +7,17 @@ import (
 
 type ShowcaseCase struct {
 	Name       string
-	Width      int
-	Height     int
-	Mono       bool
 	Style      string
-	ShowBorder bool
 	Direction  string
-	AutoScroll int
-	Feed       []source.LineDirective
-	Ticks      int
 	LineMode   string
 	Font       string
+	Feed       []source.LineDirective
+	Width      int
+	Height     int
+	AutoScroll int
+	Ticks      int
+	Mono       bool
+	ShowBorder bool
 }
 
 func TickerRegistryEnumerate() []style.Style[source.TickerSnapshot, source.Policy] {

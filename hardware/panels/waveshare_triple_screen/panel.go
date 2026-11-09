@@ -79,7 +79,7 @@ func init() {
 	style.RegisterAliases("waveshare-triple-screen/main", map[string]string{
 		"dashboard": "color-fast-240x240",
 		"clock":     "color-fast-240x240",
-		"thermal":   "overview",
+		"thermal":   "color-fast-240x240-overview",
 		"ticker":    "color-fast-240x240",
 		"wifi":      "color-fast-240x240",
 		"gpio":      "color-fast-240x240",
@@ -88,14 +88,14 @@ func init() {
 	style.RegisterAliases("waveshare-triple-screen/left-aux", map[string]string{
 		"stemma":  "compact",
 		"gpio":    "color-fast-160x80",
-		"thermal": "minimal",
+		"thermal": "color-fast-160x80-minimal",
 		"ticker":  "color-fast-160x80",
 		"serial":  "color-fast-160x80",
 	})
 	style.RegisterAliases("waveshare-triple-screen/right-aux", map[string]string{
 		"gpio":    "color-fast-160x80",
 		"stemma":  "compact",
-		"thermal": "minimal",
+		"thermal": "color-fast-160x80-minimal",
 		"ticker":  "color-fast-160x80",
 		"serial":  "color-fast-160x80",
 	})

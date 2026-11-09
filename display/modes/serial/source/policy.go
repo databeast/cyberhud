@@ -11,13 +11,13 @@ import (
 // Policy controls runtime behavior for the serial monitor.
 type Policy struct {
 	Port       string
-	Baud       int
-	MaxLines   int
-	AutoSelect bool
-	ScanMS     int
 	Style      string // empty means auto-detect via style fitness
 	Font       string // "auto" or a specific font ID
-	Raw        bool   // true suppresses the instrument-panel chrome, showing data bytes only
+	Baud       int
+	MaxLines   int
+	ScanMS     int
+	AutoSelect bool
+	Raw        bool // true suppresses the instrument-panel chrome, showing data bytes only
 }
 
 // DefaultPolicy returns baseline serial monitor behavior.

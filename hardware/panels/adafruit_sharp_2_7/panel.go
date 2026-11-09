@@ -36,13 +36,10 @@ func init() {
 		BLPin:   "",
 	})
 
-	// 400x240 has no exact style; the closest fitting mono-fast landscape style
-	// is 320x240 (a 400x240 surface satisfies MinWidth 320, MinHeight 240). The
-	// 400x300 style does NOT fit — this panel is only 240 tall. Modes without a
-	// matching alias fall through to fitness-based resolution.
+	// Dashboard, WiFi and GPIO use the closest fitting 320x240 styles.
 	style.RegisterAliases("adafruit-sharp-2.7", map[string]string{
 		"dashboard": "mono-fast-320x240",
-		"thermal":   "overview",
+		"thermal":   "mono-fast-400x240-overview",
 		"wifi":      "mono-fast-320x240",
 		"gpio":      "mono-fast-320x240",
 	})

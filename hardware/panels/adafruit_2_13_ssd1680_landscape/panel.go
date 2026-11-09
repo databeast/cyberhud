@@ -38,7 +38,7 @@ func init() {
 	style.RegisterAliases("adafruit-2.13-ssd1680", map[string]string{
 		"dashboard": "mono-slow-250x122",
 		"clock":     "mono-slow-240x135",
-		"thermal":   "overview",
+		"thermal":   "mono-slow-122x250-overview",
 		"ticker":    "mono-slow-122x250",
 		"gpio":      "mono-slow-250x122",
 		"serial":    "mono-slow-122x250",

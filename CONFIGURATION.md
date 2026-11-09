@@ -12,7 +12,7 @@ Create a JSON config at `/etc/cyberhudd.json` and run:
 sudo ./cyberhudd -config /etc/cyberhudd.json
 ```
 
-Any CLI flag overrides the config file value.
+Any CLI flag overrides the config file value. Specify a panel with `display.panel` or `-panel`; there is no default, even in headless mode.
 
 ## Common Configurations
 
@@ -57,7 +57,8 @@ File: `/etc/cyberhudd.json`
   "i2c": "/dev/i2c-1",
   "scan": "2s",
   "display": {
-    "disabled": true
+    "disabled": true,
+    "panel": "waveshare-1.3hat"
   }
 }
 ```
@@ -98,7 +99,7 @@ Supported values: `1s`, `500ms`, `100ms`, etc. (Go duration format)
 
 ## Complete Schema
 
-Here's the full configuration structure (all fields optional). Field names use the exact JSON keys from the Go struct tags in `cmd/cyberhudd/config.go`.
+Here's the full configuration structure. The panel must be specified here or via `-panel`; other fields are optional. Field names use the exact JSON keys from the Go struct tags in `internal/cyberhudd/config.go`.
 
 ```json
 {

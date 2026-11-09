@@ -30,7 +30,7 @@ func init() {
 	style.RegisterAliases("waveshare-4.26-epaper", map[string]string{
 		"dashboard": "mono-slow-800x480",
 		"clock":     "mono-slow-800x480",
-		"thermal":   "overview",
+		"thermal":   "mono-slow-800x480-overview",
 		"ticker":    "mono-slow-800x480",
 		"gpio":      "mono-slow-800x480",
 		"serial":    "mono-slow-800x480",

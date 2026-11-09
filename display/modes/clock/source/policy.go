@@ -24,19 +24,19 @@ var AllowedBorderColors = []string{"cyan", "green", "emerald", "amber", "red", "
 // normalization, CLI handlers, and the rendering pipeline.
 type Policy struct {
 	Style              string // one of 24 registered style names
-	ShowSeconds        bool
 	TimeFormat         string // "12h" or "24h"
 	DateFormat         string // "YYYY-MM-DD", "DD-MM-YYYY", "MM-DD-YYYY", or "none"
 	Timezone           string // IANA timezone string or "local"
+	FGColor            string // "cyan", "green", "amber", "red", "white", "none"
+	SecondsBar         string // "none", "horizontal", "pie"
+	BorderColor        string // "cyan", "green", "amber", "red", "white", "none", "auto"
+	ShowSeconds        bool
 	ShowWeekday        bool
 	BlinkColon         bool
-	FGColor            string // "cyan", "green", "amber", "red", "white", "none"
-	ShowLED            bool   // LED seconds indicator
-	SecondsBar         string // "none", "horizontal", "pie"
-	ShowDaybar         bool   // Sparkline day-progress bar
-	ShowBorder         bool   // Enable rounded border frame
-	ShowBorderExplicit bool   // True when user explicitly set show_border (prevents auto-enablement)
-	BorderColor        string // "cyan", "green", "amber", "red", "white", "none", "auto"
+	ShowLED            bool // LED seconds indicator
+	ShowDaybar         bool // Sparkline day-progress bar
+	ShowBorder         bool // Enable rounded border frame
+	ShowBorderExplicit bool // True when user explicitly set show_border (prevents auto-enablement)
 }
 
 func (p Policy) Options() []catalog.OptionDefinition {

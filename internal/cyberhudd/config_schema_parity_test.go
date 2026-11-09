@@ -1,4 +1,4 @@
-package main
+package cyberhudd
 
 import (
 	"os"
@@ -115,7 +115,7 @@ func findSchemaDoc(t *testing.T) string {
 		t.Fatal("cannot determine test file location")
 	}
 
-	// The test file is at cmd/cyberhudd/config_schema_parity_test.go
+	// The test file is at internal/cyberhudd/config_schema_parity_test.go
 	// Project root is two levels up.
 	projectRoot := filepath.Dir(filepath.Dir(filepath.Dir(filename)))
 

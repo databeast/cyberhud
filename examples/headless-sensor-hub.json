@@ -3,6 +3,7 @@
   "i2c": "/dev/i2c-1",
   "scan": "1s",
   "display": {
-    "disabled": true
+    "disabled": true,
+    "panel": "waveshare-1.3hat"
   }
 }

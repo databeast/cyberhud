@@ -26,7 +26,7 @@ func init() {
 	style.RegisterAliases("st7789-240x135", map[string]string{
 		"dashboard": "color-fast-240x240",
 		"clock":     "color-fast-240x135",
-		"thermal":   "minimal",
+		"thermal":   "color-fast-240x135-minimal",
 		"ticker":    "color-fast-240x135",
 		"wifi":      "color-fast-240x240",
 		"gpio":      "color-fast-240x135",

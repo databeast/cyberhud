@@ -45,7 +45,7 @@ func init() {
 	style.RegisterAliases("adafruit-2.4-ili9341", map[string]string{
 		"dashboard": "color-fast-240x320",
 		"clock":     "color-fast-240x320",
-		"thermal":   "overview",
+		"thermal":   "color-fast-240x320-overview",
 		"ticker":    "color-fast-240x320",
 		"wifi":      "color-fast-240x320",
 		"gpio":      "color-fast-240x320",

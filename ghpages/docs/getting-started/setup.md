@@ -43,12 +43,14 @@ go build -o cyberhudctl ./cmd/cyberhudctl
 sudo apt install ./dist/cyberhud_0.1.0-1_arm64.deb
 ```
 
+The installed service needs a panel configured before it can start; see [Systemd Integration](../configuration/systemd.md).
+
 ## Step 4: First Run
 
-Start the daemon with the default panel (Waveshare 1.3-inch HAT):
+Start the daemon with your panel, for example the Waveshare 1.3-inch HAT:
 
 ```sh
-sudo ./cyberhudd
+sudo ./cyberhudd -panel waveshare-1.3hat
 ```
 
 The daemon will:
@@ -111,7 +113,7 @@ sudo ./cyberhudd -config /etc/cyberhudd.json
 ### Start the daemon manually
 
 ```sh
-sudo ./cyberhudd
+sudo ./cyberhudd -panel waveshare-1.3hat
 ```
 
 ### Start with a specific panel
@@ -129,7 +131,7 @@ sudo ./cyberhudd -config /etc/cyberhudd.json
 ### Run in headless mode (no display)
 
 ```sh
-sudo ./cyberhudd -nodisplay
+sudo ./cyberhudd -nodisplay -panel waveshare-1.3hat
 ```
 
 ### View daemon logs

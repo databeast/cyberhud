@@ -24,6 +24,6 @@ func init() {
 	})
 
 	style.RegisterAliases("adafruit-15x7-charlieplex", map[string]string{
-		"serial": "compact",
+		"serial": "grayscale-fast-15x7",
 	})
 }

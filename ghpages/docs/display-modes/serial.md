@@ -54,6 +54,13 @@ widgets, so it stays crisp under 1-bit refresh.
 
 **Widgets:** LED, textlabel, sparkline, progressbar
 
+On 13x9, 15x7, and 16x8 LED matrices, the compact style shows the last printable
+character from the latest buffered serial line instead of the full console.
+When no character is available, a single pixel indicates connection status:
+green/bright for connected, amber/dim for waiting, and red/dimmer for errors
+on color/grayscale panels respectively. `raw=true` hides the indicator. The
+matrix style uses the built-in bitmap font.
+
 ### Raw output
 
 Setting `raw=true` suppresses the instrument panel entirely — no LED, header, or

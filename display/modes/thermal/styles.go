@@ -30,6 +30,9 @@ var thermalRegistry = style.NewRegistry[source.ThermalSnapshot, source.Policy](
 	// ──────────────────────────────────────────────────────────────────────
 	// MonoSlow
 	// ──────────────────────────────────────────────────────────────────────
+	styles.MonoSlow122x250OverviewStyle,
+	styles.MonoSlow200x200OverviewStyle,
+	styles.MonoSlow250x122OverviewStyle,
 	// 32x128 (small portrait, width<64 → minimal only)
 	styles.MonoSlow32x128Style,
 	styles.MonoSlow32x128MinimalStyle,
@@ -142,6 +145,8 @@ var thermalRegistry = style.NewRegistry[source.ThermalSnapshot, source.Policy](
 	// ──────────────────────────────────────────────────────────────────────
 	// MonoFast
 	// ──────────────────────────────────────────────────────────────────────
+	styles.MonoFast168x144OverviewStyle,
+	styles.MonoFast400x240OverviewStyle,
 	// 32x128 (small portrait, width<64 → minimal only)
 	styles.MonoFast32x128Style,
 	styles.MonoFast32x128MinimalStyle,
@@ -368,6 +373,7 @@ var thermalRegistry = style.NewRegistry[source.ThermalSnapshot, source.Policy](
 	// ──────────────────────────────────────────────────────────────────────
 	// GrayscaleFast
 	// ──────────────────────────────────────────────────────────────────────
+	styles.GrayscaleFast128x64OverviewStyle,
 	// 80x160 (portrait → portrait variants + minimal)
 	styles.GrayscaleFast80x160Style,
 	styles.GrayscaleFast80x160ThermometerStyle,
@@ -695,6 +701,7 @@ var thermalRegistry = style.NewRegistry[source.ThermalSnapshot, source.Policy](
 	styles.ColorFast128x128MinimalStyle,
 	// 128x160 (portrait → portrait variants + minimal)
 	styles.ColorFast128x160Style,
+	styles.ColorFast128x160OverviewStyle,
 	styles.ColorFast128x160ThermometerStyle,
 	styles.ColorFast128x160SparkStyle,
 	styles.ColorFast128x160HeatmapStyle,
@@ -739,6 +746,7 @@ var thermalRegistry = style.NewRegistry[source.ThermalSnapshot, source.Policy](
 	styles.ColorFast240x240MinimalStyle,
 	// 240x320 (portrait → portrait variants + minimal) — polished variants in styles.go
 	styles.ColorFast240x320Style,
+	styles.ColorFast240x320OverviewStyle,
 	styles.Color240x320ThermometerStyle,
 	styles.Color240x320SparkStyle,
 	styles.Color240x320HeatmapStyle,

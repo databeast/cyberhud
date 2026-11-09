@@ -43,6 +43,8 @@ Any panel using ST7789, ST7735S, SH1106, or SSD1680 should work — from Adafrui
 ## Building
 
 ```sh
+go build -o cyberhudd .
+# Or build the existing daemon command:
 go build -o cyberhudd ./cmd/cyberhudd
 go build -o cyberhudctl ./cmd/cyberhudctl
 ```
@@ -56,7 +58,7 @@ make deb VERSION=0.1.0
 sudo apt install ./dist/cyberhud_0.1.0-1_arm64.deb
 ```
 
-The `.deb` installs both binaries, a systemd service, creates a `cyberhud` system user, and starts the daemon. The GitHub Actions workflow at `.github/workflows/deb.yml` cross-builds arm64 packages automatically on tags.
+The `.deb` installs both binaries, a systemd service, and a `cyberhud` system user. Configure the service with a panel before it can start; see [Systemd Integration](ghpages/docs/configuration/systemd.md). The GitHub Actions workflow at `.github/workflows/deb.yml` cross-builds arm64 packages automatically on tags.
 
 ## Running
 
@@ -70,7 +72,7 @@ On startup, the display shows boot progress until `multi-user.target` is reached
 
 | Flag | Default | Description |
 |---|---|---|
-| `-panel` | `waveshare-1.3hat` | Which display to drive |
+| `-panel` | none | Required panel profile, unless specified in the config file |
 | `-config` | | JSON config file (see CONFIGURATION.md) |
 | `-nodisplay` | `false` | Headless mode — no LCD |
 | `-noinput` | `false` | Passive mode — no buttons |
@@ -78,7 +80,7 @@ On startup, the display shows boot progress until `multi-user.target` is reached
 | `-i2c` | `/dev/i2c-1` | I2C bus(es) for STEMMA QT / QWIIC scanning |
 | `-scan` | `2s` | I2C rescan interval |
 
-All display parameters (width, height, MADCTL, offsets, GPIO pins) are overridable via flags. Run `cyberhudd -help` for the full list, or use a JSON config file.
+A panel must be specified even in headless mode, where it defines the virtual display state. All display parameters (width, height, MADCTL, offsets, GPIO pins) are overridable via flags. Run `cyberhudd -help` for the full list, or use a JSON config file.
 
 ## Control
 
@@ -126,6 +128,7 @@ ExecStart=/usr/bin/cyberhudd -panel waveshare-2.2
 
 ```
 cmd/cyberhudd/             daemon entry point
+internal/cyberhudd/        daemon implementation
 cmd/cyberhudctl/           CLI client
 display/modes/             mode implementations (dashboard, gpio, stemma, clock, etc.)
 display/catalog/           mode registry, state tracking, command dispatch

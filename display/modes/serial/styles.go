@@ -55,6 +55,8 @@ var serialRegistry = style.NewRegistry[source.Snapshot, source.Policy](
 	styles.GrayscaleSlow800x480Style,
 
 	// ─── GrayscaleFast (grayscale LED matrix) ─────────────────────────────
+	styles.GrayscaleFast15x7Style,
+	styles.GrayscaleFast16x8Style,
 	styles.GrayscaleFast128x128Style,
 	styles.GrayscaleFast160x80Style,
 	styles.GrayscaleFast240x135Style,
@@ -81,7 +83,9 @@ var serialRegistry = style.NewRegistry[source.Snapshot, source.Policy](
 	styles.ColorSlow800x480Style,
 
 	// ─── ColorFast (color TFT) ────────────────────────────────────────────
+	styles.ColorFast13x9Style,
 	styles.ColorFast128x128Style,
+	styles.ColorFast128x160Style,
 	styles.ColorFast160x80Style,
 	styles.ColorFast240x135Style,
 	styles.ColorFast240x240Style,

@@ -73,13 +73,14 @@ sudo apt install ./dist/cyberhud_0.1.0-1_arm64.deb
 ```
 
 (See [Building](README.md#building) for package build instructions.)
+The installed service needs a panel configured before it can start; see [Systemd Integration](ghpages/docs/configuration/systemd.md).
 
 ## Step 4: First Run
 
 ### Simplest Start (1.3-inch Waveshare HAT)
 
 ```sh
-sudo ./cyberhudd
+sudo ./cyberhudd -panel waveshare-1.3hat
 ```
 
 The daemon will:
@@ -225,10 +226,10 @@ See the full [Control](README.md#control) section for more commands.
 
 ### Setup A: Waveshare 1.3-inch HAT (Interactive)
 
-Fully interactive dashboard with menu buttons. This is the default and recommended starting point.
+Fully interactive dashboard with menu buttons.
 
 ```sh
-sudo ./cyberhudd
+sudo ./cyberhudd -panel waveshare-1.3hat
 ```
 
 ### Setup B: Waveshare 2.2-inch (Passive Dashboard)
@@ -465,8 +466,7 @@ After package install, the installer automatically adds the `cyberhud` service u
 
 - Check logs: `sudo journalctl -u cyberhudd.service -n 100`
 - List modes: `cyberhudctl display modes`
-- Try headless mode to test daemon without display: `sudo ./cyberhudd -nodisplay`
+- Try headless mode to test daemon without display: `sudo ./cyberhudd -nodisplay -panel waveshare-1.3hat`
 - Open an issue on GitHub with logs and hardware details
 
 Good luck! 
-

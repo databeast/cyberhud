@@ -40,7 +40,7 @@ func init() {
 	style.RegisterAliases("adafruit-1.5-oled-ssd1351", map[string]string{
 		"dashboard": "color-fast-128x128",
 		"clock":     "color-fast-128x128",
-		"thermal":   "overview",
+		"thermal":   "color-fast-128x128-overview",
 		"ticker":    "color-fast-128x128",
 		"wifi":      "color-fast-128x128",
 		"gpio":      "color-fast-128x128",

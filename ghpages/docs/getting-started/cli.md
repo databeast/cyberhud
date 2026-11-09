@@ -62,8 +62,8 @@ cyberhudctl gpio pins
 Start, configure, and monitor the cyberhud daemon:
 
 ```sh
-# Start the daemon manually
-sudo ./cyberhudd
+# Start the daemon manually with a panel
+sudo ./cyberhudd -panel waveshare-1.3hat
 
 # Start with a specific panel
 sudo ./cyberhudd -panel waveshare-2.2
@@ -72,7 +72,7 @@ sudo ./cyberhudd -panel waveshare-2.2
 sudo ./cyberhudd -config /etc/cyberhudd.json
 
 # Run in headless mode (no display output)
-sudo ./cyberhudd -nodisplay
+sudo ./cyberhudd -nodisplay -panel waveshare-1.3hat
 
 # View daemon logs (follow mode)
 sudo journalctl -u cyberhudd.service -f

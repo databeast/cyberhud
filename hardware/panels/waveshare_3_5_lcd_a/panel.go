@@ -35,7 +35,7 @@ func init() {
 	style.RegisterAliases("waveshare-3.5-lcd-a", map[string]string{
 		"dashboard":          "color-fast-480x320",
 		"clock":              "color-fast-480x320",
-		"thermal":            "overview",
+		"thermal":            "color-fast-480x320-overview",
 		"ticker":             "color-fast-480x320",
 		"wifi":               "color-fast-480x320",
 		"gpio":               "color-fast-480x320",

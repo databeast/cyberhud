@@ -49,7 +49,7 @@ func init() {
 	style.RegisterAliases("waveshare-2.23-oled-hat-i2c", map[string]string{
 		"dashboard": "mono-fast-128x32",
 		"clock":     "mono-fast-128x32",
-		"thermal":   "minimal",
+		"thermal":   "mono-fast-128x32-minimal",
 		"ticker":    "mono-fast-128x32",
 		"gpio":      "list",
 		"serial":    "mono-fast-128x32",
@@ -58,7 +58,7 @@ func init() {
 	style.RegisterAliases("waveshare-2.23-oled-hat-spi", map[string]string{
 		"dashboard": "mono-fast-128x32",
 		"clock":     "mono-fast-128x32",
-		"thermal":   "minimal",
+		"thermal":   "mono-fast-128x32-minimal",
 		"ticker":    "mono-fast-128x32",
 		"gpio":      "list",
 		"serial":    "mono-fast-128x32",

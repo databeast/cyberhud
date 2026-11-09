@@ -22,6 +22,7 @@ var clockRegistry = func() *style.StyleRegistry[source.ClockData, source.Policy]
 		styles.MonoSlow135x240Style,
 		styles.MonoSlow160x80Style,
 		styles.MonoSlow160x128Style,
+		styles.MonoSlow200x200Style,
 		styles.MonoSlow240x135Style,
 		styles.MonoSlow240x240Style,
 		styles.MonoSlow240x320Style,

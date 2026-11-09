@@ -2,6 +2,8 @@
 
 Run the CyberHUD daemon as a systemd service with a custom configuration file. This page covers creating a systemd override, reloading the service, and verifying it's running correctly.
 
+The installed service does not select a panel or load a config file by default. It cannot start until a panel is supplied via `-panel` or a config file containing `display.panel`.
+
 ## Creating a Systemd Override
 
 To use a config file with the systemd service, create a drop-in override:

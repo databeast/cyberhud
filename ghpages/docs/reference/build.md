@@ -21,7 +21,7 @@ The project Makefile provides the following targets:
 | `deb` | Builds an arm64 Debian package using `dpkg-buildpackage` and copies the `.deb` to `dist/` |
 | `clean` | Removes compiled binaries, generated font/icon source files, caches, and the `dist/` directory |
 | `run` | Builds then runs the daemon with sudo (supports `DAEMON_FLAGS` for extra arguments) |
-| `run-headless` | Builds then runs the daemon with `-nodisplay` flag (no physical display output) |
+| `run-headless` | Builds then runs the daemon with `-nodisplay` (supply a panel via `DAEMON_FLAGS`, e.g. `DAEMON_FLAGS="-panel waveshare-1.3hat"`) |
 
 ## CI/CD Workflows
 

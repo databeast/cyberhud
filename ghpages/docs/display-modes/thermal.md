@@ -18,7 +18,7 @@ Three severity levels drive color coding across all styles: normal (green), warn
 
 ## Styles
 
-Each style targets a specific panel form factor (resolution and display capability). The `style` option accepts any of the per-resolution names listed below:
+Each style targets a specific panel form factor (resolution and display capability). The `style` option accepts registered per-resolution names, including:
 
 - **color-fast-320x240-overview** — one row per zone with label, temperature, and progress bar. Targets ColorFast 320×240 landscape panels. Zones are ordered by zone ID ascending and truncated to the number of rows that fit. Zone labels render in the active foreground color while temperature values use severity colors.
 
@@ -42,7 +42,7 @@ Each style targets a specific panel form factor (resolution and display capabili
 
 - **grayscale-fast-400x300** — overview layout for grayscale displays with room for multiple zones and history. Targets GrayscaleFast 400×300 panels.
 
-When no explicit style is configured, the daemon auto-selects the best style for the detected panel using fitness scoring. Each registered style declares the resolution and capability it supports; the style with the highest fitness score for the current panel is selected, with registration-order tie-breaking (first registered wins).
+When no explicit style is configured, the daemon first uses the panel's thermal style alias if one is registered. Otherwise, it selects the best style using fitness scoring. Each registered style declares the resolution and capability it supports; the style with the highest fitness score for the current panel is selected, with registration-order tie-breaking (first registered wins).
 
 Each style automatically selects the best bitmap font for the available panel space.
 
@@ -326,4 +326,3 @@ On panels with joystick or button inputs, physical controls provide quick access
 - [Getting Started: CLI Usage](../getting-started/cli.md) — introduction to `cyberhudctl` commands
 - [Configuration](../configuration/index.md) — persistent configuration options
 - [Cycle](cycle.md) — auto-cycles through modes including thermal
-

@@ -86,9 +86,9 @@ type Dev struct {
 	bl     gpio.PinOut
 	width  int
 	height int
-	madctl byte
 	xOff   int
 	yOff   int
+	madctl byte
 	invert bool
 }
 

@@ -49,7 +49,7 @@ func init() {
 	style.RegisterAliases("adafruit-1.8-tft", map[string]string{
 		"dashboard": "color-fast-128x160",
 		"clock":     "color-fast-128x160",
-		"thermal":   "overview",
+		"thermal":   "color-fast-128x160-overview",
 		"ticker":    "color-fast-128x160",
 		"wifi":      "color-fast-128x160",
 		"gpio":      "color-fast-128x160",

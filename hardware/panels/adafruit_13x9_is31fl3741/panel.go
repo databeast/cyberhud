@@ -34,6 +34,6 @@ func init() {
 	})
 
 	style.RegisterAliases("adafruit-13x9-is31fl3741", map[string]string{
-		"serial": "compact",
+		"serial": "color-fast-13x9",
 	})
 }

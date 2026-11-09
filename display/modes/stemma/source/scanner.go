@@ -20,8 +20,8 @@ import (
 // Device describes a detected I2C device on a STEMMA QT / QWIIC connector.
 type Device struct {
 	Bus     string // bus identifier, e.g. "/dev/i2c-1"
-	Addr    uint16 // 7-bit I2C address
 	Name    string // human-readable name (from knownDevices), or "unknown"
+	Addr    uint16 // 7-bit I2C address
 	Present bool   // true if device was detected on last scan
 }
 

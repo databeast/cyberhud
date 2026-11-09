@@ -29,19 +29,16 @@ const (
 // Function is one row of the live GPIO view: a single thing the header is
 // currently doing. Dead (unconfigured) pins never become a Function.
 type Function struct {
-	Kind FuncKind
-
 	// Label is what the row shows on the left: for a bus, the bus name
 	// ("SPI0", "I2C1"); for a standalone pin, its number ("17").
 	Label string
-
-	// Level is meaningful only for KindOutput / KindInput — true=HIGH.
-	// Ignored for KindBus (a bus is shown as "up", not HI/LO).
-	Level bool
-
 	// PinCount is how many physical pins this function spans. 1 for standalone
 	// pins; the member count for a bus.
 	PinCount int
+	Kind     FuncKind
+	// Level is meaningful only for KindOutput / KindInput — true=HIGH.
+	// Ignored for KindBus (a bus is shown as "up", not HI/LO).
+	Level bool
 }
 
 // StateLabel renders the right-hand state token for the row, honoring the

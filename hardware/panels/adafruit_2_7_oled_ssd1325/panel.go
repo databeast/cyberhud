@@ -41,7 +41,7 @@ func init() {
 	// also satisfies mono-fast styles).
 	style.RegisterAliases("adafruit-2.7-oled-ssd1325", map[string]string{
 		"dashboard": "grayscale-fast-128x64",
-		"thermal":   "overview",
+		"thermal":   "grayscale-fast-128x64-overview",
 		"wifi":      "grayscale-fast-128x64",
 		"gpio":      "grayscale-fast-128x64",
 		"usb":       "grayscale-fast-128x64",

@@ -24,12 +24,12 @@ const (
 // Layout selects a shared STEMMA layout; BuildFn swaps in a bespoke layout for a
 // single style when a mode needs something unique.
 type Params struct {
-	Layout       layoutKind
-	HeaderText   string
 	RowFormatter func(*source.Device, int) string
-	UseBorder    bool
-	BorderTheme  string
 	BuildFn      func(data source.StemmaSnapshot, pol source.Policy, ctx style.StyleContext, d def) style.ViewData
+	HeaderText   string
+	BorderTheme  string
+	Layout       layoutKind
+	UseBorder    bool
 }
 
 type def struct {

@@ -1,6 +1,6 @@
 # Schema Reference
 
-This page documents the complete JSON configuration schema for the CyberHUD daemon. All fields are derived from the `fileConfig` and `fileDisplayConfig` Go structs in `cmd/cyberhudd/config.go`. Every field is optional — omitted fields use their zero value or panel defaults.
+This page documents the complete JSON configuration schema for the CyberHUD daemon. All fields are derived from the `fileConfig` and `fileDisplayConfig` Go structs in `internal/cyberhudd/config.go`. A panel is required via `display.panel` or `-panel`, including in headless mode; other fields are optional.
 
 ## Complete Schema
 
@@ -56,7 +56,7 @@ These fields appear inside the `"display"` object and configure the panel hardwa
 
 | JSON Key | Go Field | Go Type | Optional | Description |
 |----------|----------|---------|----------|-------------|
-| `panel` | Profile | string | yes | Panel profile name identifying the display hardware (e.g., `"waveshare-1.3hat"`, `"st7789-320x240"`). When omitted, auto-detection or CLI flag is used. Note: the Go field is named `Profile` but the JSON key is `panel`. |
+| `panel` | Profile | string | if `-panel` is set | Panel profile name identifying the display hardware (e.g., `"waveshare-1.3hat"`, `"st7789-320x240"`). There is no default or auto-detection. The Go field is named `Profile` but the JSON key is `panel`. |
 | `disabled` | Disabled | *bool | yes | When `true`, the daemon skips all display initialization and runs in headless mode. Omit or set `false` for normal operation. |
 | `disable_input` | DisableInput | *bool | yes | When `true`, disables button and joystick input handling even if the panel defines input pins. Useful for headless or kiosk deployments. |
 | `ppi` | PPI | *float64 | yes | Pixels-per-inch override for this deployment. When omitted or zero, the panel-level PPI is used. Affects font sizing and layout calculations. |
@@ -161,7 +161,8 @@ These conventions allow partial overrides — you only need to specify the field
 ```json
 {
   "display": {
-    "disabled": true
+    "disabled": true,
+    "panel": "waveshare-1.3hat"
   }
 }
 ```

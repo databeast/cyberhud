@@ -30,7 +30,7 @@ MATERIAL_CP   := MaterialSymbolsOutlined[FILL,GRAD,opsz,wght].codepoints
 GOOS_PI   := linux
 GOARCH_PI := arm64
 SUDO      ?= sudo
-PROFILE   ?= waveshare-1.3hat
+PROFILE   ?=
 DAEMON_FLAGS ?=
 
 .PHONY: all build build-pi install test vet generate clean clean-fonts clean-icons \
@@ -131,7 +131,7 @@ run-headless: build
 	$(SUDO) ./$(BINARY) -nodisplay $(DAEMON_FLAGS)
 
 run-profile: build
-	$(SUDO) ./$(BINARY) -panel $(PROFILE) $(DAEMON_FLAGS)
+	$(SUDO) ./$(BINARY) -panel="$(PROFILE)" $(DAEMON_FLAGS)
 
 list-panels:
 	go run $(CTLCMD) list-panels

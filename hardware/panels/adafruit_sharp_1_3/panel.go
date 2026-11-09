@@ -37,12 +37,10 @@ func init() {
 		BLPin:   "",
 	})
 
-	// 168x144 has no exact style; the closest fitting mono-fast landscape style
-	// is 160x128, which a 168x144 surface satisfies. Modes without a matching
-	// alias fall through to the style system's fitness-based resolution.
+	// Dashboard, WiFi and GPIO use the closest fitting 160x128 styles.
 	style.RegisterAliases("adafruit-sharp-1.3", map[string]string{
 		"dashboard": "mono-fast-160x128",
-		"thermal":   "overview",
+		"thermal":   "mono-fast-168x144-overview",
 		"wifi":      "mono-fast-160x128",
 		"gpio":      "mono-fast-160x128",
 	})

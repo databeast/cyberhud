@@ -50,7 +50,7 @@ func init() {
 	style.RegisterAliases("adafruit-128x64-oled-bonnet", map[string]string{
 		"dashboard": "mono-fast-128x64",
 		"clock":     "mono-fast-128x64",
-		"thermal":   "mono-oled-compact",
+		"thermal":   "mono-fast-128x64",
 		"ticker":    "mono-fast-128x64",
 		"wifi":      "mono-fast-128x64",
 		"gpio":      "list",

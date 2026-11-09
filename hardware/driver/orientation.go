@@ -28,12 +28,12 @@ const (
 // OrientationConfig holds the hardware register values for a specific named
 // orientation. Panel definitions declare one of these per supported orientation.
 type OrientationConfig struct {
-	MADCTL    byte
 	XOffset   int
 	YOffset   int
-	Width     int  // override display width (0 = no change)
-	Height    int  // override display height (0 = no change)
-	Rotation  int  // software rotation (0, 90, 180, 270) applied by FlushPath
+	Width     int // override display width (0 = no change)
+	Height    int // override display height (0 = no change)
+	Rotation  int // software rotation (0, 90, 180, 270) applied by FlushPath
+	MADCTL    byte
 	MirrorX   bool // horizontal mirror applied by FlushPath before DrawImage
 	Rotate180 bool // hardware 180° rotation for drivers that support it (e.g. SSD1305)
 }
