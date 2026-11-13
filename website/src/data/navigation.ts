@@ -18,7 +18,7 @@ export const siteConfig: SiteConfig = {
         "and Cyberdecks",
     metaDescription:
         "CyberHUD turns SPI/I2C displays from Adafruit, Waveshare, Elecrow and more into working screens with no code — dashboards, monitors, and more on Linux GPIO.",
-    ogImage: "/images/og-preview.png",
+    ogImage: "/images/og-preview.png?v=1",
     links: {
         install: "https://databeast.github.io/cyberhud/installation/",
         github: "https://github.com/databeast/cyberhud",
